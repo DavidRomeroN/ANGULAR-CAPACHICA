@@ -9,7 +9,6 @@ import { CdkTableModule } from '@angular/cdk/table';
 
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 
-import { MaterialRoutes } from './material.routing';
 import { ButtonsComponent } from './buttons/buttons.component';
 
 import { GridComponent } from './grid/grid.component';
@@ -34,7 +33,6 @@ import { SlideToggleComponent } from './slide-toggle/slide-toggle.component';
 @NgModule({
   imports: [
     CommonModule,
-    RouterModule.forChild(MaterialRoutes),
     DemoMaterialModule,
     HttpClientModule,
     FormsModule,

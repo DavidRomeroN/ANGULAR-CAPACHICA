@@ -1,4 +1,6 @@
-import { Routes } from '@angular/router';
+// src/app/material-component/material-routing.module.ts
+import { NgModule } from '@angular/core';
+import { RouterModule, Routes } from '@angular/router';
 
 import { ButtonsComponent } from './buttons/buttons.component';
 import { GridComponent } from './grid/grid.component';
@@ -17,69 +19,27 @@ import { SnackbarComponent } from './snackbar/snackbar.component';
 import { SliderComponent } from './slider/slider.component';
 import { SlideToggleComponent } from './slide-toggle/slide-toggle.component';
 
-export const MaterialRoutes: Routes = [
-  {
-    path: 'button',
-    component: ButtonsComponent
-  },
-  {
-    path: 'grid',
-    component: GridComponent
-  },
-  {
-    path: 'lists',
-    component: ListsComponent
-  },
-  {
-    path: 'menu',
-    component: MenuComponent
-  },
-  {
-    path: 'tabs',
-    component: TabsComponent
-  },
-  {
-    path: 'stepper',
-    component: StepperComponent
-  },
-  {
-    path: 'expansion',
-    component: ExpansionComponent
-  },
-  {
-    path: 'chips',
-    component: ChipsComponent
-  },
-  {
-    path: 'toolbar',
-    component: ToolbarComponent
-  },
-  {
-    path: 'progress-snipper',
-    component: ProgressSnipperComponent
-  },
-  {
-    path: 'progress',
-    component: ProgressComponent
-  },
-  {
-    path: 'dialog',
-    component: DialogComponent
-  },
-  {
-    path: 'tooltip',
-    component: TooltipComponent
-  },
-  {
-    path: 'snackbar',
-    component: SnackbarComponent
-  },
-  {
-    path: 'slider',
-    component: SliderComponent
-  },
-  {
-    path: 'slide-toggle',
-    component: SlideToggleComponent
-  }
+const routes: Routes = [
+  { path: 'button', component: ButtonsComponent },
+  { path: 'grid', component: GridComponent },
+  { path: 'lists', component: ListsComponent },
+  { path: 'menu', component: MenuComponent },
+  { path: 'tabs', component: TabsComponent },
+  { path: 'stepper', component: StepperComponent },
+  { path: 'expansion', component: ExpansionComponent },
+  { path: 'chips', component: ChipsComponent },
+  { path: 'toolbar', component: ToolbarComponent },
+  { path: 'progress-snipper', component: ProgressSnipperComponent },
+  { path: 'progress', component: ProgressComponent },
+  { path: 'dialog', component: DialogComponent },
+  { path: 'tooltip', component: TooltipComponent },
+  { path: 'snackbar', component: SnackbarComponent },
+  { path: 'slider', component: SliderComponent },
+  { path: 'slide-toggle', component: SlideToggleComponent }
 ];
+
+@NgModule({
+  imports: [RouterModule.forChild(routes)],
+  exports: [RouterModule]
+})
+export class MaterialRoutingModule {}

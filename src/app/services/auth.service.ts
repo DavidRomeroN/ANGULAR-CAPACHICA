@@ -19,6 +19,11 @@ export class AuthService {
     );
   }
 
+  register(data: { user: string; clave: string; rol: string; estado: string }) {
+    return this.http.post<any>('http://localhost:8080/users/register', data);
+  }
+
+
   isLoggedIn(): boolean {
     const token = localStorage.getItem('token');
     return !!token;
