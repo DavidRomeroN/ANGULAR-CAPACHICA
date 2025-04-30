@@ -18,6 +18,7 @@ import { TooltipComponent } from './tooltip/tooltip.component';
 import { SnackbarComponent } from './snackbar/snackbar.component';
 import { SliderComponent } from './slider/slider.component';
 import { SlideToggleComponent } from './slide-toggle/slide-toggle.component';
+import {ServiciosComponent} from "./servicios/servicios.component";
 
 const routes: Routes = [
   { path: 'button', component: ButtonsComponent },
@@ -35,7 +36,8 @@ const routes: Routes = [
   { path: 'tooltip', component: TooltipComponent },
   { path: 'snackbar', component: SnackbarComponent },
   { path: 'slider', component: SliderComponent },
-  { path: 'slide-toggle', component: SlideToggleComponent }
+  { path: 'slide-toggle', component: SlideToggleComponent },
+  {path: 'servicios', component: ServiciosComponent}
 ];
 
 @NgModule({
