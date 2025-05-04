@@ -2,8 +2,9 @@ import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule, FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { ServiciosService } from './servicios.service';
+import { TipoServicioService } from './tipo-servicio.service';
 
-// Angular Material Modules
+// Angular Material
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
@@ -31,15 +32,15 @@ import { MatIconModule } from '@angular/material/icon';
 export class ServiciosComponent implements OnInit {
   servicioForm!: FormGroup;
   servicios: any[] = [];
+  tiposServicio: any[] = [];
   editando = false;
   servicioEditandoId: number | null = null;
-
-  // 👇 Usa las propiedades del backend (camelCase)
   displayedColumns: string[] = ['nombreServicio', 'descripcion', 'precioBase', 'estado', 'acciones'];
 
   constructor(
     private fb: FormBuilder,
-    private serviciosService: ServiciosService
+    private serviciosService: ServiciosService,
+    private tipoServicioService: TipoServicioService
   ) {}
 
   ngOnInit(): void {
@@ -48,10 +49,12 @@ export class ServiciosComponent implements OnInit {
       descripcion: ['', Validators.required],
       precioBase: [null, [Validators.required, Validators.min(0)]],
       estado: ['ACTIVO', Validators.required],
-      tipo: [null, Validators.required] // 👈 obligatorio, el backend lo espera
+      tipo: [null, Validators.required],
+
     });
 
     this.obtenerServicios();
+    this.obtenerTiposServicio();
   }
 
   obtenerServicios(): void {
@@ -60,20 +63,24 @@ export class ServiciosComponent implements OnInit {
     });
   }
 
+  obtenerTiposServicio(): void {
+    this.tipoServicioService.getTipos().subscribe((data) => {
+      this.tiposServicio = data;
+    });
+  }
+
   guardarServicio(): void {
     if (this.servicioForm.invalid) return;
 
-    const data = { ...this.servicioForm.value };
+    const payload = { ...this.servicioForm.value };
 
-    // Solo si estás editando, agrega el ID
-    if (this.editando && this.servicioEditandoId !== null) {
-      data.idServicio = this.servicioEditandoId;
-      this.serviciosService.updateServicio(this.servicioEditandoId, data).subscribe(() => {
+    if (this.editando && this.servicioEditandoId != null) {
+      this.serviciosService.updateServicio(this.servicioEditandoId, payload).subscribe(() => {
         this.obtenerServicios();
         this.cancelarEdicion();
       });
     } else {
-      this.serviciosService.createServicio(data).subscribe(() => {
+      this.serviciosService.createServicio(payload).subscribe(() => {
         this.obtenerServicios();
         this.servicioForm.reset({ estado: 'ACTIVO' });
       });
@@ -89,7 +96,7 @@ export class ServiciosComponent implements OnInit {
       descripcion: servicio.descripcion,
       precioBase: servicio.precioBase,
       estado: servicio.estado,
-      tipo: servicio.tipo.idTipo // 👈 asumiendo que servicio.tipo es un objeto
+      tipo: servicio.tipo?.idTipo // <- importante
     });
   }
 

@@ -11,6 +11,19 @@ const routes: Routes = [
     canActivate: [AuthGuard],
     children: [
       { path: 'dashboard', component: DashboardComponent },
+      {
+        path: 'servicio_hoteleria',
+        loadComponent: () => import('./material-component/servicio_hoteleria/servicio_hoteleria.component')
+          .then(m => m.ServicioHoteleriaComponent)
+      }
+      ,
+      {
+        path: 'servicio_artesania',
+        loadComponent: () => import('./material-component/servicio_artesania/servicio_artesania.component')
+          .then(m => m.ServicioArtesaniaComponent)
+      },
+
+      { path: 'servicio_alimentacion', loadComponent: () => import('./material-component/servicio_alimentacion/servicio_alimentacion.component').then(m => m.ServicioAlimentacionComponent) },
       { path: 'servicios', loadComponent: () => import('./material-component/servicios/servicios.component').then(m => m.ServiciosComponent) },
       { path: 'button', loadComponent: () => import('./material-component/buttons/buttons.component').then(m => m.ButtonsComponent) },
       { path: 'grid', loadComponent: () => import('./material-component/grid/grid.component').then(m => m.GridComponent) },

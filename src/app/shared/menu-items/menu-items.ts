@@ -9,7 +9,10 @@ export interface Menu {
 
 const MENUITEMS = [
   { state: 'dashboard', name: 'Dashboard', type: 'link', icon: 'av_timer' },
-  { state: 'servicios', name: 'Servicios', type: 'link', icon: 'av_timer' },
+  { state: 'servicios', name: 'Servicios', type: 'link', icon: 'miscellaneous_services' },
+  { state: 'servicio_alimentacion', name: 'Alimentacion', type: 'link', icon: 'restaurant_menu' },
+  { state: 'servicio_hoteleria', name: 'Hoteleria', type: 'link', icon: 'king_bed' },
+  { state: 'servicio_artesania', name: 'Artesanía', type: 'link', icon: 'brush'},
   { state: 'button', type: 'link', name: 'Buttons', icon: 'crop_7_5' },
   { state: 'grid', type: 'link', name: 'Grid List', icon: 'view_comfy' },
   { state: 'lists', type: 'link', name: 'Lists', icon: 'view_list' },
