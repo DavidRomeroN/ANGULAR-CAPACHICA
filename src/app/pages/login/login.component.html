@@ -21,7 +21,7 @@
     <div class="card mb-3 shadow">
       <div class="row g-0 d-flex align-items-center">
         <div class="col-lg-6 d-none d-lg-block">
-          <img src="https://mdbootstrap.com/img/new/ecommerce/vertical/004.jpg" alt="Trendy Pants and Shoes"
+          <img src="assets/images/LogoGranTurismo.png" alt="Logo GT"
                class="w-100 rounded-t-5 rounded-tr-lg-0 rounded-bl-lg-5" />
         </div>
         <div class="col-lg-6">
@@ -30,17 +30,18 @@
             <h3 class="mb-5 text-center">Iniciar sesión</h3>
 
             <form [formGroup]="loginForm" (ngSubmit)="onSubmit()">
-            <!-- Email input -->
-              <div class="form-outline mb-4">
-                <input type="text" class="form-control" id="form2Example1" formControlName="user" />
-                <label class="form-label" for="form2Example1">Email address</label>
+              <!-- Email input -->
+              <div class="form-floating mb-4">
+                <input type="email" class="form-control" id="emailInput" placeholder="name@example.com" formControlName="user">
+                <label for="emailInput">Correo electrónico</label>
               </div>
 
               <!-- Password input -->
-              <div class="form-outline mb-4">
-                <input type="password" class="form-control" id="form2Example2" formControlName="clave" />
-                <label class="form-label" for="form2Example2">Password</label>
+              <div class="form-floating mb-4">
+                <input type="password" class="form-control" id="passwordInput" placeholder="Password" formControlName="clave">
+                <label for="passwordInput">Contraseña</label>
               </div>
+
 
               <!-- 2 column grid layout -->
               <div class="row mb-4">
