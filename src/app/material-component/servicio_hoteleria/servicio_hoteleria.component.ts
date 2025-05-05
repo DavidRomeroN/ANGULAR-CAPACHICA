@@ -80,29 +80,41 @@ export class ServicioHoteleriaComponent implements OnInit {
 
     const raw = this.hoteleriaForm.value;
 
-    const dto = {
-      idHoteleria: this.idEditando ?? null,
+    const dtoBase = {
       tipoHabitacion: raw.tipoHabitacion,
       estrellas: Number(raw.estrellas),
-      incluyeDesayuno: raw.incluyeDesayuno === 'SI' ? 'SI' : 'NO',
+      incluyeDesayuno: raw.incluyeDesayuno.trim().toUpperCase() === 'SÍ' ? 'Si' : 'No',
       maxPersonas: Number(raw.maxPersonas),
       servicio: Number(raw.servicio)
     };
 
-    console.log('DTO enviado al backend:', JSON.stringify(dto, null, 2));
-
-    const request = this.editando && this.idEditando !== null
-      ? this.hoteleriaService.update(this.idEditando, dto)
-      : this.hoteleriaService.create(dto);
-
-    request.subscribe({
-      next: () => {
+    if (this.editando && this.idEditando !== null) {
+      const dto = { idHoteleria: this.idEditando, ...dtoBase };
+      this.hoteleriaService.update(this.idEditando, dto).subscribe(() => {
         this.obtenerHoteles();
         this.cancelar();
-      },
-      error: err => console.error('Error al guardar:', err)
-    });
+      }, err => {
+        console.error('Error al actualizar:', err);
+        alert('Error al actualizar hotel.');
+      });
+    } else {
+      this.hoteleriaService.create(dtoBase).subscribe(() => {
+        this.obtenerHoteles();
+        this.hoteleriaForm.reset({
+          tipoHabitacion: '',
+          estrellas: 1,
+          incluyeDesayuno: 'NO',
+          maxPersonas: 1,
+          servicio: null
+        });
+      }, err => {
+        console.error('Error al guardar:', err);
+        alert('Error al guardar hotel: ' + (err.error?.message || 'verifica los datos'));
+      });
+    }
   }
+
+
 
   editar(hotel: any): void {
     this.editando = true;
