@@ -35,16 +35,18 @@
       </div>
 
       <!-- Campo tipo (obligatorio para crear) -->
-      <!-- Tipo Servicio -->
       <div class="col-md-6 mb-3">
         <mat-form-field appearance="fill" class="w-100">
           <mat-label>Tipo de Servicio</mat-label>
           <mat-select formControlName="tipo" required>
-            <mat-option *ngFor="let tipo of tiposServicio" [value]="tipo.idTipo">{{ tipo.nombre }}</mat-option>
+            <!-- Puedes poblar estos valores dinámicamente si lo deseas -->
+            <mat-option [value]="1">Aventura</mat-option>
+            <mat-option [value]="2">Alimentacion</mat-option>
+            <mat-option [value]="3">Cultura</mat-option>
+            <mat-option [value]="3">Alojamiento</mat-option>
           </mat-select>
         </mat-form-field>
       </div>
-
     </div>
 
     <button type="submit" mat-raised-button color="primary" [disabled]="servicioForm.invalid">

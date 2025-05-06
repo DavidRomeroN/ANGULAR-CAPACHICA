@@ -1,4 +1,4 @@
-/* ---------------------------------------------
+/* --------------------------------------------- 
 Template Name: Material Pro Admin
 Author: Themedesigner
 Email: niravjoshi87@gmail.com
@@ -27,32 +27,3 @@ File: scss
 @import 'responsive';
 
 @import "../styles/icons/material-design-iconic-font/css/materialdesignicons.min.css";
-
-:root {
-  --gran-turismo-orange: #e26d13;
-}
-
-.btn-orange {
-  background-color: var(--gran-turismo-orange) !important;
-  color: white !important;
-}
-
-.custom-orange-toolbar {
-  background-color: #e26d13 !important;
-  color: white !important;
-}
-
-.selected {
-  background-color: var(--gran-turismo-orange) !important;
-  color: white !important;
-  border-radius: 6px;
-
-  mat-icon {
-    color: white !important;
-  }
-
-  span {
-    color: white !important;
-  }
-}
-

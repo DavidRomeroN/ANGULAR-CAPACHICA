@@ -1,0 +1,212 @@
+<h2>Gestión de Paquetes Turísticos</h2>
+
+<div *ngIf="errorMessage" class="error-message">
+  {{ errorMessage }}
+</div>
+
+<form [formGroup]="paqueteForm" (ngSubmit)="guardar()">
+  <!-- Título del paquete -->
+  <mat-form-field appearance="fill" class="full-width">
+    <mat-label>Título</mat-label>
+    <input matInput formControlName="titulo">
+  </mat-form-field>
+
+  <!-- Descripción del paquete -->
+  <mat-form-field appearance="fill" class="full-width">
+    <mat-label>Descripción</mat-label>
+    <input matInput formControlName="descripcion">
+  </mat-form-field>
+
+  <!-- URL de la imagen del paquete -->
+  <mat-form-field appearance="fill" class="full-width">
+    <mat-label>URL de la Imagen</mat-label>
+    <input matInput formControlName="imagenUrl">
+  </mat-form-field>
+
+  <!-- Precio total -->
+  <mat-form-field appearance="fill" class="full-width">
+    <mat-label>Precio Total</mat-label>
+    <input matInput formControlName="precioTotal" type="number">
+  </mat-form-field>
+
+  <!-- Estado del paquete -->
+  <div class="select-container">
+    <label for="estado">Selecciona el estado:</label>
+    <select id="estado" formControlName="estado">
+      <option value="DISPONIBLE">Disponible</option>
+      <option value="AGOTADO">Agotado</option>
+    </select>
+  </div>
+
+  <!-- Duración en días -->
+  <mat-form-field appearance="fill" class="full-width">
+    <mat-label>Duración en Días</mat-label>
+    <input matInput formControlName="duracionDias" type="number">
+  </mat-form-field>
+
+  <!-- Localidad -->
+  <mat-form-field appearance="fill" class="full-width">
+    <mat-label>Localidad</mat-label>
+    <input matInput formControlName="localidad">
+  </mat-form-field>
+
+  <!-- Tipo de actividad -->
+  <mat-form-field appearance="fill" class="full-width">
+    <mat-label>Tipo de Actividad</mat-label>
+    <input matInput formControlName="tipoActividad">
+  </mat-form-field>
+
+  <!-- Cupos máximos -->
+  <mat-form-field appearance="fill" class="full-width">
+    <mat-label>Cupos Máximos</mat-label>
+    <input matInput formControlName="cuposMaximos" type="number">
+  </mat-form-field>
+
+  <!-- Fecha de inicio -->
+  <mat-form-field appearance="fill" class="full-width">
+    <mat-label>Fecha de Inicio</mat-label>
+    <input matInput formControlName="fechaInicio" type="date" [min]="minDate">
+  </mat-form-field>
+
+  <!-- Fecha de fin -->
+  <mat-form-field appearance="fill" class="full-width">
+    <mat-label>Fecha de Fin</mat-label>
+    <input matInput formControlName="fechaFin" type="date" [min]="minDate">
+  </mat-form-field>
+
+  <!-- ID de proveedor con búsqueda -->
+  <div class="provider-container">
+    <div class="input-with-button">
+      <mat-form-field appearance="fill" class="flex-grow">
+        <mat-label>ID Proveedor</mat-label>
+        <input matInput formControlName="proveedorId" type="number">
+      </mat-form-field>
+      <button mat-icon-button type="button" color="primary" (click)="buscarProveedor()">
+        <mat-icon>search</mat-icon>
+      </button>
+    </div>
+    <div *ngIf="proveedorNombre" class="info-text">
+      Proveedor: {{ proveedorNombre }}
+    </div>
+  </div>
+
+  <!-- ID de destino con búsqueda -->
+  <div class="provider-container">
+    <div class="input-with-button">
+      <mat-form-field appearance="fill" class="flex-grow">
+        <mat-label>ID Destino</mat-label>
+        <input matInput formControlName="destinoId" type="number">
+      </mat-form-field>
+      <button mat-icon-button type="button" color="primary" (click)="buscarDestino()">
+        <mat-icon>search</mat-icon>
+      </button>
+    </div>
+    <div *ngIf="destinoNombre" class="info-text">
+      Destino: {{ destinoNombre }}
+    </div>
+  </div>
+
+  <button mat-raised-button color="primary" type="submit">
+    {{ editando ? 'Actualizar' : 'Guardar' }}
+  </button>
+  <button mat-button type="button" (click)="resetForm()">Cancelar</button>
+</form>
+
+<!-- Tabla de paquetes turísticos -->
+<table mat-table [dataSource]="paquetes" class="mat-elevation-z8">
+  <ng-container matColumnDef="titulo">
+    <th mat-header-cell *matHeaderCellDef>Título</th>
+    <td mat-cell *matCellDef="let p">{{ p.titulo }}</td>
+  </ng-container>
+
+  <ng-container matColumnDef="descripcion">
+    <th mat-header-cell *matHeaderCellDef>Descripción</th>
+    <td mat-cell *matCellDef="let p">{{ p.descripcion }}</td>
+  </ng-container>
+
+  <ng-container matColumnDef="precioTotal">
+    <th mat-header-cell *matHeaderCellDef>Precio Total</th>
+    <td mat-cell *matCellDef="let p">{{ p.precioTotal | currency }}</td>
+  </ng-container>
+
+  <ng-container matColumnDef="estado">
+    <th mat-header-cell *matHeaderCellDef>Estado</th>
+    <td mat-cell *matCellDef="let p">{{ p.estado }}</td>
+  </ng-container>
+
+  <ng-container matColumnDef="duracionDias">
+    <th mat-header-cell *matHeaderCellDef>Duración</th>
+    <td mat-cell *matCellDef="let p">{{ p.duracionDias }} días</td>
+  </ng-container>
+
+  <ng-container matColumnDef="fechaInicio">
+    <th mat-header-cell *matHeaderCellDef>Fecha de Inicio</th>
+    <td mat-cell *matCellDef="let p">{{ p.fechaInicio | date: 'dd/MM/yyyy' }}</td>
+  </ng-container>
+
+  <!-- Columna para proveedor -->
+  <ng-container matColumnDef="proveedor">
+    <th mat-header-cell *matHeaderCellDef>Proveedor</th>
+    <td mat-cell *matCellDef="let p">
+      {{ p.proveedor?.nombreCompleto || 'ID: ' + p.proveedor?.idProveedor || 'No asignado' }}
+    </td>
+  </ng-container>
+
+  <!-- Columna para destino -->
+  <ng-container matColumnDef="destino">
+    <th mat-header-cell *matHeaderCellDef>Destino</th>
+    <td mat-cell *matCellDef="let p">
+      {{ p.destino?.nombre || 'ID: ' + p.destino?.idDestino || 'No asignado' }}
+    </td>
+  </ng-container>
+
+  <ng-container matColumnDef="acciones">
+    <th mat-header-cell *matHeaderCellDef>Acciones</th>
+    <td mat-cell *matCellDef="let p">
+      <button mat-icon-button color="accent" (click)="editar(p)">
+        <mat-icon>edit</mat-icon>
+      </button>
+      <button mat-icon-button color="warn" (click)="eliminar(p.idPaquete)">
+        <mat-icon>delete</mat-icon>
+      </button>
+    </td>
+  </ng-container>
+
+  <tr mat-header-row *matHeaderRowDef="['titulo', 'descripcion', 'precioTotal', 'estado', 'duracionDias', 'fechaInicio', 'proveedor', 'destino', 'acciones']"></tr>
+  <tr mat-row *matRowDef="let row; columns: ['titulo', 'descripcion', 'precioTotal', 'estado', 'duracionDias', 'fechaInicio', 'proveedor', 'destino', 'acciones']"></tr>
+</table>
+
+<style>
+  .full-width {
+    width: 100%;
+    margin-bottom: 15px;
+  }
+
+  .provider-container {
+    margin-bottom: 15px;
+  }
+
+  .input-with-button {
+    display: flex;
+    align-items: center;
+  }
+
+  .flex-grow {
+    flex-grow: 1;
+    margin-right: 10px;
+  }
+
+  .info-text {
+    margin-top: 5px;
+    color: #3f51b5;
+    font-size: 0.9em;
+  }
+
+  .error-message {
+    background-color: #f8d7da;
+    color: #721c24;
+    padding: 10px;
+    border-radius: 4px;
+    margin-bottom: 15px;
+  }
+</style>
