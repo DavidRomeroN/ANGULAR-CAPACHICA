@@ -12,12 +12,16 @@ const MENUITEMS = [
   { state: 'proveedores', name: 'Proveedores', type: 'link', icon: 'av_timer' },
   { state: 'paquetes', name: 'Paquetes', type: 'link', icon: 'av_timer' },
   { state: 'servicios', name: 'Servicios', type: 'link', icon: 'av_timer' },
+  { state: 'servicio-alimento', name: 'Alimentación', type: 'link', icon: 'restaurant' },
+  { state: 'servicio-artesania', name: 'Servicio Artesanía', type: 'link', icon: 'palette' },
+  { state: 'servicio-hoteleria', name: 'Servicio Hotelería', type: 'link', icon: 'hotel' },
   { state: 'button', type: 'link', name: 'Buttons', icon: 'crop_7_5' },
   { state: 'grid', type: 'link', name: 'Grid List', icon: 'view_comfy' },
   { state: 'lists', type: 'link', name: 'Lists', icon: 'view_list' },
   { state: 'menu', type: 'link', name: 'Menu', icon: 'view_headline' },
   { state: 'tabs', type: 'link', name: 'Tabs', icon: 'tab' },
   { state: 'stepper', type: 'link', name: 'Stepper', icon: 'web' },
+
   {
     state: 'expansion',
     type: 'link',

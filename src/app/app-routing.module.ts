@@ -11,6 +11,9 @@ const routes: Routes = [
     canActivate: [AuthGuard],
     children: [
       { path: 'dashboard', component: DashboardComponent },
+      { path: 'servicio-hoteleria', loadComponent: () => import('./material-component/servicio-hoteleria/servicio-hoteleria.component').then(m => m.ServicioHoteleriaComponent) },
+      { path: 'servicio-artesania', loadComponent: () => import('./material-component/servicio-artesania/servicio-artesania.component').then(m => m.ServicioArtesaniaComponent) },
+      { path: 'servicio-alimento', loadComponent: () => import('./material-component/servicio_alimento/servicio-alimento.component').then(m => m.ServicioAlimentoComponent) },
       { path: 'servicios', loadComponent: () => import('./material-component/servicios/servicios.component').then(m => m.ServiciosComponent) },
       { path: 'proveedores', loadComponent: () => import('./material-component/proveedores/proveedores.component').then(m => m.ProveedoresComponent) },
       { path: 'paquetes', loadComponent: () => import('./material-component/paquetes/paquetes.component').then(m => m.PaquetesComponent) },// Carga el componente

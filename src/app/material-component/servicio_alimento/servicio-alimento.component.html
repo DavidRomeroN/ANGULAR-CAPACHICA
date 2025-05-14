@@ -1,0 +1,93 @@
+<div class="container py-4">
+  <h2>{{ editando ? 'Editar Servicio de Alimentación' : 'Registrar Servicio de Alimentación' }}</h2>
+
+  <form [formGroup]="alimentoForm" (ngSubmit)="guardarAlimento()" class="mb-4">
+    <div class="row">
+      <div class="col-md-6 mb-3">
+        <mat-form-field appearance="fill" class="w-100">
+          <mat-label>Tipo de Comida</mat-label>
+          <input matInput formControlName="tipoComida" required />
+        </mat-form-field>
+      </div>
+
+      <div class="col-md-6 mb-3">
+        <mat-form-field appearance="fill" class="w-100">
+          <mat-label>Estilo Gastronómico</mat-label>
+          <input matInput formControlName="estiloGastronomico" required />
+        </mat-form-field>
+      </div>
+
+      <div class="col-md-6 mb-3">
+        <mat-form-field appearance="fill" class="w-100">
+          <mat-label>¿Incluye Bebidas?</mat-label>
+          <mat-select formControlName="incluyeBebidas" required>
+            <mat-option *ngFor="let b of bebidas" [value]="b">{{ b }}</mat-option>
+          </mat-select>
+        </mat-form-field>
+      </div>
+
+      <div class="col-md-6 mb-3">
+        <mat-form-field appearance="fill" class="w-100">
+          <mat-label>Servicio Asociado (ID)</mat-label>
+          <input matInput type="number" formControlName="servicio" required />
+        </mat-form-field>
+      </div>
+    </div>
+
+    <button type="submit" mat-raised-button color="primary" [disabled]="alimentoForm.invalid">
+      {{ editando ? 'Actualizar' : 'Registrar' }}
+    </button>
+
+    <button mat-raised-button color="warn" type="button" (click)="cancelarEdicion()" *ngIf="editando">
+      Cancelar
+    </button>
+  </form>
+
+  <hr />
+
+  <h3>Listado Detallado de Servicios de Alimentación</h3>
+
+  <table mat-table [dataSource]="alimentos" class="mat-elevation-z8 w-100 mt-3">
+
+    <!-- Tipo de Comida -->
+    <ng-container matColumnDef="tipoComida">
+      <th mat-header-cell *matHeaderCellDef>Tipo de Comida</th>
+      <td mat-cell *matCellDef="let a">{{ a.tipoComida }}</td>
+    </ng-container>
+
+    <!-- Estilo Gastronómico -->
+    <ng-container matColumnDef="estiloGastronomico">
+      <th mat-header-cell *matHeaderCellDef>Estilo Gastronómico</th>
+      <td mat-cell *matCellDef="let a">{{ a.estiloGastronomico }}</td>
+    </ng-container>
+
+    <!-- Incluye Bebidas -->
+    <ng-container matColumnDef="incluyeBebidas">
+      <th mat-header-cell *matHeaderCellDef>Incluye Bebidas</th>
+      <td mat-cell *matCellDef="let a">{{ a.incluyeBebidas === 'SI' ? 'Sí' : 'No' }}</td>
+    </ng-container>
+
+    <!-- Servicio ID -->
+    <ng-container matColumnDef="servicio">
+      <th mat-header-cell *matHeaderCellDef>ID Servicio</th>
+      <td mat-cell *matCellDef="let a">{{ a.servicio?.idServicio }}</td>
+    </ng-container>
+
+    <!-- Acciones -->
+    <ng-container matColumnDef="acciones">
+      <th mat-header-cell *matHeaderCellDef>Acciones</th>
+      <td mat-cell *matCellDef="let a">
+        <button mat-icon-button color="accent" (click)="editarAlimento(a)">
+          <mat-icon>edit</mat-icon>
+        </button>
+        <button mat-icon-button color="warn" (click)="eliminarAlimento(a.idAlimentacion)">
+          <mat-icon>delete</mat-icon>
+        </button>
+      </td>
+    </ng-container>
+
+    <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+    <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+  </table>
+
+</div>

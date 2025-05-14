@@ -1,0 +1,159 @@
+<div class="container py-4">
+  <h2>{{ editando ? 'Editar Servicio de Artesanía' : 'Registrar Servicio de Artesanía' }}</h2>
+
+  <form [formGroup]="artesaniaForm" (ngSubmit)="guardarArtesania()" class="mb-4">
+    <div class="row">
+      <div class="col-md-6 mb-3">
+        <mat-form-field appearance="fill" class="w-100">
+          <mat-label>Tipo de Artesanía</mat-label>
+          <input matInput formControlName="tipoArtesania" />
+        </mat-form-field>
+      </div>
+
+      <div class="col-md-6 mb-3">
+        <mat-form-field appearance="fill" class="w-100">
+          <mat-label>Nivel de Dificultad</mat-label>
+          <mat-select formControlName="nivelDificultad">
+            <mat-option *ngFor="let n of niveles" [value]="n">{{ n }}</mat-option>
+          </mat-select>
+        </mat-form-field>
+      </div>
+
+      <div class="col-md-6 mb-3">
+        <mat-form-field appearance="fill" class="w-100">
+          <mat-label>Duración del Taller (min)</mat-label>
+          <input matInput type="number" formControlName="duracionTaller" />
+        </mat-form-field>
+      </div>
+
+      <div class="col-md-6 mb-3">
+        <mat-checkbox formControlName="incluyeMaterial">Incluye Material</mat-checkbox>
+      </div>
+
+      <div class="col-md-12 mb-3">
+        <mat-form-field appearance="fill" class="w-100">
+          <mat-label>Descripción</mat-label>
+          <textarea matInput formControlName="artesania"></textarea>
+        </mat-form-field>
+      </div>
+
+      <div class="col-md-6 mb-3">
+        <mat-form-field appearance="fill" class="w-100">
+          <mat-label>Origen Cultural</mat-label>
+          <input matInput formControlName="origenCultural" />
+        </mat-form-field>
+      </div>
+
+      <div class="col-md-6 mb-3">
+        <mat-form-field appearance="fill" class="w-100">
+          <mat-label>Máx. Participantes</mat-label>
+          <input matInput type="number" formControlName="maxParticipantes" />
+        </mat-form-field>
+      </div>
+
+      <div class="col-md-6 mb-3">
+        <mat-checkbox formControlName="visitaTaller">Incluye Visita al Taller</mat-checkbox>
+      </div>
+
+      <div class="col-md-6 mb-3">
+        <mat-form-field appearance="fill" class="w-100">
+          <mat-label>Nombre del Artesano</mat-label>
+          <input matInput formControlName="artesano" />
+        </mat-form-field>
+      </div>
+
+      <div class="col-md-6 mb-3">
+        <mat-form-field appearance="fill" class="w-100">
+          <mat-label>ID del Servicio Asociado</mat-label>
+          <input matInput type="number" formControlName="servicio" />
+        </mat-form-field>
+      </div>
+    </div>
+
+    <button mat-raised-button color="primary" type="submit">
+      {{ editando ? 'Actualizar' : 'Registrar' }}
+    </button>
+    <button mat-raised-button color="warn" type="button" (click)="cancelarEdicion()" *ngIf="editando">
+      Cancelar
+    </button>
+  </form>
+
+  <table mat-table [dataSource]="artesanias" class="mat-elevation-z8 w-100 mt-3">
+
+    <!-- Tipo de Artesanía -->
+    <ng-container matColumnDef="tipoArtesania">
+      <th mat-header-cell *matHeaderCellDef>Tipo</th>
+      <td mat-cell *matCellDef="let a">{{ a.tipoArtesania }}</td>
+    </ng-container>
+
+    <!-- Nivel de Dificultad -->
+    <ng-container matColumnDef="nivelDificultad">
+      <th mat-header-cell *matHeaderCellDef>Nivel</th>
+      <td mat-cell *matCellDef="let a">{{ a.nivelDificultad }}</td>
+    </ng-container>
+
+    <!-- Duración -->
+    <ng-container matColumnDef="duracionTaller">
+      <th mat-header-cell *matHeaderCellDef>Duración (min)</th>
+      <td mat-cell *matCellDef="let a">{{ a.duracionTaller }}</td>
+    </ng-container>
+
+    <!-- Incluye Material -->
+    <ng-container matColumnDef="incluyeMaterial">
+      <th mat-header-cell *matHeaderCellDef>Material</th>
+      <td mat-cell *matCellDef="let a">{{ a.incluyeMaterial ? 'Sí' : 'No' }}</td>
+    </ng-container>
+
+    <!-- Descripción -->
+    <ng-container matColumnDef="artesania">
+      <th mat-header-cell *matHeaderCellDef>Descripción</th>
+      <td mat-cell *matCellDef="let a">{{ a.artesania }}</td>
+    </ng-container>
+
+    <!-- Origen Cultural -->
+    <ng-container matColumnDef="origenCultural">
+      <th mat-header-cell *matHeaderCellDef>Origen Cultural</th>
+      <td mat-cell *matCellDef="let a">{{ a.origenCultural }}</td>
+    </ng-container>
+
+    <!-- Máx. Participantes -->
+    <ng-container matColumnDef="maxParticipantes">
+      <th mat-header-cell *matHeaderCellDef>Participantes</th>
+      <td mat-cell *matCellDef="let a">{{ a.maxParticipantes }}</td>
+    </ng-container>
+
+    <!-- Visita al Taller -->
+    <ng-container matColumnDef="visitaTaller">
+      <th mat-header-cell *matHeaderCellDef>Visita Taller</th>
+      <td mat-cell *matCellDef="let a">{{ a.visitaTaller ? 'Sí' : 'No' }}</td>
+    </ng-container>
+
+    <!-- Artesano -->
+    <ng-container matColumnDef="artesano">
+      <th mat-header-cell *matHeaderCellDef>Artesano</th>
+      <td mat-cell *matCellDef="let a">{{ a.artesano }}</td>
+    </ng-container>
+
+    <!-- Servicio ID -->
+    <ng-container matColumnDef="servicio">
+      <th mat-header-cell *matHeaderCellDef>ID Servicio</th>
+      <td mat-cell *matCellDef="let a">{{ a.servicio?.idServicio }}</td>
+    </ng-container>
+
+    <!-- Acciones -->
+    <ng-container matColumnDef="acciones">
+      <th mat-header-cell *matHeaderCellDef>Acciones</th>
+      <td mat-cell *matCellDef="let a">
+        <button mat-icon-button color="accent" (click)="editarArtesania(a)">
+          <mat-icon>edit</mat-icon>
+        </button>
+        <button mat-icon-button color="warn" (click)="eliminarArtesania(a.idArtesania)">
+          <mat-icon>delete</mat-icon>
+        </button>
+      </td>
+    </ng-container>
+
+    <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+    <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+  </table>
+</div>

@@ -19,6 +19,8 @@ import { SnackbarComponent } from './snackbar/snackbar.component';
 import { SliderComponent } from './slider/slider.component';
 import { SlideToggleComponent } from './slide-toggle/slide-toggle.component';
 import {ServiciosComponent} from "./servicios/servicios.component";
+import {ServicioAlimentoComponent} from "./servicio_alimento/servicio-alimento.component";
+
 
 const routes: Routes = [
   { path: 'button', component: ButtonsComponent },
@@ -38,7 +40,8 @@ const routes: Routes = [
   { path: 'slider', component: SliderComponent },
   { path: 'slide-toggle', component: SlideToggleComponent },
   {path: 'servicios', component: ServiciosComponent},
-  {path: 'proveedores', component: ServiciosComponent}
+  {path: 'proveedores', component: ServiciosComponent},
+  { path: 'servicio-alimento', component: ServicioAlimentoComponent }
 ];
 
 @NgModule({

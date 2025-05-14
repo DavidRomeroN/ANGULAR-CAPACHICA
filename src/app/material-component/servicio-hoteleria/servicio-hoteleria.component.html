@@ -1,0 +1,95 @@
+<div class="container py-4">
+  <h2>{{ editando ? 'Editar Servicio de Hotelería' : 'Registrar Servicio de Hotelería' }}</h2>
+
+  <form [formGroup]="hoteleriaForm" (ngSubmit)="guardarHotel()" class="mb-4">
+    <div class="row">
+      <div class="col-md-6 mb-3">
+        <mat-form-field appearance="fill" class="w-100">
+          <mat-label>Tipo de Habitación</mat-label>
+          <input matInput formControlName="tipoHabitacion" />
+        </mat-form-field>
+      </div>
+
+      <div class="col-md-6 mb-3">
+        <mat-form-field appearance="fill" class="w-100">
+          <mat-label>Estrellas</mat-label>
+          <input matInput type="number" formControlName="estrellas" />
+        </mat-form-field>
+      </div>
+
+      <div class="col-md-6 mb-3">
+        <mat-form-field appearance="fill" class="w-100">
+          <mat-label>Incluye Desayuno</mat-label>
+          <mat-select formControlName="incluyeDesayuno">
+            <mat-option *ngFor="let d of desayunoOpciones" [value]="d">{{ d }}</mat-option>
+          </mat-select>
+        </mat-form-field>
+      </div>
+
+      <div class="col-md-6 mb-3">
+        <mat-form-field appearance="fill" class="w-100">
+          <mat-label>Máx. Personas</mat-label>
+          <input matInput type="number" formControlName="maxPersonas" />
+        </mat-form-field>
+      </div>
+
+      <div class="col-md-6 mb-3">
+        <mat-form-field appearance="fill" class="w-100">
+          <mat-label>ID del Servicio Asociado</mat-label>
+          <input matInput type="number" formControlName="servicio" />
+        </mat-form-field>
+      </div>
+    </div>
+
+    <button mat-raised-button color="primary" type="submit" [disabled]="hoteleriaForm.invalid">
+      {{ editando ? 'Actualizar' : 'Registrar' }}
+    </button>
+    <button mat-raised-button color="warn" type="button" (click)="cancelarEdicion()" *ngIf="editando">
+      Cancelar
+    </button>
+  </form>
+
+  <h3>Listado Detallado de Servicios de Hotelería</h3>
+
+  <table mat-table [dataSource]="hoteles" class="mat-elevation-z8 w-100">
+    <ng-container matColumnDef="tipoHabitacion">
+      <th mat-header-cell *matHeaderCellDef>Tipo Habitación</th>
+      <td mat-cell *matCellDef="let h">{{ h.tipoHabitacion }}</td>
+    </ng-container>
+
+    <ng-container matColumnDef="estrellas">
+      <th mat-header-cell *matHeaderCellDef>Estrellas</th>
+      <td mat-cell *matCellDef="let h">{{ h.estrellas }}</td>
+    </ng-container>
+
+    <ng-container matColumnDef="incluyeDesayuno">
+      <th mat-header-cell *matHeaderCellDef>Desayuno</th>
+      <td mat-cell *matCellDef="let h">{{ h.incluyeDesayuno }}</td>
+    </ng-container>
+
+    <ng-container matColumnDef="maxPersonas">
+      <th mat-header-cell *matHeaderCellDef>Máx. Personas</th>
+      <td mat-cell *matCellDef="let h">{{ h.maxPersonas }}</td>
+    </ng-container>
+
+    <ng-container matColumnDef="servicio">
+      <th mat-header-cell *matHeaderCellDef>ID Servicio</th>
+      <td mat-cell *matCellDef="let h">{{ h.servicio?.idServicio }}</td>
+    </ng-container>
+
+    <ng-container matColumnDef="acciones">
+      <th mat-header-cell *matHeaderCellDef>Acciones</th>
+      <td mat-cell *matCellDef="let h">
+        <button mat-icon-button color="accent" (click)="editarHotel(h)">
+          <mat-icon>edit</mat-icon>
+        </button>
+        <button mat-icon-button color="warn" (click)="eliminarHotel(h.idHoteleria)">
+          <mat-icon>delete</mat-icon>
+        </button>
+      </td>
+    </ng-container>
+
+    <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+    <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+  </table>
+</div>
