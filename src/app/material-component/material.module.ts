@@ -30,6 +30,7 @@ import { SnackbarComponent } from './snackbar/snackbar.component';
 import { SliderComponent } from './slider/slider.component';
 import { SlideToggleComponent } from './slide-toggle/slide-toggle.component';
 import {ServiciosComponent} from "./servicios/servicios.component";
+import {ProveedoresComponent} from "./proveedores/proveedores.component";
 
 @NgModule({
   imports: [
@@ -56,7 +57,8 @@ import {ServiciosComponent} from "./servicios/servicios.component";
     SnackbarComponent,
     SliderComponent,
     SlideToggleComponent,
-    ServiciosComponent
+    ServiciosComponent,
+    ProveedoresComponent,
   ],
   providers: [],
 })

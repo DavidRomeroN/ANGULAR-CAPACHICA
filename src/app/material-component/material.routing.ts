@@ -37,7 +37,8 @@ const routes: Routes = [
   { path: 'snackbar', component: SnackbarComponent },
   { path: 'slider', component: SliderComponent },
   { path: 'slide-toggle', component: SlideToggleComponent },
-  {path: 'servicios', component: ServiciosComponent}
+  {path: 'servicios', component: ServiciosComponent},
+  {path: 'proveedores', component: ServiciosComponent}
 ];
 
 @NgModule({
