@@ -4,7 +4,13 @@
   {{ errorMessage }}
 </div>
 
-<form [formGroup]="paqueteForm" (ngSubmit)="guardar()">
+<!-- Botón para mostrar/ocultar el formulario -->
+<button mat-raised-button color="primary" (click)="toggleForm()">
+  {{ formularioVisible ? 'Cancelar' : 'Agregar Paquete' }}
+</button>
+
+<!-- Solo mostrar el formulario si formularioVisible es verdadero -->
+<form *ngIf="formularioVisible" [formGroup]="paqueteForm" (ngSubmit)="guardar()">
   <!-- Título del paquete -->
   <mat-form-field appearance="fill" class="full-width">
     <mat-label>Título</mat-label>

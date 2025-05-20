@@ -8,6 +8,7 @@ import { MatTableModule } from '@angular/material/table';
 import { MatIconModule } from '@angular/material/icon';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatNativeDateModule } from '@angular/material/core';
+import { MatSelectModule } from '@angular/material/select';
 import { PaquetesService } from './paquetes.service';
 
 @Component({
@@ -22,7 +23,8 @@ import { PaquetesService } from './paquetes.service';
     MatTableModule,
     MatIconModule,
     MatDatepickerModule,
-    MatNativeDateModule
+    MatNativeDateModule,
+    MatSelectModule
   ],
   templateUrl: './paquetes.component.html',
   styleUrls: ['./paquetes.component.scss']
@@ -34,6 +36,7 @@ export class PaquetesComponent implements OnInit {
   idPaqueteEditando: number | null = null;
   minDate: string;
   errorMessage: string = '';
+  formularioVisible: boolean = false;
 
   // Variables para mostrar información de proveedor y destino
   proveedorNombre: string = '';
@@ -41,16 +44,21 @@ export class PaquetesComponent implements OnInit {
 
   constructor(private paqueteService: PaquetesService, private fb: FormBuilder) {
     const today = new Date();
-    this.minDate = this.formatDatetimeLocal(today);
+    this.minDate = today.toISOString().split('T')[0];
   }
 
   ngOnInit(): void {
+    this.inicializarFormulario();
+    this.cargarPaquetes();
+  }
+
+  inicializarFormulario(): void {
     this.paqueteForm = this.fb.group({
       titulo: ['', Validators.required],
       descripcion: ['', Validators.required],
       imagenUrl: ['', Validators.required],
       precioTotal: [null, [Validators.required, Validators.min(0)]],
-      estado: ['', Validators.required],
+      estado: ['DISPONIBLE', Validators.required],
       duracionDias: [null, [Validators.required, Validators.min(1)]],
       localidad: ['', Validators.required],
       tipoActividad: ['', Validators.required],
@@ -77,8 +85,13 @@ export class PaquetesComponent implements OnInit {
         this.destinoNombre = '';
       }
     });
+  }
 
-    this.cargarPaquetes();
+  toggleForm(): void {
+    this.formularioVisible = !this.formularioVisible;
+    if (!this.formularioVisible) {
+      this.resetForm();
+    }
   }
 
   cargarPaquetes(): void {
@@ -88,27 +101,43 @@ export class PaquetesComponent implements OnInit {
 
         // Cargar información adicional de proveedores y destinos
         this.paquetes.forEach(paquete => {
-          const idProveedor = paquete.proveedor?.idProveedor;
-          const idDestino = paquete.destino?.idDestino;
-
-          if (idProveedor) {
-            this.paqueteService.getProveedorPorId(idProveedor).subscribe(
+          // Asegurarse de tener IDs válidos antes de hacer las consultas
+          if (paquete.proveedor && typeof paquete.proveedor === 'number') {
+            this.paqueteService.getProveedorPorId(paquete.proveedor).subscribe(
               (proveedor: any) => {
                 paquete.proveedor = proveedor;
               },
               (error) => {
-                console.error(`Error al obtener proveedor con ID ${idProveedor}:`, error);
+                console.error(`Error al obtener proveedor con ID ${paquete.proveedor}:`, error);
+              }
+            );
+          } else if (paquete.proveedor?.idProveedor) {
+            this.paqueteService.getProveedorPorId(paquete.proveedor.idProveedor).subscribe(
+              (proveedor: any) => {
+                paquete.proveedor = proveedor;
+              },
+              (error) => {
+                console.error(`Error al obtener proveedor con ID ${paquete.proveedor.idProveedor}:`, error);
               }
             );
           }
 
-          if (idDestino) {
-            this.paqueteService.getDestinoPorId(idDestino).subscribe(
+          if (paquete.destino && typeof paquete.destino === 'number') {
+            this.paqueteService.getDestinoPorId(paquete.destino).subscribe(
               (destino: any) => {
                 paquete.destino = destino;
               },
               (error) => {
-                console.error(`Error al obtener destino con ID ${idDestino}:`, error);
+                console.error(`Error al obtener destino con ID ${paquete.destino}:`, error);
+              }
+            );
+          } else if (paquete.destino?.idDestino) {
+            this.paqueteService.getDestinoPorId(paquete.destino.idDestino).subscribe(
+              (destino: any) => {
+                paquete.destino = destino;
+              },
+              (error) => {
+                console.error(`Error al obtener destino con ID ${paquete.destino.idDestino}:`, error);
               }
             );
           }
@@ -163,6 +192,12 @@ export class PaquetesComponent implements OnInit {
   }
 
   guardar(): void {
+    if (this.paqueteForm.invalid) {
+      this.paqueteForm.markAllAsTouched();
+      this.errorMessage = 'Por favor, completa todos los campos requeridos correctamente.';
+      return;
+    }
+
     this.errorMessage = '';
     const formValue = this.paqueteForm.value;
 
@@ -177,21 +212,20 @@ export class PaquetesComponent implements OnInit {
       return;
     }
 
-    // CORRECCIÓN: Enviar IDs como valores primitivos con los nombres de campo correctos
     const paquete = {
       titulo: formValue.titulo,
       descripcion: formValue.descripcion,
       imagenUrl: formValue.imagenUrl,
-      precioTotal: formValue.precioTotal,
+      precioTotal: parseFloat(formValue.precioTotal),
       estado: formValue.estado,
-      duracionDias: formValue.duracionDias,
+      duracionDias: parseInt(formValue.duracionDias, 10),
       localidad: formValue.localidad,
       tipoActividad: formValue.tipoActividad,
-      cuposMaximos: formValue.cuposMaximos,
+      cuposMaximos: parseInt(formValue.cuposMaximos, 10),
       fechaInicio: this.formatFecha(formValue.fechaInicio),
       fechaFin: this.formatFecha(formValue.fechaFin),
-      proveedor: formValue.proveedorId ? parseInt(formValue.proveedorId, 10) : null,
-      destino: formValue.destinoId ? parseInt(formValue.destinoId, 10) : null
+      proveedor: parseInt(formValue.proveedorId, 10),
+      destino: parseInt(formValue.destinoId, 10)
     };
 
     console.log('Enviando paquete:', paquete);
@@ -201,6 +235,7 @@ export class PaquetesComponent implements OnInit {
         next: () => {
           this.resetForm();
           this.cargarPaquetes();
+          this.formularioVisible = false;
         },
         error: (error) => {
           console.error('Error al actualizar paquete:', error);
@@ -215,6 +250,7 @@ export class PaquetesComponent implements OnInit {
         next: () => {
           this.resetForm();
           this.cargarPaquetes();
+          this.formularioVisible = false;
         },
         error: (error) => {
           console.error('Error al crear paquete:', error);
@@ -230,10 +266,40 @@ export class PaquetesComponent implements OnInit {
   editar(paquete: any): void {
     this.editando = true;
     this.idPaqueteEditando = paquete.idPaquete;
+    this.formularioVisible = true;
 
-    // Convertir las fechas a formato compatible con datetime-local
-    let fechaInicio = new Date(paquete.fechaInicio);
-    let fechaFin = new Date(paquete.fechaFin);
+    // Extraer IDs correctamente
+    let proveedorId = null;
+    if (typeof paquete.proveedor === 'number') {
+      proveedorId = paquete.proveedor;
+    } else if (paquete.proveedor?.idProveedor) {
+      proveedorId = paquete.proveedor.idProveedor;
+    }
+
+    let destinoId = null;
+    if (typeof paquete.destino === 'number') {
+      destinoId = paquete.destino;
+    } else if (paquete.destino?.idDestino) {
+      destinoId = paquete.destino.idDestino;
+    }
+
+    // Convertir las fechas a formato YYYY-MM-DD para el input type date
+    let fechaInicio = '';
+    let fechaFin = '';
+
+    if (paquete.fechaInicio) {
+      const dateInicio = new Date(paquete.fechaInicio);
+      if (!isNaN(dateInicio.getTime())) {
+        fechaInicio = dateInicio.toISOString().split('T')[0];
+      }
+    }
+
+    if (paquete.fechaFin) {
+      const dateFin = new Date(paquete.fechaFin);
+      if (!isNaN(dateFin.getTime())) {
+        fechaFin = dateFin.toISOString().split('T')[0];
+      }
+    }
 
     this.paqueteForm.patchValue({
       titulo: paquete.titulo,
@@ -245,15 +311,24 @@ export class PaquetesComponent implements OnInit {
       localidad: paquete.localidad,
       tipoActividad: paquete.tipoActividad,
       cuposMaximos: paquete.cuposMaximos,
-      fechaInicio: this.formatDatetimeLocal(fechaInicio),
-      fechaFin: this.formatDatetimeLocal(fechaFin),
-      proveedorId: paquete.proveedor ?? paquete.proveedorId ?? paquete.proveedor?.idProveedor ?? '',
-      destinoId: paquete.destino ?? paquete.destinoId ?? paquete.destino?.idDestino ?? ''
+      fechaInicio: fechaInicio,
+      fechaFin: fechaFin,
+      proveedorId: proveedorId,
+      destinoId: destinoId
     });
 
-    // Cargar nombres de proveedor y destino si están disponibles
-    this.proveedorNombre = paquete.proveedor?.nombreCompleto ?? '';
-    this.destinoNombre = paquete.destino?.nombre ?? '';
+    // Cargar nombres de proveedor y destino
+    if (paquete.proveedor?.nombreCompleto) {
+      this.proveedorNombre = paquete.proveedor.nombreCompleto;
+    } else if (proveedorId) {
+      this.buscarProveedorPorId(proveedorId);
+    }
+
+    if (paquete.destino?.nombre) {
+      this.destinoNombre = paquete.destino.nombre;
+    } else if (destinoId) {
+      this.buscarDestinoPorId(destinoId);
+    }
   }
 
   eliminar(id: number): void {
@@ -271,7 +346,9 @@ export class PaquetesComponent implements OnInit {
   }
 
   resetForm(): void {
-    this.paqueteForm.reset();
+    this.paqueteForm.reset({
+      estado: 'DISPONIBLE'  // Establecer un valor predeterminado para el estado
+    });
     this.paqueteForm.markAsPristine();
     this.paqueteForm.markAsUntouched();
     this.editando = false;
@@ -281,33 +358,30 @@ export class PaquetesComponent implements OnInit {
     this.destinoNombre = '';
   }
 
-  // Nuevo método para formatear fecha para inputs datetime-local
-  private formatDatetimeLocal(date: Date): string {
-    if (isNaN(date.getTime())) return '';
-
-    return `${date.getFullYear()}-${(date.getMonth() + 1).toString().padStart(2, '0')}-${date.getDate().toString().padStart(2, '0')}T${date.getHours().toString().padStart(2, '0')}:${date.getMinutes().toString().padStart(2, '0')}`;
-  }
-
   private formatFecha(fecha: any): string {
     if (!fecha) return '';
 
     try {
-      const f = new Date(fecha);
+      // Si la fecha ya está en formato YYYY-MM-DD, agregarle la hora
+      let fechaObj;
+      if (typeof fecha === 'string' && fecha.includes('-') && !fecha.includes(':')) {
+        fechaObj = new Date(fecha + 'T00:00:00');
+      } else {
+        fechaObj = new Date(fecha);
+      }
 
       // Verificar si la fecha es válida
-      if (isNaN(f.getTime())) {
+      if (isNaN(fechaObj.getTime())) {
         console.error('Fecha inválida:', fecha);
         return '';
       }
 
-      const year = f.getFullYear();
-      const month = (f.getMonth() + 1).toString().padStart(2, '0');
-      const day = f.getDate().toString().padStart(2, '0');
-      const hours = f.getHours().toString().padStart(2, '0');
-      const minutes = f.getMinutes().toString().padStart(2, '0');
-      const seconds = f.getSeconds().toString().padStart(2, '0');
+      const year = fechaObj.getFullYear();
+      const month = (fechaObj.getMonth() + 1).toString().padStart(2, '0');
+      const day = fechaObj.getDate().toString().padStart(2, '0');
 
-      return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
+      // En formato YYYY-MM-DD HH:MM:SS para el backend
+      return `${year}-${month}-${day} 00:00:00`;
     } catch (error) {
       console.error('Error formateando fecha:', error);
       return '';
