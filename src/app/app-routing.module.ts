@@ -11,6 +11,7 @@ const routes: Routes = [
     canActivate: [AuthGuard],
     children: [
       { path: 'dashboard', component: DashboardComponent },
+
       { path: 'servicios', loadComponent: () => import('./material-component/servicios/servicios.component').then(m => m.ServiciosComponent) },
       { path: 'proveedores', loadComponent: () => import('./material-component/proveedores/proveedores.component').then(m => m.ProveedoresComponent) },
       { path: 'paquetes', loadComponent: () => import('./material-component/paquetes/paquetes.component').then(m => m.PaquetesComponent) },
@@ -18,6 +19,8 @@ const routes: Routes = [
       { path: 'servicio-artesania', loadComponent: () => import('./material-component/servicio-artesania/servicio-artesania.component').then(m => m.ServicioArtesaniaComponent) },
       { path: 'servicio-alimento', loadComponent: () => import('./material-component/servicio_alimento/servicio-alimento.component').then(m => m.ServicioAlimentoComponent) },
       { path: 'destinos', loadComponent: () => import('./material-component/destinos/destinos.component').then(m => m.DestinosComponent) },
+      { path: 'tipo-servicio', loadComponent: () => import('./material-component/tipo-servicio/tipo-servicio.component').then(m => m.TipoServicioComponent) },
+
 // Carga el componente
       { path: 'button', loadComponent: () => import('./material-component/buttons/buttons.component').then(m => m.ButtonsComponent) },
       { path: 'grid', loadComponent: () => import('./material-component/grid/grid.component').then(m => m.GridComponent) },

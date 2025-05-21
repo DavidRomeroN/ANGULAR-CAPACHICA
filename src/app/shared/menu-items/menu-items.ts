@@ -9,13 +9,15 @@ export interface Menu {
 
 const MENUITEMS = [
   { state: 'dashboard', name: 'Dashboard', type: 'link', icon: 'av_timer' },
-  { state: 'proveedores', name: 'Proveedores', type: 'link', icon: 'av_timer' },
+
+  //{ state: 'proveedores', name: 'Proveedores', type: 'link', icon: 'av_timer' },
   { state: 'destinos', name: 'Destinos', type: 'link', icon: 'av_timer' },
   { state: 'paquetes', name: 'Paquetes', type: 'link', icon: 'av_timer' },
   { state: 'servicios', name: 'Servicios', type: 'link', icon: 'av_timer' },
   { state: 'servicio-alimento', name: 'Alimentación', type: 'link', icon: 'restaurant' },
   { state: 'servicio-artesania', name: 'Servicio Artesanía', type: 'link', icon: 'palette' },
   { state: 'servicio-hoteleria', name: 'Servicio Hotelería', type: 'link', icon: 'hotel' },
+
   { state: 'button', type: 'link', name: 'Buttons', icon: 'crop_7_5' },
   { state: 'grid', type: 'link', name: 'Grid List', icon: 'view_comfy' },
   { state: 'lists', type: 'link', name: 'Lists', icon: 'view_list' },

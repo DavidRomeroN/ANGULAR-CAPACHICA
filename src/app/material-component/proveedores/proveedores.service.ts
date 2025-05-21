@@ -23,7 +23,7 @@ export class ProveedoresService {
   }
 
   create(proveedor: any): Observable<any> {
-    return this.http.post(this.apiURL, proveedor, this.getHttpOptions());
+    return this.http.post<any>(this.apiURL, proveedor, this.getHttpOptions());
   }
 
   update(id: number, proveedor: any): Observable<any> {
