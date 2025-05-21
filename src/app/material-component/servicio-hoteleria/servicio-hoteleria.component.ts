@@ -34,6 +34,9 @@ export class ServicioHoteleriaComponent implements OnInit {
   editando = false;
   hotelEditandoId: number | null = null;
 
+  // Nueva propiedad para gestionar la visibilidad del formulario
+  formVisible = false;
+
   desayunoOpciones = ['Si', 'No'];
 
   displayedColumns: string[] = [
@@ -111,5 +114,10 @@ export class ServicioHoteleriaComponent implements OnInit {
         this.obtenerHoteles();
       });
     }
+  }
+
+  // Método para alternar la visibilidad del formulario
+  toggleForm(): void {
+    this.formVisible = !this.formVisible;
   }
 }

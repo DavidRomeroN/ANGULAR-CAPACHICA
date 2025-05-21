@@ -13,7 +13,12 @@ const routes: Routes = [
       { path: 'dashboard', component: DashboardComponent },
       { path: 'servicios', loadComponent: () => import('./material-component/servicios/servicios.component').then(m => m.ServiciosComponent) },
       { path: 'proveedores', loadComponent: () => import('./material-component/proveedores/proveedores.component').then(m => m.ProveedoresComponent) },
-      { path: 'paquetes', loadComponent: () => import('./material-component/paquetes/paquetes.component').then(m => m.PaquetesComponent) },// Carga el componente
+      { path: 'paquetes', loadComponent: () => import('./material-component/paquetes/paquetes.component').then(m => m.PaquetesComponent) },
+      { path: 'servicio-hoteleria', loadComponent: () => import('./material-component/servicio-hoteleria/servicio-hoteleria.component').then(m => m.ServicioHoteleriaComponent) },
+      { path: 'servicio-artesania', loadComponent: () => import('./material-component/servicio-artesania/servicio-artesania.component').then(m => m.ServicioArtesaniaComponent) },
+      { path: 'servicio-alimento', loadComponent: () => import('./material-component/servicio_alimento/servicio-alimento.component').then(m => m.ServicioAlimentoComponent) },
+      { path: 'destinos', loadComponent: () => import('./material-component/destinos/destinos.component').then(m => m.DestinosComponent) },
+// Carga el componente
       { path: 'button', loadComponent: () => import('./material-component/buttons/buttons.component').then(m => m.ButtonsComponent) },
       { path: 'grid', loadComponent: () => import('./material-component/grid/grid.component').then(m => m.GridComponent) },
       { path: 'lists', loadComponent: () => import('./material-component/lists/lists.component').then(m => m.ListsComponent) },

@@ -52,6 +52,9 @@ export class ServicioArtesaniaComponent implements OnInit {
 
   niveles = ['PRINCIPIANTE', 'INTERMEDIO', 'AVANZADO'];
 
+  // Nueva propiedad para controlar la visibilidad del formulario
+  formularioVisible = false;
+
   constructor(
     private fb: FormBuilder,
     private servicioArtesaniaService: ServicioArtesaniaService
@@ -128,5 +131,10 @@ export class ServicioArtesaniaComponent implements OnInit {
         this.obtenerArtesanias();
       });
     }
+  }
+
+  // Método para alternar la visibilidad del formulario
+  toggleFormulario(): void {
+    this.formularioVisible = !this.formularioVisible;
   }
 }

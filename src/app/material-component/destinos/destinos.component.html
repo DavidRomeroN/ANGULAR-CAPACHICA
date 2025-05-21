@@ -1,0 +1,122 @@
+<h2>Gestión de Destinos</h2>
+
+<!-- Botón para mostrar/ocultar el formulario -->
+<button mat-raised-button color="primary" (click)="toggleForm()">
+  {{ formularioVisible ? 'Cancelar' : 'Agregar Destino' }}
+</button>
+
+<!-- Formulario para agregar destino -->
+<form *ngIf="formularioVisible" [formGroup]="destinoForm" (ngSubmit)="guardar()">
+  <mat-form-field appearance="fill" class="full-width">
+    <mat-label>Nombre del Destino</mat-label>
+    <input matInput formControlName="nombre">
+  </mat-form-field>
+
+  <mat-form-field appearance="fill" class="full-width">
+    <mat-label>Descripción</mat-label>
+    <textarea matInput formControlName="descripcion"></textarea>
+  </mat-form-field>
+
+  <mat-form-field appearance="fill" class="full-width">
+    <mat-label>Ubicación</mat-label>
+    <input matInput formControlName="ubicacion">
+  </mat-form-field>
+
+  <!-- Mapa interactivo para seleccionar coordenadas -->
+  <div class="map-container mb-3">
+    <google-map
+      height="400px"
+      width="100%"
+      [center]="mapCenter"
+      [zoom]="12"
+      (mapClick)="onMapClick($event)">
+      <map-marker
+        *ngIf="selectedLat && selectedLng"
+        [position]="{ lat: selectedLat, lng: selectedLng }">
+      </map-marker>
+    </google-map>
+  </div>
+
+  <mat-form-field appearance="fill" class="full-width">
+    <mat-label>Latitud</mat-label>
+    <input matInput type="number" formControlName="latitud">
+  </mat-form-field>
+
+  <mat-form-field appearance="fill" class="full-width">
+    <mat-label>Longitud</mat-label>
+    <input matInput type="number" formControlName="longitud">
+  </mat-form-field>
+
+  <mat-form-field appearance="fill" class="full-width">
+    <mat-label>URL de la Imagen</mat-label>
+    <input matInput formControlName="imagenUrl">
+  </mat-form-field>
+
+  <mat-form-field appearance="fill" class="full-width">
+    <mat-label>Popularidad</mat-label>
+    <input matInput type="number" formControlName="popularidad">
+  </mat-form-field>
+
+  <mat-form-field appearance="fill" class="full-width">
+    <mat-label>Precio Promedio</mat-label>
+    <input matInput type="number" formControlName="preciomedio">
+  </mat-form-field>
+
+  <mat-form-field appearance="fill" class="full-width">
+    <mat-label>Rating</mat-label>
+    <input matInput type="number" formControlName="rating" step="0.1" min="0" max="5">
+  </mat-form-field>
+
+  <button mat-raised-button color="primary" type="submit">
+    {{ editando ? 'Actualizar' : 'Guardar' }}
+  </button>
+  <button mat-button type="button" (click)="resetForm()">Cancelar</button>
+</form>
+
+<!-- Tabla de destinos -->
+<table mat-table [dataSource]="destinos" class="mat-elevation-z8">
+  <ng-container matColumnDef="nombre">
+    <th mat-header-cell *matHeaderCellDef>Destino</th>
+    <td mat-cell *matCellDef="let d">{{ d.nombre }}</td>
+  </ng-container>
+
+  <ng-container matColumnDef="descripcion">
+    <th mat-header-cell *matHeaderCellDef>Descripción</th>
+    <td mat-cell *matCellDef="let d">{{ d.descripcion }}</td>
+  </ng-container>
+
+  <ng-container matColumnDef="ubicacion">
+    <th mat-header-cell *matHeaderCellDef>Ubicación</th>
+    <td mat-cell *matCellDef="let d">{{ d.ubicacion }}</td>
+  </ng-container>
+
+  <ng-container matColumnDef="popularidad">
+    <th mat-header-cell *matHeaderCellDef>Popularidad</th>
+    <td mat-cell *matCellDef="let d">{{ d.popularidad }}</td>
+  </ng-container>
+
+  <ng-container matColumnDef="preciomedio">
+    <th mat-header-cell *matHeaderCellDef>Precio Promedio</th>
+    <td mat-cell *matCellDef="let d">{{ d.preciomedio | currency }}</td>
+  </ng-container>
+
+  <ng-container matColumnDef="rating">
+    <th mat-header-cell *matHeaderCellDef>Rating</th>
+    <td mat-cell *matCellDef="let d">{{ d.rating }}</td>
+  </ng-container>
+
+  <ng-container matColumnDef="acciones">
+    <th mat-header-cell *matHeaderCellDef>Acciones</th>
+    <td mat-cell *matCellDef="let d">
+      <button mat-icon-button color="accent" (click)="editar(d)">
+        <mat-icon>edit</mat-icon>
+      </button>
+      <button mat-icon-button color="warn" (click)="eliminar(d.idDestino)">
+        <mat-icon>delete</mat-icon>
+      </button>
+    </td>
+  </ng-container>
+
+  <tr mat-header-row *matHeaderRowDef="['nombre', 'descripcion', 'ubicacion', 'popularidad', 'preciomedio', 'rating', 'acciones']"></tr>
+  <tr mat-row *matRowDef="let row; columns: ['nombre', 'descripcion', 'ubicacion', 'popularidad', 'preciomedio', 'rating', 'acciones']"></tr>
+</table>

@@ -45,6 +45,9 @@ export class ServicioAlimentoComponent implements OnInit {
 
   bebidas = ['SI', 'NO'];
 
+  // Propiedades para manejar la visibilidad del formulario
+  formularioVisible = false;
+
   constructor(
     private fb: FormBuilder,
     private servicioAlimentoService: ServicioAlimentoService
@@ -109,5 +112,10 @@ export class ServicioAlimentoComponent implements OnInit {
         this.obtenerAlimentos();
       });
     }
+  }
+
+  // Método para alternar la visibilidad del formulario
+  toggleFormulario(): void {
+    this.formularioVisible = !this.formularioVisible;
   }
 }

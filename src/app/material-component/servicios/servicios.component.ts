@@ -34,6 +34,9 @@ export class ServiciosComponent implements OnInit {
   editando = false;
   servicioEditandoId: number | null = null;
 
+  // Declarar la propiedad formVisible
+  formVisible: boolean = false;
+
   // 👇 Usa las propiedades del backend (camelCase)
   displayedColumns: string[] = ['nombreServicio', 'descripcion', 'precioBase', 'estado', 'acciones'];
 
@@ -83,6 +86,7 @@ export class ServiciosComponent implements OnInit {
   editarServicio(servicio: any): void {
     this.editando = true;
     this.servicioEditandoId = servicio.idServicio;
+    this.formVisible = true;  // Mostrar el formulario cuando se edita un servicio
 
     this.servicioForm.setValue({
       nombreServicio: servicio.nombreServicio,
@@ -97,6 +101,7 @@ export class ServiciosComponent implements OnInit {
     this.editando = false;
     this.servicioEditandoId = null;
     this.servicioForm.reset({ estado: 'ACTIVO' });
+    this.formVisible = false;  // Ocultar el formulario cuando se cancela la edición
   }
 
   eliminarServicio(id: number): void {

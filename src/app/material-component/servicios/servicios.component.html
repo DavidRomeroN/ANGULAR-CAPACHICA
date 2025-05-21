@@ -1,94 +1,93 @@
 <div class="container py-4">
-  <h2>{{ editando ? 'Editar Servicio' : 'Registrar Servicio' }}</h2>
+  <button mat-raised-button color="primary" (click)="formVisible = !formVisible">
+    {{ formVisible ? 'Cancelar' : 'Registrar Servicio' }}
+  </button>
 
-  <form [formGroup]="servicioForm" (ngSubmit)="guardarServicio()" class="mb-4">
-    <div class="row">
-      <div class="col-md-6 mb-3">
-        <mat-form-field appearance="fill" class="w-100">
-          <mat-label>Nombre del Servicio</mat-label>
-          <input matInput formControlName="nombreServicio" required />
-        </mat-form-field>
+  <div *ngIf="formVisible" class="mt-4">
+    <h2>{{ editando ? 'Editar Servicio' : 'Registrar Servicio' }}</h2>
+
+    <form [formGroup]="servicioForm" (ngSubmit)="guardarServicio()" class="mb-4">
+      <div class="row">
+        <div class="col-md-6 mb-3">
+          <mat-form-field appearance="fill" class="w-100">
+            <mat-label>Nombre del Servicio</mat-label>
+            <input matInput formControlName="nombreServicio" required />
+          </mat-form-field>
+        </div>
+
+        <div class="col-md-6 mb-3">
+          <mat-form-field appearance="fill" class="w-100">
+            <mat-label>Descripción</mat-label>
+            <input matInput formControlName="descripcion" required />
+          </mat-form-field>
+        </div>
+
+        <div class="col-md-6 mb-3">
+          <mat-form-field appearance="fill" class="w-100">
+            <mat-label>Precio Base</mat-label>
+            <input matInput type="number" formControlName="precioBase" required />
+          </mat-form-field>
+        </div>
+
+        <div class="col-md-6 mb-3">
+          <mat-form-field appearance="fill" class="w-100">
+            <mat-label>Estado</mat-label>
+            <mat-select formControlName="estado" required>
+              <mat-option value="ACTIVO">ACTIVO</mat-option>
+              <mat-option value="INACTIVO">INACTIVO</mat-option>
+            </mat-select>
+          </mat-form-field>
+        </div>
+
+        <div class="col-md-6 mb-3">
+          <mat-form-field appearance="fill" class="w-100">
+            <mat-label>Tipo de Servicio</mat-label>
+            <mat-select formControlName="tipo" required>
+              <mat-option [value]="1">Aventura</mat-option>
+              <mat-option [value]="2">Alimentacion</mat-option>
+              <mat-option [value]="3">Cultura</mat-option>
+              <mat-option [value]="4">Alojamiento</mat-option>
+            </mat-select>
+          </mat-form-field>
+        </div>
       </div>
 
-      <div class="col-md-6 mb-3">
-        <mat-form-field appearance="fill" class="w-100">
-          <mat-label>Descripción</mat-label>
-          <input matInput formControlName="descripcion" required />
-        </mat-form-field>
-      </div>
+      <button type="submit" mat-raised-button color="primary" [disabled]="servicioForm.invalid">
+        {{ editando ? 'Actualizar' : 'Registrar' }}
+      </button>
 
-      <div class="col-md-6 mb-3">
-        <mat-form-field appearance="fill" class="w-100">
-          <mat-label>Precio Base</mat-label>
-          <input matInput type="number" formControlName="precioBase" required />
-        </mat-form-field>
-      </div>
-
-      <div class="col-md-6 mb-3">
-        <mat-form-field appearance="fill" class="w-100">
-          <mat-label>Estado</mat-label>
-          <mat-select formControlName="estado" required>
-            <mat-option value="ACTIVO">ACTIVO</mat-option>
-            <mat-option value="INACTIVO">INACTIVO</mat-option>
-          </mat-select>
-        </mat-form-field>
-      </div>
-
-      <!-- Campo tipo (obligatorio para crear) -->
-      <div class="col-md-6 mb-3">
-        <mat-form-field appearance="fill" class="w-100">
-          <mat-label>Tipo de Servicio</mat-label>
-          <mat-select formControlName="tipo" required>
-            <!-- Puedes poblar estos valores dinámicamente si lo deseas -->
-            <mat-option [value]="1">Aventura</mat-option>
-            <mat-option [value]="2">Alimentacion</mat-option>
-            <mat-option [value]="3">Cultura</mat-option>
-            <mat-option [value]="3">Alojamiento</mat-option>
-          </mat-select>
-        </mat-form-field>
-      </div>
-    </div>
-
-    <button type="submit" mat-raised-button color="primary" [disabled]="servicioForm.invalid">
-      {{ editando ? 'Actualizar' : 'Registrar' }}
-    </button>
-
-    <button mat-raised-button color="warn" type="button" (click)="cancelarEdicion()" *ngIf="editando">
-      Cancelar
-    </button>
-  </form>
+      <button mat-raised-button color="warn" type="button" (click)="cancelarEdicion()" *ngIf="editando">
+        Cancelar
+      </button>
+    </form>
+  </div>
 
   <hr />
 
   <h3>Listado de Servicios</h3>
 
   <table mat-table [dataSource]="servicios" class="mat-elevation-z8 w-100 mt-3">
-
-    <!-- Nombre -->
+    <!-- Columnas -->
     <ng-container matColumnDef="nombreServicio">
       <th mat-header-cell *matHeaderCellDef> Nombre </th>
       <td mat-cell *matCellDef="let s"> {{ s.nombreServicio }} </td>
     </ng-container>
 
-    <!-- Descripción -->
     <ng-container matColumnDef="descripcion">
       <th mat-header-cell *matHeaderCellDef> Descripción </th>
       <td mat-cell *matCellDef="let s"> {{ s.descripcion }} </td>
     </ng-container>
 
-    <!-- Precio -->
     <ng-container matColumnDef="precioBase">
       <th mat-header-cell *matHeaderCellDef> Precio </th>
       <td mat-cell *matCellDef="let s"> {{ s.precioBase | currency:'PEN' }} </td>
     </ng-container>
 
-    <!-- Estado -->
     <ng-container matColumnDef="estado">
       <th mat-header-cell *matHeaderCellDef> Estado </th>
       <td mat-cell *matCellDef="let s"> {{ s.estado }} </td>
     </ng-container>
 
-    <!-- Acciones -->
     <ng-container matColumnDef="acciones">
       <th mat-header-cell *matHeaderCellDef> Acciones </th>
       <td mat-cell *matCellDef="let s">
@@ -103,6 +102,5 @@
 
     <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
     <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
-
   </table>
 </div>

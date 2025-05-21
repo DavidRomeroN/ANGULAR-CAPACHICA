@@ -29,6 +29,13 @@ export class LoginComponent implements OnInit {
         next: (response) => {
           // Guarda el token
           localStorage.setItem('token', response.token);
+
+          // ✅ Guarda también los datos del usuario logueado
+          localStorage.setItem('usuarioLogueado', JSON.stringify({
+            idUsuario: response.idUsuario,
+            email: response.email
+          }));
+
           // Redirige al dashboard
           this.router.navigate(['/dashboard']);
         },

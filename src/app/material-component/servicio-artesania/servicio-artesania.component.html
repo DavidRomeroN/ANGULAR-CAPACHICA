@@ -1,7 +1,13 @@
 <div class="container py-4">
   <h2>{{ editando ? 'Editar Servicio de Artesanía' : 'Registrar Servicio de Artesanía' }}</h2>
 
-  <form [formGroup]="artesaniaForm" (ngSubmit)="guardarArtesania()" class="mb-4">
+  <!-- Botón para mostrar/ocultar el formulario -->
+  <button mat-raised-button color="primary" (click)="toggleFormulario()">
+    {{ formularioVisible ? 'Cancelar' : 'Registrar Servicio de Artesanía' }}
+  </button>
+
+  <!-- Formulario para registrar o editar artesanía -->
+  <form *ngIf="formularioVisible" [formGroup]="artesaniaForm" (ngSubmit)="guardarArtesania()" class="mb-4">
     <div class="row">
       <div class="col-md-6 mb-3">
         <mat-form-field appearance="fill" class="w-100">
@@ -78,6 +84,7 @@
     </button>
   </form>
 
+  <!-- Tabla de artesanías -->
   <table mat-table [dataSource]="artesanias" class="mat-elevation-z8 w-100 mt-3">
 
     <!-- Tipo de Artesanía -->

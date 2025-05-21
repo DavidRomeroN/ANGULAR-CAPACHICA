@@ -22,6 +22,8 @@ import { AppRoutingModule } from './app-routing.module';
 import { AppSidebarComponent } from './layouts/full/sidebar/sidebar.component';
 import {UsuarioListComponent} from "./material-component/usuarios/usuario.component";
 import {MatNativeDateModule} from "@angular/material/core";
+import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
+import {GoogleMapsModule} from "@angular/google-maps";
 
 @NgModule({
   declarations: [
@@ -41,7 +43,8 @@ import {MatNativeDateModule} from "@angular/material/core";
     AppRoutingModule,
     ReactiveFormsModule,
     AppSidebarComponent,
-    MatNativeDateModule
+    MatNativeDateModule,
+    GoogleMapsModule
     // Importa el componente independiente aquí
    // Importa ProveedoresModule aquí
   ],
@@ -55,6 +58,7 @@ import {MatNativeDateModule} from "@angular/material/core";
       useClass: AuthInterceptor,
       multi: true
     },
+    provideAnimationsAsync(),
   ],
   bootstrap: [AppComponent]
 })

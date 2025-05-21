@@ -42,20 +42,32 @@ export class ProveedoresComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    this.proveedorForm = this.fb.group({
-      nombreCompleto: ['', Validators.required],
-      email: ['', [Validators.required, Validators.email]],
-      telefono: ['', Validators.required],
-      usuarioId: [null, Validators.required],
-      fechaRegistro: ['', Validators.required]
-    });
+    const usuarioLogueado = localStorage.getItem('usuarioLogueado');
+    if (usuarioLogueado) {
+      const usuario = JSON.parse(usuarioLogueado);
+      this.proveedorForm = this.fb.group({
+        nombreCompleto: ['', Validators.required],
+        email: ['', [Validators.required, Validators.email]],
+        telefono: ['', Validators.required],
+        fechaRegistro: ['', Validators.required]
+      });
+
+      this.usuarioNombre = usuario.email;
+    } else {
+      this.proveedorForm = this.fb.group({
+        nombreCompleto: ['', Validators.required],
+        email: ['', [Validators.required, Validators.email]],
+        telefono: ['', Validators.required],
+        fechaRegistro: ['', Validators.required]
+      });
+    }
 
     this.cargarProveedores();
   }
 
+  // Método para alternar la visibilidad del formulario
   toggleForm(): void {
     this.formularioVisible = !this.formularioVisible;
-
     if (!this.formularioVisible) {
       this.resetForm();
     }
@@ -65,23 +77,7 @@ export class ProveedoresComponent implements OnInit {
     this.proveedorService.getAll().subscribe({
       next: (data: any[]) => {
         this.proveedores = data;
-
-        this.proveedores.forEach((proveedor) => {
-          const idUsuario = proveedor.usuario?.idUsuario;
-
-          if (idUsuario) {
-            this.proveedorService.getUsuarioPorId(idUsuario).subscribe(
-              (usuario: any) => {
-                proveedor.usuario = usuario;
-              },
-              (error) => {
-                console.error(`Error al obtener usuario con ID ${idUsuario}:`, error);
-              }
-            );
-          } else {
-            console.warn('Proveedor sin usuario asociado o ID de usuario no definido:', proveedor);
-          }
-        });
+        // Lógica adicional si es necesario
       },
       error: (error) => {
         console.error('Error al cargar proveedores:', error);
@@ -90,37 +86,28 @@ export class ProveedoresComponent implements OnInit {
     });
   }
 
-  buscarUsuarioPorId(): void {
-    const id = this.proveedorForm.get('usuarioId')?.value;
-    if (!id) return;
-
-    this.proveedorService.getUsuarioPorId(id).subscribe({
-      next: (usuario: any) => {
-        this.usuarioNombre = usuario.nombre;
-      },
-      error: () => {
-        this.usuarioNombre = 'Usuario no encontrado';
-      }
-    });
-  }
-
   guardar(): void {
     this.errorMessage = '';
     const formValue = this.proveedorForm.value;
 
-    if (!formValue.usuarioId || isNaN(formValue.usuarioId)) {
-      this.errorMessage = 'Por favor, ingresa un ID de usuario válido.';
+    if (!formValue.nombreCompleto || !formValue.email || !formValue.telefono) {
+      this.errorMessage = 'Por favor, completa todos los campos requeridos.';
       return;
     }
 
+    const usuarioLogueado = localStorage.getItem('usuarioLogueado');
+    const usuario = usuarioLogueado ? JSON.parse(usuarioLogueado) : null;
+
+    if (!usuario || !usuario.idUsuario) {
+      this.errorMessage = 'No se ha encontrado un usuario logueado.';
+      return;
+    }
+
+    // Generación de fecha y hora actuales en zona horaria de Perú (UTC-5)
     let fechaFormateada;
     try {
-      const fecha = new Date(formValue.fechaRegistro);
-      if (isNaN(fecha.getTime())) {
-        this.errorMessage = 'Fecha inválida.';
-        return;
-      }
-
+      const fechaPeru = new Date().toLocaleString('en-US', { timeZone: 'America/Lima' });
+      const fecha = new Date(fechaPeru);
       const year = fecha.getFullYear();
       const month = (fecha.getMonth() + 1).toString().padStart(2, '0');
       const day = fecha.getDate().toString().padStart(2, '0');
@@ -135,14 +122,12 @@ export class ProveedoresComponent implements OnInit {
       return;
     }
 
-    const userId = parseInt(formValue.usuarioId, 10);
-
     const proveedor = {
       nombreCompleto: formValue.nombreCompleto,
       email: formValue.email,
       telefono: formValue.telefono,
-      fechaRegistro: fechaFormateada,
-      usuario: userId
+      fechaRegistro: fechaFormateada,  // Asignamos la fecha y hora actuales
+      usuario: usuario.idUsuario // Asignando el id del usuario logueado
     };
 
     console.log('Enviando proveedor:', proveedor);
@@ -156,9 +141,6 @@ export class ProveedoresComponent implements OnInit {
         error: (error) => {
           console.error('Error al actualizar proveedor:', error);
           this.errorMessage = 'Error al actualizar el proveedor. Verifique los datos e intente nuevamente.';
-          if (error.error && error.error.message) {
-            this.errorMessage += ` Detalle: ${error.error.message}`;
-          }
         }
       });
     } else {
@@ -170,50 +152,64 @@ export class ProveedoresComponent implements OnInit {
         error: (error) => {
           console.error('Error al crear proveedor:', error);
           this.errorMessage = 'Error al crear el proveedor. Verifique los datos e intente nuevamente.';
-          if (error.error && error.error.message) {
-            this.errorMessage += ` Detalle: ${error.error.message}`;
-          }
         }
       });
     }
   }
+
 
   editar(proveedor: any): void {
     this.editando = true;
     this.idProveedorEditando = proveedor.idProveedor;
     this.formularioVisible = true;
 
-    const fecha = new Date(proveedor.fechaRegistro);
-    const offset = fecha.getTimezoneOffset();
-    const localDate = new Date(fecha.getTime() - offset * 60000);
-    const fechaFormateada = localDate.toISOString().slice(0, 16);
+    // Si la fechaRegistro es válida, formatearla para que sea compatible con el input de tipo "datetime-local"
+    if (proveedor.fechaRegistro) {
+      const fecha = new Date(proveedor.fechaRegistro);
+      const offset = fecha.getTimezoneOffset();
+      const localDate = new Date(fecha.getTime() - offset * 60000);
+      const fechaFormateada = localDate.toISOString().slice(0, 16); // Formato compatible con input datetime-local
 
-    this.proveedorForm.patchValue({
-      nombreCompleto: proveedor.nombreCompleto,
-      email: proveedor.email,
-      telefono: proveedor.telefono,
-      usuarioId: proveedor.usuario?.idUsuario ?? '',
-      fechaRegistro: fechaFormateada
-    });
+      // Asegúrate de pasar los valores correctos a patchValue
+      this.proveedorForm.patchValue({
+        fechaRegistro: fechaFormateada
+      });
+    }
 
-    this.usuarioNombre = proveedor.usuario?.nombre ?? '';
+    // Verificar si los valores existen antes de llamar a patchValue
+    if (proveedor.nombreCompleto && proveedor.email && proveedor.telefono) {
+      this.proveedorForm.patchValue({
+        nombreCompleto: proveedor.nombreCompleto,
+        email: proveedor.email,
+        telefono: proveedor.telefono
+      });
+    } else {
+      console.error('Proveedor con datos incompletos:', proveedor);
+    }
+
+    // Verificar si proveedor.usuario es válido antes de asignar el nombre
+    this.usuarioNombre = proveedor.usuario ? proveedor.usuario.nombre : '';
   }
 
   eliminar(id: number): void {
-    if (confirm('¿Estás seguro de eliminar este proveedor?')) {
+    const confirmacion = confirm('¿Estás seguro de eliminar este proveedor?');
+
+    if (confirmacion) {
+      // Si el usuario acepta, se procede a eliminar el proveedor
       this.proveedorService.delete(id).subscribe({
         next: () => {
-          this.cargarProveedores();
+          this.cargarProveedores();  // Recargar la lista de proveedores
         },
         error: (error) => {
           console.error('Error al eliminar proveedor:', error);
-          this.errorMessage = 'Error al eliminar el proveedor.';
         }
       });
+    } else {
+      // Si el usuario cancela, no se hace nada
+      console.log('Eliminación cancelada');
     }
   }
 
-  // ✅ Método resetForm actualizado
   resetForm(): void {
     this.proveedorForm.reset();
     this.proveedorForm.markAsPristine();
@@ -222,6 +218,6 @@ export class ProveedoresComponent implements OnInit {
     this.idProveedorEditando = null;
     this.usuarioNombre = '';
     this.errorMessage = '';
-    this.formularioVisible = false; // Oculta el formulario al resetear
+    this.formularioVisible = false;
   }
 }

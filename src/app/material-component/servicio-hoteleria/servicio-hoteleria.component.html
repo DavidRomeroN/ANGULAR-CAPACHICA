@@ -1,7 +1,12 @@
 <div class="container py-4">
   <h2>{{ editando ? 'Editar Servicio de Hotelería' : 'Registrar Servicio de Hotelería' }}</h2>
 
-  <form [formGroup]="hoteleriaForm" (ngSubmit)="guardarHotel()" class="mb-4">
+  <button mat-raised-button color="primary" (click)="toggleForm()">
+    {{ formVisible ? 'Cancelar' : 'Mostrar Formulario' }}
+  </button>
+
+  <!-- Usamos *ngIf para mostrar el formulario solo si formVisible es true -->
+  <form *ngIf="formVisible" [formGroup]="hoteleriaForm" (ngSubmit)="guardarHotel()" class="mb-4">
     <div class="row">
       <div class="col-md-6 mb-3">
         <mat-form-field appearance="fill" class="w-100">

@@ -1,4 +1,3 @@
-// proveedores.service.ts (versión corregida)
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable } from 'rxjs';
@@ -8,11 +7,9 @@ import { Observable } from 'rxjs';
 })
 export class ProveedoresService {
   private apiURL = 'http://localhost:8080/proveedores';
-  private apiUsuariosURL = 'http://localhost:8080/users/ids'; // Endpoint para obtener usuarios
 
   constructor(private http: HttpClient) {}
 
-  // Configuración de headers HTTP
   private getHttpOptions() {
     return {
       headers: new HttpHeaders({
@@ -35,13 +32,5 @@ export class ProveedoresService {
 
   delete(id: number): Observable<any> {
     return this.http.delete(`${this.apiURL}/${id}`);
-  }
-
-  getAllUsuarios(): Observable<any[]> {
-    return this.http.get<any[]>(`${this.apiUsuariosURL}`);
-  }
-
-  getUsuarioPorId(id: number) {
-    return this.http.get<any>(`http://localhost:8080/users/${id}`);
   }
 }
