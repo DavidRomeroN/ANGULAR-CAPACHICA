@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, AfterViewInit, ViewChild, ElementRef } from '@angular/core';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { DestinosService } from './destinos.service';
 import { CommonModule } from '@angular/common';
@@ -9,7 +9,7 @@ import { MatTableModule } from '@angular/material/table';
 import { MatIconModule } from '@angular/material/icon';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatNativeDateModule } from '@angular/material/core';
-import { GoogleMapsModule } from '@angular/google-maps'; // Importa el módulo GoogleMapsModule
+import * as mapboxgl from 'mapbox-gl';
 
 @Component({
   selector: 'app-destinos',
@@ -23,13 +23,14 @@ import { GoogleMapsModule } from '@angular/google-maps'; // Importa el módulo G
     MatTableModule,
     MatIconModule,
     MatDatepickerModule,
-    MatNativeDateModule,
-    GoogleMapsModule // Añade el módulo a los imports
+    MatNativeDateModule
   ],
   templateUrl: './destinos.component.html',
   styleUrls: ['./destinos.component.scss']
 })
-export class DestinosComponent implements OnInit {
+export class DestinosComponent implements OnInit, AfterViewInit {
+  @ViewChild('mapContainer') mapContainer!: ElementRef;
+
   destinos: any[] = [];
   destinoForm!: FormGroup;
   editando = false;
@@ -39,13 +40,18 @@ export class DestinosComponent implements OnInit {
   errorMessage: string = '';
   formularioVisible: boolean = false;
 
-  // Define las propiedades necesarias para Google Maps
-  mapCenter: google.maps.LatLngLiteral = { lat: -12.0464, lng: -77.0428 };
+  // Define las propiedades necesarias para Mapbox
+  map: mapboxgl.Map | null = null;
+  marker: mapboxgl.Marker | null = null;
+  mapCenter: [number, number] = [-77.0428, -12.0464]; // [lng, lat] - Mapbox usa este orden
   selectedLat: number | null = null;
   selectedLng: number | null = null;
+  mapboxToken = 'pk.eyJ1IjoiamVhbnJxODgiLCJhIjoiY21hYmExM2liMjljeDJscHdhc25oYWo0bCJ9.Gd8w_nlLHD2YY9UvfoPI9A'; // Reemplaza con tu token de Mapbox
 
   constructor(private destinoService: DestinosService, private fb: FormBuilder) {
     this.minDate = new Date();
+    // Configura el token de acceso de Mapbox
+    (mapboxgl as any).accessToken = this.mapboxToken;
   }
 
   ngOnInit(): void {
@@ -82,11 +88,42 @@ export class DestinosComponent implements OnInit {
     this.cargarDestinos();
   }
 
+  ngAfterViewInit(): void {
+    // Inicializar el mapa después de que la vista esté completamente cargada
+    this.initMap();
+  }
+
+  initMap(): void {
+    if (this.mapContainer && this.mapContainer.nativeElement) {
+      this.map = new mapboxgl.Map({
+        container: this.mapContainer.nativeElement,
+        style: 'mapbox://styles/mapbox/streets-v12',
+        center: this.mapCenter,
+        zoom: 12
+      });
+
+      // Añadir controles de navegación
+      this.map.addControl(new mapboxgl.NavigationControl());
+
+      // Escuchar eventos de clic en el mapa
+      this.map.on('click', (e) => {
+        this.onMapClick(e);
+      });
+    }
+  }
+
   // Método para alternar la visibilidad del formulario
   toggleForm(): void {
     this.formularioVisible = !this.formularioVisible;
     if (!this.formularioVisible) {
       this.resetForm();
+    } else {
+      // Si el mapa aún no existe, inicializarlo
+      setTimeout(() => {
+        if (!this.map && this.mapContainer) {
+          this.initMap();
+        }
+      }, 100);
     }
   }
 
@@ -182,9 +219,13 @@ export class DestinosComponent implements OnInit {
       // Actualizar las coordenadas del mapa y el marcador
       this.selectedLat = destino.latitud;
       this.selectedLng = destino.longitud;
-      if (this.selectedLat && this.selectedLng) {
-        this.mapCenter = { lat: this.selectedLat, lng: this.selectedLng };
-      }
+
+      // Actualizar el mapa después de que sea visible
+      setTimeout(() => {
+        if (this.selectedLat && this.selectedLng) {
+          this.actualizarMarcador(this.selectedLng, this.selectedLat);
+        }
+      }, 200);
     } else {
       console.error('Destino con datos incompletos:', destino);
     }
@@ -223,17 +264,90 @@ export class DestinosComponent implements OnInit {
     this.formularioVisible = false;
     this.selectedLat = null;
     this.selectedLng = null;
+
+    // Eliminar el marcador si existe
+    if (this.marker) {
+      this.marker.remove();
+      this.marker = null;
+    }
   }
 
-  // Corregido: Correcto tipado para el evento del mapa
-  onMapClick(event: google.maps.MapMouseEvent): void {
-    if (event.latLng) {
-      this.selectedLat = event.latLng.lat();
-      this.selectedLng = event.latLng.lng();
+  // Método para obtener la dirección a partir de coordenadas (geocodificación inversa con Mapbox)
+  obtenerDireccion(lng: number, lat: number): void {
+    const url = `https://api.mapbox.com/geocoding/v5/mapbox.places/${lng},${lat}.json?access_token=${this.mapboxToken}&language=es`;
+
+    fetch(url)
+      .then(response => response.json())
+      .then(data => {
+        if (data && data.features && data.features.length > 0) {
+          const direccion = data.features[0].place_name;
+          this.destinoForm.patchValue({ ubicacion: direccion });
+        } else {
+          this.errorMessage = 'No se encontró una dirección para estas coordenadas.';
+        }
+      })
+      .catch(error => {
+        console.error('Error al obtener la dirección:', error);
+        this.errorMessage = 'Error al obtener la dirección desde Mapbox.';
+      });
+  }
+
+
+  // Actualizar o crear un marcador en el mapa
+  actualizarMarcador(lng: number, lat: number): void {
+    if (!this.map) {
+      setTimeout(() => this.actualizarMarcador(lng, lat), 100);
+      return;
+    }
+
+    // Actualizar el centro del mapa
+    this.map.setCenter([lng, lat]);
+
+    // Eliminar el marcador anterior si existe
+    if (this.marker) {
+      this.marker.remove();
+    }
+
+    // Crear un nuevo marcador
+    this.marker = new mapboxgl.Marker({
+      color: '#FF0000',
+      draggable: true
+    })
+      .setLngLat([lng, lat])
+      .addTo(this.map);
+
+    // Escuchar el evento dragend para actualizar los valores cuando se arrastra el marcador
+    this.marker.on('dragend', () => {
+      const lngLat = this.marker?.getLngLat();
+      if (lngLat) {
+        this.selectedLng = lngLat.lng;
+        this.selectedLat = lngLat.lat;
+        this.destinoForm.patchValue({
+          latitud: this.selectedLat,
+          longitud: this.selectedLng
+        });
+        this.obtenerDireccion(this.selectedLng, this.selectedLat);
+      }
+    });
+  }
+
+  // Evento de clic en el mapa
+  onMapClick(event: mapboxgl.MapMouseEvent): void {
+    if (event.lngLat) {
+      this.selectedLng = event.lngLat.lng;
+      this.selectedLat = event.lngLat.lat;
+
+      // Actualizar los campos de latitud y longitud en el formulario
       this.destinoForm.patchValue({
         latitud: this.selectedLat,
         longitud: this.selectedLng
       });
+
+      // Añadir o actualizar el marcador
+      this.actualizarMarcador(this.selectedLng, this.selectedLat);
+
+      // Obtener y actualizar automáticamente la dirección correspondiente
+      this.obtenerDireccion(this.selectedLng, this.selectedLat);
     }
   }
 }
