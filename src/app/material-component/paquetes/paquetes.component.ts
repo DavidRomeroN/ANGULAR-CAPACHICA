@@ -10,6 +10,7 @@ import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatNativeDateModule } from '@angular/material/core';
 import { MatSelectModule } from '@angular/material/select';
 import { PaquetesService } from './paquetes.service';
+import { Observable } from 'rxjs';
 
 @Component({
   selector: 'app-paquetes',
@@ -38,7 +39,6 @@ export class PaquetesComponent implements OnInit {
   errorMessage: string = '';
   formularioVisible: boolean = false;
 
-  // Variables para mostrar información de proveedor y destino
   proveedorNombre: string = '';
   destinoNombre: string = '';
 
@@ -50,6 +50,10 @@ export class PaquetesComponent implements OnInit {
   ngOnInit(): void {
     this.inicializarFormulario();
     this.cargarPaquetes();
+  }
+
+  getPaquetesPorMes(): Observable<any[]> {
+    return this.paqueteService.getAll(); // Uso correcto
   }
 
   inicializarFormulario(): void {
@@ -69,126 +73,81 @@ export class PaquetesComponent implements OnInit {
       destinoId: [null, Validators.required]
     });
 
-    // Subscribirse a cambios en los campos proveedorId y destinoId
     this.paqueteForm.get('proveedorId')?.valueChanges.subscribe(id => {
-      if (id) {
-        this.buscarProveedorPorId(id);
-      } else {
-        this.proveedorNombre = '';
-      }
+      if (id) this.buscarProveedorPorId(id);
+      else this.proveedorNombre = '';
     });
 
     this.paqueteForm.get('destinoId')?.valueChanges.subscribe(id => {
-      if (id) {
-        this.buscarDestinoPorId(id);
-      } else {
-        this.destinoNombre = '';
-      }
+      if (id) this.buscarDestinoPorId(id);
+      else this.destinoNombre = '';
     });
   }
 
   toggleForm(): void {
     this.formularioVisible = !this.formularioVisible;
-    if (!this.formularioVisible) {
-      this.resetForm();
-    }
+    if (!this.formularioVisible) this.resetForm();
   }
 
   cargarPaquetes(): void {
     this.paqueteService.getAll().subscribe({
-      next: (data: any[]) => {
+      next: (data) => {
         this.paquetes = data;
 
-        // Cargar información adicional de proveedores y destinos
         this.paquetes.forEach(paquete => {
-          // Asegurarse de tener IDs válidos antes de hacer las consultas
-          if (paquete.proveedor && typeof paquete.proveedor === 'number') {
-            this.paqueteService.getProveedorPorId(paquete.proveedor).subscribe(
-              (proveedor: any) => {
-                paquete.proveedor = proveedor;
-              },
-              (error) => {
-                console.error(`Error al obtener proveedor con ID ${paquete.proveedor}:`, error);
-              }
-            );
-          } else if (paquete.proveedor?.idProveedor) {
-            this.paqueteService.getProveedorPorId(paquete.proveedor.idProveedor).subscribe(
-              (proveedor: any) => {
-                paquete.proveedor = proveedor;
-              },
-              (error) => {
-                console.error(`Error al obtener proveedor con ID ${paquete.proveedor.idProveedor}:`, error);
-              }
+          const proveedorId = typeof paquete.proveedor === 'number' ? paquete.proveedor : paquete.proveedor?.idProveedor;
+          const destinoId = typeof paquete.destino === 'number' ? paquete.destino : paquete.destino?.idDestino;
+
+          if (proveedorId) {
+            this.paqueteService.getProveedorPorId(proveedorId).subscribe(
+              proveedor => paquete.proveedor = proveedor,
+              err => console.error(`Error proveedor ID ${proveedorId}`, err)
             );
           }
 
-          if (paquete.destino && typeof paquete.destino === 'number') {
-            this.paqueteService.getDestinoPorId(paquete.destino).subscribe(
-              (destino: any) => {
-                paquete.destino = destino;
-              },
-              (error) => {
-                console.error(`Error al obtener destino con ID ${paquete.destino}:`, error);
-              }
-            );
-          } else if (paquete.destino?.idDestino) {
-            this.paqueteService.getDestinoPorId(paquete.destino.idDestino).subscribe(
-              (destino: any) => {
-                paquete.destino = destino;
-              },
-              (error) => {
-                console.error(`Error al obtener destino con ID ${paquete.destino.idDestino}:`, error);
-              }
+          if (destinoId) {
+            this.paqueteService.getDestinoPorId(destinoId).subscribe(
+              destino => paquete.destino = destino,
+              err => console.error(`Error destino ID ${destinoId}`, err)
             );
           }
         });
       },
-      error: (error) => {
-        console.error('Error al cargar paquetes:', error);
+      error: err => {
+        console.error('Error al cargar paquetes:', err);
         this.errorMessage = 'Error al cargar la lista de paquetes.';
       }
     });
   }
 
   buscarProveedorPorId(id: number): void {
-    if (!id) return;
-
     this.paqueteService.getProveedorPorId(id).subscribe({
-      next: (proveedor: any) => {
-        this.proveedorNombre = proveedor.nombreCompleto || 'Nombre no disponible';
-      },
-      error: (error) => {
-        console.error('Error al buscar proveedor:', error);
+      next: proveedor => this.proveedorNombre = proveedor.nombreCompleto || 'Nombre no disponible',
+      error: err => {
+        console.error('Error al buscar proveedor:', err);
         this.proveedorNombre = 'Proveedor no encontrado';
       }
     });
   }
 
   buscarDestinoPorId(id: number): void {
-    if (!id) return;
-
     this.paqueteService.getDestinoPorId(id).subscribe({
-      next: (destino: any) => {
-        this.destinoNombre = destino.nombre || 'Nombre no disponible';
-      },
-      error: (error) => {
-        console.error('Error al buscar destino:', error);
+      next: destino => this.destinoNombre = destino.nombre || 'Nombre no disponible',
+      error: err => {
+        console.error('Error al buscar destino:', err);
         this.destinoNombre = 'Destino no encontrado';
       }
     });
   }
 
-  // Métodos para buscar manualmente los proveedores y destinos
   buscarProveedor(): void {
     const id = this.paqueteForm.get('proveedorId')?.value;
-    if (!id) return;
-    this.buscarProveedorPorId(id);
+    if (id) this.buscarProveedorPorId(id);
   }
 
   buscarDestino(): void {
     const id = this.paqueteForm.get('destinoId')?.value;
-    if (!id) return;
-    this.buscarDestinoPorId(id);
+    if (id) this.buscarDestinoPorId(id);
   }
 
   guardar(): void {
@@ -200,17 +159,6 @@ export class PaquetesComponent implements OnInit {
 
     this.errorMessage = '';
     const formValue = this.paqueteForm.value;
-
-    // Validación para asegurarse de que se haya ingresado IDs válidos
-    if (!formValue.proveedorId || isNaN(formValue.proveedorId)) {
-      this.errorMessage = 'Por favor, ingresa un ID de proveedor válido.';
-      return;
-    }
-
-    if (!formValue.destinoId || isNaN(formValue.destinoId)) {
-      this.errorMessage = 'Por favor, ingresa un ID de destino válido.';
-      return;
-    }
 
     const paquete = {
       titulo: formValue.titulo,
@@ -228,8 +176,6 @@ export class PaquetesComponent implements OnInit {
       destino: parseInt(formValue.destinoId, 10)
     };
 
-    console.log('Enviando paquete:', paquete);
-
     if (this.editando && this.idPaqueteEditando !== null) {
       this.paqueteService.update(this.idPaqueteEditando, paquete).subscribe({
         next: () => {
@@ -237,12 +183,9 @@ export class PaquetesComponent implements OnInit {
           this.cargarPaquetes();
           this.formularioVisible = false;
         },
-        error: (error) => {
-          console.error('Error al actualizar paquete:', error);
-          this.errorMessage = 'Error al actualizar el paquete. Verifique los datos e intente nuevamente.';
-          if (error.error && error.error.message) {
-            this.errorMessage += ` Detalle: ${error.error.message}`;
-          }
+        error: err => {
+          console.error('Error al actualizar paquete:', err);
+          this.errorMessage = 'Error al actualizar el paquete. ' + (err.error?.message || '');
         }
       });
     } else {
@@ -252,12 +195,9 @@ export class PaquetesComponent implements OnInit {
           this.cargarPaquetes();
           this.formularioVisible = false;
         },
-        error: (error) => {
-          console.error('Error al crear paquete:', error);
-          this.errorMessage = 'Error al crear el paquete. Verifique los datos e intente nuevamente.';
-          if (error.error && error.error.message) {
-            this.errorMessage += ` Detalle: ${error.error.message}`;
-          }
+        error: err => {
+          console.error('Error al crear paquete:', err);
+          this.errorMessage = 'Error al crear el paquete. ' + (err.error?.message || '');
         }
       });
     }
@@ -268,38 +208,8 @@ export class PaquetesComponent implements OnInit {
     this.idPaqueteEditando = paquete.idPaquete;
     this.formularioVisible = true;
 
-    // Extraer IDs correctamente
-    let proveedorId = null;
-    if (typeof paquete.proveedor === 'number') {
-      proveedorId = paquete.proveedor;
-    } else if (paquete.proveedor?.idProveedor) {
-      proveedorId = paquete.proveedor.idProveedor;
-    }
-
-    let destinoId = null;
-    if (typeof paquete.destino === 'number') {
-      destinoId = paquete.destino;
-    } else if (paquete.destino?.idDestino) {
-      destinoId = paquete.destino.idDestino;
-    }
-
-    // Convertir las fechas a formato YYYY-MM-DD para el input type date
-    let fechaInicio = '';
-    let fechaFin = '';
-
-    if (paquete.fechaInicio) {
-      const dateInicio = new Date(paquete.fechaInicio);
-      if (!isNaN(dateInicio.getTime())) {
-        fechaInicio = dateInicio.toISOString().split('T')[0];
-      }
-    }
-
-    if (paquete.fechaFin) {
-      const dateFin = new Date(paquete.fechaFin);
-      if (!isNaN(dateFin.getTime())) {
-        fechaFin = dateFin.toISOString().split('T')[0];
-      }
-    }
+    const proveedorId = typeof paquete.proveedor === 'number' ? paquete.proveedor : paquete.proveedor?.idProveedor;
+    const destinoId = typeof paquete.destino === 'number' ? paquete.destino : paquete.destino?.idDestino;
 
     this.paqueteForm.patchValue({
       titulo: paquete.titulo,
@@ -311,34 +221,22 @@ export class PaquetesComponent implements OnInit {
       localidad: paquete.localidad,
       tipoActividad: paquete.tipoActividad,
       cuposMaximos: paquete.cuposMaximos,
-      fechaInicio: fechaInicio,
-      fechaFin: fechaFin,
-      proveedorId: proveedorId,
-      destinoId: destinoId
+      fechaInicio: this.formatFechaForInput(paquete.fechaInicio),
+      fechaFin: this.formatFechaForInput(paquete.fechaFin),
+      proveedorId,
+      destinoId
     });
 
-    // Cargar nombres de proveedor y destino
-    if (paquete.proveedor?.nombreCompleto) {
-      this.proveedorNombre = paquete.proveedor.nombreCompleto;
-    } else if (proveedorId) {
-      this.buscarProveedorPorId(proveedorId);
-    }
-
-    if (paquete.destino?.nombre) {
-      this.destinoNombre = paquete.destino.nombre;
-    } else if (destinoId) {
-      this.buscarDestinoPorId(destinoId);
-    }
+    if (proveedorId) this.buscarProveedorPorId(proveedorId);
+    if (destinoId) this.buscarDestinoPorId(destinoId);
   }
 
   eliminar(id: number): void {
     if (confirm('¿Estás seguro de eliminar este paquete?')) {
       this.paqueteService.delete(id).subscribe({
-        next: () => {
-          this.cargarPaquetes();
-        },
-        error: (error) => {
-          console.error('Error al eliminar paquete:', error);
+        next: () => this.cargarPaquetes(),
+        error: err => {
+          console.error('Error al eliminar paquete:', err);
           this.errorMessage = 'Error al eliminar el paquete.';
         }
       });
@@ -346,11 +244,7 @@ export class PaquetesComponent implements OnInit {
   }
 
   resetForm(): void {
-    this.paqueteForm.reset({
-      estado: 'DISPONIBLE'  // Establecer un valor predeterminado para el estado
-    });
-    this.paqueteForm.markAsPristine();
-    this.paqueteForm.markAsUntouched();
+    this.paqueteForm.reset({ estado: 'DISPONIBLE' });
     this.editando = false;
     this.idPaqueteEditando = null;
     this.errorMessage = '';
@@ -359,32 +253,12 @@ export class PaquetesComponent implements OnInit {
   }
 
   private formatFecha(fecha: any): string {
-    if (!fecha) return '';
+    const date = new Date(fecha);
+    return `${date.getFullYear()}-${(date.getMonth() + 1).toString().padStart(2, '0')}-${date.getDate().toString().padStart(2, '0')} 00:00:00`;
+  }
 
-    try {
-      // Si la fecha ya está en formato YYYY-MM-DD, agregarle la hora
-      let fechaObj;
-      if (typeof fecha === 'string' && fecha.includes('-') && !fecha.includes(':')) {
-        fechaObj = new Date(fecha + 'T00:00:00');
-      } else {
-        fechaObj = new Date(fecha);
-      }
-
-      // Verificar si la fecha es válida
-      if (isNaN(fechaObj.getTime())) {
-        console.error('Fecha inválida:', fecha);
-        return '';
-      }
-
-      const year = fechaObj.getFullYear();
-      const month = (fechaObj.getMonth() + 1).toString().padStart(2, '0');
-      const day = fechaObj.getDate().toString().padStart(2, '0');
-
-      // En formato YYYY-MM-DD HH:MM:SS para el backend
-      return `${year}-${month}-${day} 00:00:00`;
-    } catch (error) {
-      console.error('Error formateando fecha:', error);
-      return '';
-    }
+  private formatFechaForInput(fecha: string): string {
+    const date = new Date(fecha);
+    return date.toISOString().split('T')[0];
   }
 }

@@ -69,12 +69,22 @@ export class AddProveedorDialogComponent {
         usuario: usuario.idUsuario
       };
 
-      this.proveedorService.create(proveedor).subscribe({
-        next: () => this.dialogRef.close('refresh'),
-        error: (err) => console.error('Error al guardar:', err)
-      });
+      if (this.data && this.data.idProveedor) {
+        // 👉 Estamos editando
+        this.proveedorService.update(this.data.idProveedor, proveedor).subscribe({
+          next: () => this.dialogRef.close('refresh'),
+          error: (err) => console.error('Error al actualizar:', err)
+        });
+      } else {
+        // 👉 Estamos creando
+        this.proveedorService.create(proveedor).subscribe({
+          next: () => this.dialogRef.close('refresh'),
+          error: (err) => console.error('Error al crear:', err)
+        });
+      }
     }
   }
+
 
   cancelar() {
     this.dialogRef.close();

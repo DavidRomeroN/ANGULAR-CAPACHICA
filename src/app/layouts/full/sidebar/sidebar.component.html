@@ -3,14 +3,19 @@
 <!-- ============================================================== -->
 <div class="user-profile" style="background: url(assets/images/background/user-info.jpg) no-repeat;">
     <!-- User profile image -->
-    <div class="profile-img"> <img src="assets/images/users/profile.png" alt="user"> </div>
+    <div class="profile-img"> <img src="assets/images/users/usuario1.png" alt="user"> </div>
     <!-- User profile text-->
     <!-- ============================================================== -->
     <!-- Profile - style you can find in header.scss -->
     <!-- ============================================================== -->
-    <div class="profile-text"><a [matMenuTriggerFor]="sdprofile" class=""> Markarn Doe <i
-                class="ti-angle-down font-12 m-l-5"></i></a></div>
-    <mat-menu #sdprofile="matMenu" class="mymegamenu">
+  <div class="profile-text">
+    <a [matMenuTriggerFor]="sdprofile" class="">
+      {{ correoUsuario }} <i class="ti-angle-down font-12 m-l-5"></i>
+    </a>
+  </div>
+
+
+  <mat-menu #sdprofile="matMenu" class="mymegamenu">
 
         <button mat-menu-item>
             <mat-icon fontIcon="settings"></mat-icon> Settings </button>
@@ -24,7 +29,7 @@
 
 </div>
 <mat-nav-list appAccordion>
-    <mat-list-item appAccordionLink *ngFor="let menuitem of menuItems.getMenuitem()" routerLinkActive="selected">
+    <mat-list-item  appAccordionLink *ngFor="let menuitem of menuItems.getMenuitem()" routerLinkActive="selected">
         <a class="" appAccordionToggle [routerLink]="['/', menuitem.state]" *ngIf="menuitem.type === 'link'">
             <mat-icon>{{ menuitem.icon }}</mat-icon>
             <span>{{ menuitem.name }}</span>

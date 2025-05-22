@@ -1,0 +1,23 @@
+/* Color de fondo del ítem activo del sidebar */
+.selected {
+  background-color: #f57c00 !important; /* naranja fuerte */
+  color: #fff !important;
+  border-radius: 8px;
+}
+
+/* Iconos blancos dentro del ítem activo */
+.selected mat-icon {
+  color: #fff !important;
+}
+
+/* Texto blanco también */
+.selected span {
+  color: #fff !important;
+}
+
+/* Efecto hover para los ítems */
+mat-list-item:hover a,
+mat-list-item a:hover {
+  background-color: rgba(245, 124, 0, 0.1);
+  border-radius: 8px;
+}

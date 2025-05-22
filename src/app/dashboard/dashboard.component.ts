@@ -5,6 +5,7 @@ import { ProfileComponent } from './dashboard-components/profile/profile.compone
 import { ContactsComponent } from './dashboard-components/contacts/contacts.component';
 import { ActivityTimelineComponent } from './dashboard-components/activity-timeline/activity-timeline.component';
 
+
 @Component({
 	selector: 'app-dashboard',
 	standalone: true,
