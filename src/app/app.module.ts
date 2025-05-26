@@ -24,6 +24,7 @@ import {UsuarioListComponent} from "./material-component/usuarios/usuario.compon
 import {MatNativeDateModule} from "@angular/material/core";
 import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
 import {GoogleMapsModule} from "@angular/google-maps";
+import {MatIconModule} from "@angular/material/icon";
 
 @NgModule({
   declarations: [
@@ -44,7 +45,8 @@ import {GoogleMapsModule} from "@angular/google-maps";
     ReactiveFormsModule,
     AppSidebarComponent,
     MatNativeDateModule,
-    GoogleMapsModule
+    GoogleMapsModule,
+    MatIconModule
     // Importa el componente independiente aquí
    // Importa ProveedoresModule aquí
   ],

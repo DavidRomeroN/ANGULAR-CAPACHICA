@@ -1,0 +1,36 @@
+<h2 mat-dialog-title>Registrar Servicio de Hotelería</h2>
+<mat-dialog-content>
+  <form [formGroup]="form">
+    <mat-form-field appearance="outline" class="w-100">
+      <mat-label>Tipo de Habitación</mat-label>
+      <input matInput formControlName="tipoHabitacion" />
+    </mat-form-field>
+
+    <mat-form-field appearance="outline" class="w-100">
+      <mat-label>Estrellas</mat-label>
+      <input matInput type="number" formControlName="estrellas" />
+    </mat-form-field>
+
+    <mat-form-field appearance="outline" class="w-100">
+      <mat-label>Incluye Desayuno</mat-label>
+      <mat-select formControlName="incluyeDesayuno">
+        <mat-option *ngFor="let d of desayunoOpciones" [value]="d">{{ d }}</mat-option>
+      </mat-select>
+    </mat-form-field>
+
+    <mat-form-field appearance="outline" class="w-100">
+      <mat-label>Máx. Personas</mat-label>
+      <input matInput type="number" formControlName="maxPersonas" />
+    </mat-form-field>
+
+    <mat-form-field appearance="outline" class="w-100">
+      <mat-label>ID Servicio</mat-label>
+      <input matInput type="number" formControlName="servicio" />
+    </mat-form-field>
+  </form>
+</mat-dialog-content>
+
+<mat-dialog-actions align="end">
+  <button mat-button (click)="cancelar()">Cancelar</button>
+  <button mat-flat-button color="primary" (click)="guardar()" [disabled]="form.invalid">Guardar</button>
+</mat-dialog-actions>

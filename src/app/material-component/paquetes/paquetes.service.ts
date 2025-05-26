@@ -29,6 +29,7 @@ export class PaquetesService {
     return this.http.post(this.apiURL, paquete, this.getHttpOptions());
   }
 
+
   update(id: number, paquete: any): Observable<any> {
     return this.http.put(`${this.apiURL}/${id}`, paquete, this.getHttpOptions());
   }

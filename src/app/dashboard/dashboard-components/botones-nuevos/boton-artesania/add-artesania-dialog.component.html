@@ -1,0 +1,55 @@
+<h2 mat-dialog-title>Registrar Servicio de Artesanía</h2>
+<mat-dialog-content>
+  <form [formGroup]="form">
+    <mat-form-field appearance="outline" class="w-100">
+      <mat-label>Tipo de Artesanía</mat-label>
+      <input matInput formControlName="tipoArtesania" />
+    </mat-form-field>
+
+    <mat-form-field appearance="outline" class="w-100">
+      <mat-label>Nivel de Dificultad</mat-label>
+      <mat-select formControlName="nivelDificultad">
+        <mat-option *ngFor="let n of niveles" [value]="n">{{ n }}</mat-option>
+      </mat-select>
+    </mat-form-field>
+
+    <mat-form-field appearance="outline" class="w-100">
+      <mat-label>Duración del Taller (min)</mat-label>
+      <input matInput type="number" formControlName="duracionTaller" />
+    </mat-form-field>
+
+    <mat-checkbox formControlName="incluyeMaterial">Incluye Material</mat-checkbox>
+
+    <mat-form-field appearance="outline" class="w-100">
+      <mat-label>Descripción</mat-label>
+      <textarea matInput formControlName="artesania"></textarea>
+    </mat-form-field>
+
+    <mat-form-field appearance="outline" class="w-100">
+      <mat-label>Origen Cultural</mat-label>
+      <input matInput formControlName="origenCultural" />
+    </mat-form-field>
+
+    <mat-form-field appearance="outline" class="w-100">
+      <mat-label>Máx. Participantes</mat-label>
+      <input matInput type="number" formControlName="maxParticipantes" />
+    </mat-form-field>
+
+    <mat-checkbox formControlName="visitaTaller">Incluye Visita al Taller</mat-checkbox>
+
+    <mat-form-field appearance="outline" class="w-100">
+      <mat-label>Nombre del Artesano</mat-label>
+      <input matInput formControlName="artesano" />
+    </mat-form-field>
+
+    <mat-form-field appearance="outline" class="w-100">
+      <mat-label>ID del Servicio</mat-label>
+      <input matInput type="number" formControlName="servicio" />
+    </mat-form-field>
+  </form>
+</mat-dialog-content>
+
+<mat-dialog-actions align="end">
+  <button mat-button (click)="cancelar()">Cancelar</button>
+  <button mat-flat-button color="primary" (click)="guardar()" [disabled]="form.invalid">Guardar</button>
+</mat-dialog-actions>
