@@ -1,36 +1,33 @@
 <mat-card>
   <mat-card-content>
-    <div class="d-flex flex-wrap">
+    <div class="d-flex flex-wrap justify-between items-center mb-3">
       <div>
         <mat-card-title>Resumen de Paquetes</mat-card-title>
         <mat-card-subtitle>Cantidad de paquetes por mes</mat-card-subtitle>
       </div>
-      <div class="ml-auto">
-        <ul class="list-inline">
-          <li>
-            <h6 class="text-warning m-0">
-              <i class="mdi mdi-checkbox-blank-circle font-10 m-r-10"></i>Paquetes
-            </h6>
-          </li>
-        </ul>
-      </div>
+
+      <!-- Selector de Año Compacto -->
+      <mat-form-field appearance="outline" class="year-selector">
+        <mat-label>Seleccionar Ano</mat-label>
+        <mat-select [(value)]="anoSeleccionado" (selectionChange)="cargarDatosPaquetes()">
+          <mat-option *ngFor="let ano of anosDisponibles" [value]="ano">{{ ano }}</mat-option>
+        </mat-select>
+      </mat-form-field>
     </div>
 
-    <!-- Asegura que todas las propiedades existen antes de renderizar el gráfico -->
-    <div *ngIf="chartOptions?.series?.length">
-      <apx-chart
-        [series]="chartOptions.series || []"
-        [chart]="chartOptions.chart || { type: 'bar', height: 320 }"
-        [dataLabels]="chartOptions.dataLabels || { enabled: false }"
-        [plotOptions]="chartOptions.plotOptions || {}"
-        [yaxis]="chartOptions.yaxis || {}"
-        [legend]="chartOptions.legend || {}"
-        [fill]="chartOptions.fill || {}"
-        [stroke]="chartOptions.stroke || {}"
-        [tooltip]="chartOptions.tooltip || {}"
-        [xaxis]="chartOptions.xaxis || {}"
-        [grid]="chartOptions.grid || {}">
-      </apx-chart>
-    </div>
+    <!-- Gráfico -->
+    <apx-chart
+      [series]="chartOptions.series"
+      [chart]="chartOptions.chart"
+      [dataLabels]="chartOptions.dataLabels"
+      [plotOptions]="chartOptions.plotOptions"
+      [yaxis]="chartOptions.yaxis"
+      [legend]="chartOptions.legend"
+      [fill]="chartOptions.fill"
+      [stroke]="chartOptions.stroke"
+      [tooltip]="chartOptions.tooltip"
+      [xaxis]="chartOptions.xaxis"
+      [grid]="chartOptions.grid">
+    </apx-chart>
   </mat-card-content>
 </mat-card>
