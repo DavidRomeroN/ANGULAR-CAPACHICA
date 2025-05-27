@@ -1,0 +1,20 @@
+<div class="detalle-container" *ngIf="destino">
+  <div class="imagen-destino">
+    <img [src]="destino.imagenUrl" [alt]="destino.nombre" />
+  </div>
+
+  <div class="info-destino">
+    <h2 class="titulo">{{ destino.nombre }}</h2>
+    <p class="ubicacion"><i class="fa fa-map-marker-alt"></i> {{ destino.ubicacion }}</p>
+
+    <p class="descripcion">{{ destino.descripcion }}</p>
+
+    <div class="info-extra">
+      <p><strong>Popularidad:</strong> {{ destino.popularidad }} / 10</p>
+      <p><strong>Rating:</strong> ⭐ {{ destino.rating }}</p>
+      <p><strong>Precio promedio:</strong> S/. {{ destino.preciomedio | number:'1.2-2' }}</p>
+      <p><strong>Latitud:</strong> {{ destino.latitud }}</p>
+      <p><strong>Longitud:</strong> {{ destino.longitud }}</p>
+    </div>
+  </div>
+</div>

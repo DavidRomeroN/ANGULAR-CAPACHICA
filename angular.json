@@ -34,9 +34,15 @@
             ],
             "styles": [
               "@angular/material/prebuilt-themes/indigo-pink.css",
+              "node_modules/font-awesome/css/font-awesome.min.css",
               "node_modules/mdb-ui-kit/css/mdb.min.css",
               "src/assets/styles/style.scss",
-              "src/styles.scss"
+              "src/styles.scss",
+              "src/assets/css/nucleo-icons.css",
+              "src/assets/css/demo.css",
+              "src/assets/sass/paper-kit.scss",
+              "node_modules/bootstrap/dist/css/bootstrap.min.css"
+
             ],
             "scripts": []
 

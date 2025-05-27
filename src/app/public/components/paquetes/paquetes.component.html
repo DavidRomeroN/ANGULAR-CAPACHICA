@@ -1,0 +1,26 @@
+<div class="paquete-carousel-container">
+  <h2 class="carousel-title">Paquetes Destacados</h2>
+
+  <div class="carousel-wrapper">
+    <button class="arrow-btn left" (click)="scrollPaquetes('left')">&#10094;</button>
+
+    <div class="carousel-scroll" #paqueteContainer>
+      <div class="paquete-card" *ngFor="let paquete of paquetes">
+        <img [src]="paquete.imagenUrl" [alt]="paquete.titulo" class="paquete-img" />
+
+        <h4 class="paquete-titulo">{{ paquete.titulo }}</h4>
+        <p class="paquete-localidad">{{ paquete.localidad }}</p>
+        <p class="paquete-descripcion">
+          {{ paquete.descripcion.length > 80 ? (paquete.descripcion | slice:0:80) + '...' : paquete.descripcion }}
+        </p>
+
+        <div class="paquete-precio">
+          <span class="badge">S/. {{ paquete.precioTotal | number: '1.2-2' }}</span>
+          <button class="btn-ver-mas">VER MÁS</button>
+        </div>
+      </div>
+    </div>
+
+    <button class="arrow-btn right" (click)="scrollPaquetes('right')">&#10095;</button>
+  </div>
+</div>

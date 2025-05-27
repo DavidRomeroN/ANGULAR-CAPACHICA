@@ -1,0 +1,116 @@
+<div class="wrapper">
+    <div class="page-header section-dark" style="background-image: url('assets/img/antoine-barres.jpg')">
+        <div class="filter"></div>
+        <div class="content-center">
+            <div class="container">
+                <div class="title-brand">
+                    <div class="angular-logo">
+                        <img src="assets/img/logo2.png" alt="">
+                    </div>
+                    <h1 class="presentation-title">CAPACHICA</h1>
+                    <div class="fog-low">
+                        <img src="assets/img/fog-low.png" alt="">
+                    </div>
+                    <div class="fog-low right">
+                        <img src="assets/img/fog-low.png" alt="">
+                    </div>
+                </div>
+                <h2 class="presentation-subtitle text-center">Una experiencia Inolvidable!!</h2>
+            </div>
+        </div>
+        <div class="moving-clouds" style="background-image: url('assets/img/clouds.png'); "></div>
+        <!--<h6 class="category-absolute ml-auto mr-auto">
+            Designed and coded by
+            <a href="https://www.creative-tim.com" target="_blank">
+                <img src="assets/img/creative-tim-white-slim2.png" class="creative-tim-logo">
+            </a>
+        </h6> -->
+    </div>
+    <div class="main">
+        <!--<app-basicelements></app-basicelements>-->
+        <!-- <app-navigation></app-navigation>-->
+      <!-- Tarjetas de destinos turisticos -->
+      <div class="section">
+        <div class="container">
+          <app-destinos></app-destinos>
+        </div>
+        <div class="container">
+          <app-paquetes></app-paquetes>
+        </div>
+      </div>
+
+      <!--<div class="section">
+          <div class="container">
+              <div class="row">
+                  <div class="col-md-6">
+                      <div class="tim-title">
+                          <h3>Progress Bar</h3>
+                          <br />
+                      </div>
+                      <ngb-progressbar type="success" class="mt-0" [value]="25">25</ngb-progressbar><br>
+                      <ngb-progressbar type="info" class="mt-0" [value]="50">
+                          <span class="h6 mb-0">Copying file <b>2 of 4</b> ...</span>
+                      </ngb-progressbar><br>
+                      <ngb-progressbar type="warning" class="mt-0" [value]="75" [striped]="true" [animated]="true">
+                          <i>50%</i>
+                      </ngb-progressbar><br>
+                      <ngb-progressbar type="danger" class="mt-0" [value]="100" [striped]="true">Completed!</ngb-progressbar>
+                  </div>
+                  <div class="col-md-6">
+                      <div class="tim-title">
+                          <h3>Pagination</h3>
+                          <br />
+                      </div>
+                      <ngb-pagination [collectionSize]="70" [(page)]="page" aria-label="Default pagination"></ngb-pagination>
+                      <br />
+                      <ngb-pagination [collectionSize]="100" [(page)]="page1" [maxSize]="5" [rotate]="true"></ngb-pagination>
+                  </div>
+              </div>
+              <br />
+              <div class="row">
+                  <div class="col-md-6">
+                      <div class="tim-title">
+                          <h3>Navigation Tabs</h3>
+                      </div>
+                      <div class="nav-tabs-navigation">
+                          <div class="nav-tabs-wrapper">
+                              <ul ngbNav #nav="ngbNav" class="nav nav-tabs justify-content-center" role="tablist">
+                                  <li [ngbNavItem]="1">
+                                      <a ngbNavLink>Home</a>
+                                      <ng-template ngbNavContent>
+                                          <p>Larger, yet dramatically thinner. More powerful, but remarkably power efficient. With a smooth metal surface that seamlessly meets the new Retina HD display.</p>
+                                      </ng-template>
+                                  </li>
+                                  <li [ngbNavItem]="2">
+                                      <a ngbNavLink>Profile</a>
+                                      <ng-template ngbNavContent>
+                                          <p>Here is your profile.</p>
+                                      </ng-template>
+                                  </li>
+                                  <li [ngbNavItem]="3">
+                                      <a ngbNavLink>Messages</a>
+                                      <ng-template ngbNavContent>
+                                          <p>Here are your messages.</p>
+                                      </ng-template>
+                                  </li>
+                              </ul>
+                              <div [ngbNavOutlet]="nav" class="tab-content mt-3"></div>
+                          </div>
+                      </div>
+                  </div>
+                  <div class="col-md-6">
+                      <div class="tim-title">
+                          <h3>Labels</h3>
+                      </div>
+                      <span class="label label-default">Default</span>
+                      <span class="label label-primary">Primary</span>
+                      <span class="label label-info">Info</span>
+                      <span class="label label-success">Success</span>
+                      <span class="label label-warning">Warning</span>
+                      <span class="label label-danger">Danger</span>
+                  </div>
+              </div>
+          </div>
+      </div>-->
+    </div>
+</div>

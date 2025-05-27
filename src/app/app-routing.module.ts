@@ -6,6 +6,14 @@ import { AuthGuard } from './guards/auth.guard';
 
 const routes: Routes = [
   {
+    path: 'capachica',
+    loadChildren: () =>
+      import('./public/public.module').then(m => m.PublicModule) // ✅ esto carga PublicComponent con navbar/footer
+  },
+
+
+
+  {
     path: '',
     redirectTo: 'login',
     pathMatch: 'full' // 👈 importante

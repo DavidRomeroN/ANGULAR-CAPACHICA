@@ -1,0 +1,22 @@
+<div class="destinos-container">
+  <h2 class="section-title">Destinos Destacados</h2>
+
+  <div class="carousel-wrapper">
+    <button class="scroll-btn left" (click)="scrollLeft()">&#9664;</button>
+
+    <div #scrollContainer class="cards-container">
+      <div *ngFor="let destino of destinos" class="card">
+        <img [src]="destino.imagenUrl" alt="{{ destino.nombre }}" class="card-img">
+        <div class="card-body">
+          <h5 class="card-title">{{ destino.nombre }}</h5>
+          <p class="card-subtitle">{{ destino.ubicacion }}</p>
+          <p class="card-text">{{ destino.descripcion | slice:0:80 }}...</p>
+          <div class="rating">⭐ {{ destino.popularidad }}</div>
+          <button class="btn-ver-mas" (click)="verMasDestino(destino.idDestino)">VER MÁS</button>
+        </div>
+      </div>
+    </div>
+
+    <button class="scroll-btn right" (click)="scrollRight()">&#9654;</button>
+  </div>
+</div>

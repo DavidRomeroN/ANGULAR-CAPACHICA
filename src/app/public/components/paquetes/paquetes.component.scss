@@ -1,0 +1,121 @@
+.paquete-carousel-container {
+  margin: 40px auto;
+  max-width: 1300px;
+  padding: 0 15px;
+
+  .carousel-title {
+    text-align: center;
+    margin-bottom: 20px;
+    font-weight: bold;
+    font-size: 1.8rem;
+  }
+
+  .carousel-wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+  }
+
+  .arrow-btn {
+    background: none;
+    border: none;
+    font-size: 2rem;
+    cursor: pointer;
+    z-index: 2;
+    padding: 10px;
+    color: #333;
+
+    &.left {
+      margin-right: 10px;
+    }
+
+    &.right {
+      margin-left: 10px;
+    }
+  }
+
+  .carousel-scroll {
+    display: flex;
+    overflow-x: auto;
+    scroll-behavior: smooth;
+    gap: 16px;
+    padding: 20px 0;
+
+    &::-webkit-scrollbar {
+      display: none;
+    }
+  }
+
+  .paquete-card {
+    flex: 0 0 auto;
+    width: 260px;
+    background-color: #fff;
+    border-radius: 16px;
+    padding: 16px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    transition: transform 0.3s;
+    display: flex;
+    flex-direction: column;
+
+    &:hover {
+      transform: translateY(-5px);
+    }
+
+    .paquete-img {
+      width: 100%;
+      height: 160px;
+      object-fit: cover;
+      border-radius: 12px;
+      margin-bottom: 10px;
+    }
+
+    .paquete-titulo {
+      font-size: 1.1rem;
+      font-weight: 600;
+      color: #007bff;
+      margin-bottom: 6px;
+    }
+
+    .paquete-localidad {
+      font-size: 0.9rem;
+      color: #666;
+      margin-bottom: 6px;
+    }
+
+    .paquete-descripcion {
+      font-size: 0.85rem;
+      color: #444;
+      flex-grow: 1;
+      margin-bottom: 10px;
+    }
+
+    .paquete-precio {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+
+      .badge {
+        background-color: #ffc107;
+        padding: 6px 10px;
+        border-radius: 10px;
+        font-weight: bold;
+        font-size: 0.85rem;
+        color: #fff;
+      }
+
+      .btn-ver-mas {
+        background-color: #007bff;
+        color: white;
+        border: none;
+        border-radius: 6px;
+        font-size: 0.8rem;
+        padding: 6px 12px;
+        cursor: pointer;
+
+        &:hover {
+          background-color: #0056b3;
+        }
+      }
+    }
+  }
+}
