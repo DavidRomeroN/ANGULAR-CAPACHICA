@@ -20,6 +20,11 @@ const routes: Routes = [
   },
   {
     path: '',
+    redirectTo: 'login',
+    pathMatch: 'full' // 👈 importante
+  },
+  {
+    path: '',
     component: FullComponent,
     canActivate: [AuthGuard],
     canActivateChild: [AuthGuard],

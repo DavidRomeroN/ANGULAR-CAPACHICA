@@ -9,9 +9,8 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatNativeDateModule } from '@angular/material/core';
 import { MatSelectModule } from '@angular/material/select';
-import { MatOptionModule } from '@angular/material/core';
-
 import { PaquetesService } from './paquetes.service';
+import { Observable } from 'rxjs';
 
 @Component({
   selector: 'app-paquetes',
@@ -26,8 +25,7 @@ import { PaquetesService } from './paquetes.service';
     MatIconModule,
     MatDatepickerModule,
     MatNativeDateModule,
-    MatSelectModule,
-    MatOptionModule
+    MatSelectModule
   ],
   templateUrl: './paquetes.component.html',
   styleUrls: ['./paquetes.component.scss']
@@ -40,10 +38,11 @@ export class PaquetesComponent implements OnInit {
   minDate: string;
   errorMessage: string = '';
   formularioVisible: boolean = false;
-  selectedFile: File | null = null;
+  subiendoImagen = false;
 
   proveedorNombre: string = '';
   destinoNombre: string = '';
+  selectedFile: File | null = null;
 
   constructor(private paqueteService: PaquetesService, private fb: FormBuilder) {
     const today = new Date();
@@ -55,23 +54,9 @@ export class PaquetesComponent implements OnInit {
     this.cargarPaquetes();
   }
 
-  onFileSelected(event: any): void {
-    const file = event.target.files[0];
-
-    const maxSizeMB = 1;
-    const maxSizeBytes = maxSizeMB * 1024 * 1024;
-
-    if (file && file.size > maxSizeBytes) {
-      const actualMB = (file.size / 1024 / 1024).toFixed(2);
-      this.errorMessage = `El archivo pesa ${actualMB} MB. El máximo permitido es ${maxSizeMB} MB.`;
-      this.selectedFile = null;
-      return;
-    }
-
-    this.selectedFile = file;
-    this.errorMessage = '';
+  getPaquetesPorMes(): Observable<any[]> {
+    return this.paqueteService.getAll();
   }
-
 
   inicializarFormulario(): void {
     this.paqueteForm = this.fb.group({
@@ -108,7 +93,6 @@ export class PaquetesComponent implements OnInit {
   cargarPaquetes(): void {
     this.paqueteService.getAll().subscribe({
       next: (data) => {
-        console.log('Paquetes recibidos:', data);
         this.paquetes = data;
 
         this.paquetes.forEach(paquete => {
@@ -167,16 +151,46 @@ export class PaquetesComponent implements OnInit {
     if (id) this.buscarDestinoPorId(id);
   }
 
+  onFileSelected(event: any): void {
+    const file: File = event.target.files[0];
+    if (file) {
+      const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif'];
+      if (!allowedTypes.includes(file.type)) {
+        this.errorMessage = 'Solo se permiten archivos de imagen (JPG, PNG, GIF).';
+        return;
+      }
+
+      const maxSize = 5 * 1024 * 1024; // 5MB
+      if (file.size > maxSize) {
+        this.errorMessage = 'El archivo es demasiado grande. Máximo 5MB.';
+        return;
+      }
+
+      this.selectedFile = file;
+      this.errorMessage = '';
+      console.log('Archivo seleccionado:', file.name, 'Tipo:', file.type, 'Tamaño:', file.size);
+    }
+  }
+
   guardar(): void {
+    this.errorMessage = '';
+
     if (this.paqueteForm.invalid) {
       this.paqueteForm.markAllAsTouched();
       this.errorMessage = 'Por favor, completa todos los campos requeridos correctamente.';
       return;
     }
 
+    // Validar que se haya seleccionado una imagen para nuevos paquetes
+    if (!this.selectedFile && !this.editando) {
+      this.errorMessage = 'Por favor, selecciona una imagen.';
+      return;
+    }
+
     const formValue = this.paqueteForm.value;
 
-    const dto = {
+    // Crear el objeto DTO como JSON
+    const paqueteDto = {
       titulo: formValue.titulo,
       descripcion: formValue.descripcion,
       precioTotal: parseFloat(formValue.precioTotal),
@@ -191,37 +205,42 @@ export class PaquetesComponent implements OnInit {
       destino: parseInt(formValue.destinoId, 10)
     };
 
+    // Crear FormData con el DTO como JSON y el archivo
+    const formData = new FormData();
+
+    // Crear un blob para el JSON con el tipo correcto
+    const dtoBlob = new Blob([JSON.stringify(paqueteDto)], {
+      type: 'application/json'
+    });
+    formData.append('dto', dtoBlob);
+
+    // Agregar la imagen si fue seleccionada
+    if (this.selectedFile) {
+      formData.append('imagenFile', this.selectedFile, this.selectedFile.name);
+    }
+
     if (this.editando && this.idPaqueteEditando !== null) {
-      this.paqueteService.update(this.idPaqueteEditando, dto).subscribe({
-        next: () => {
+      this.paqueteService.update(this.idPaqueteEditando, formData).subscribe({
+        next: (response) => {
+          console.log('Paquete actualizado exitosamente:', response);
           this.resetForm();
           this.cargarPaquetes();
-          this.formularioVisible = false;
         },
-        error: (err: any) => {
-          console.error('Error al actualizar paquete:', err);
-          this.errorMessage = 'Error al actualizar el paquete. ' + (err.error?.message || '');
+        error: (error) => {
+          console.error('Error al actualizar paquete:', error);
+          this.errorMessage = 'Error al actualizar el paquete: ' + (error.error?.detail || error.error?.message || error.message);
         }
       });
     } else {
-      if (!this.selectedFile) {
-        this.errorMessage = 'Debe seleccionar una imagen válida.';
-        return;
-      }
-
-      const formData = new FormData();
-      formData.append('dto', new Blob([JSON.stringify(dto)], { type: 'application/json' }));
-      formData.append('imagenFile', this.selectedFile);
-
-      this.paqueteService.createFormData(formData).subscribe({
-        next: () => {
+      this.paqueteService.create(formData).subscribe({
+        next: (response) => {
+          console.log('Paquete creado exitosamente:', response);
           this.resetForm();
           this.cargarPaquetes();
-          this.formularioVisible = false;
         },
-        error: (err: any) => {
-          console.error('Error al crear paquete:', err);
-          this.errorMessage = 'Error al crear el paquete. ' + (err.error?.detail || err.error?.message || '');
+        error: (error) => {
+          console.error('Error al crear paquete:', error);
+          this.errorMessage = 'Error al crear el paquete: ' + (error.error?.detail || error.error?.message || error.message);
         }
       });
     }
@@ -250,6 +269,9 @@ export class PaquetesComponent implements OnInit {
       destinoId
     });
 
+    // Limpiar archivo seleccionado al editar
+    this.selectedFile = null;
+
     if (proveedorId) this.buscarProveedorPorId(proveedorId);
     if (destinoId) this.buscarDestinoPorId(destinoId);
   }
@@ -268,9 +290,12 @@ export class PaquetesComponent implements OnInit {
 
   resetForm(): void {
     this.paqueteForm.reset({ estado: 'DISPONIBLE' });
+    this.paqueteForm.markAsPristine();
+    this.paqueteForm.markAsUntouched();
     this.editando = false;
     this.idPaqueteEditando = null;
     this.errorMessage = '';
+    this.formularioVisible = false;
     this.proveedorNombre = '';
     this.destinoNombre = '';
     this.selectedFile = null;

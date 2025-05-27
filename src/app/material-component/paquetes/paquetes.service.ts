@@ -12,7 +12,8 @@ export class PaquetesService {
 
   constructor(private http: HttpClient) {}
 
-  private getHttpOptions() {
+  // Configuración de headers HTTP para JSON
+  private getJsonHttpOptions() {
     return {
       headers: new HttpHeaders({
         'Content-Type': 'application/json'
@@ -20,51 +21,53 @@ export class PaquetesService {
     };
   }
 
-  /** Obtener todos los paquetes */
+  // Para FormData, NO establecemos Content-Type (el browser lo hace automáticamente)
+  private getFormDataHttpOptions() {
+    return {}; // Sin headers para FormData
+  }
+
   getAll(): Observable<any[]> {
     return this.http.get<any[]>(this.apiURL);
   }
 
-  /**
-   * Crear paquete usando FormData (multipart/form-data):
-   * - dto (Blob con JSON)
-   * - imagenFile (archivo)
-   */
-  createFormData(formData: FormData): Observable<any> {
-    return this.http.post(this.apiURL, formData);
+  create(paquete: any): Observable<any> {
+    // Si es FormData, no enviamos headers Content-Type
+    if (paquete instanceof FormData) {
+      return this.http.post(this.apiURL, paquete, this.getFormDataHttpOptions());
+    }
+    // Si es JSON, enviamos con headers JSON
+    return this.http.post(this.apiURL, paquete, this.getJsonHttpOptions());
   }
 
-  /** Actualizar paquete (envía JSON) */
   update(id: number, paquete: any): Observable<any> {
-    return this.http.put(`${this.apiURL}/${id}`, paquete, this.getHttpOptions());
+    // Si es FormData, no enviamos headers Content-Type
+    if (paquete instanceof FormData) {
+      return this.http.put(`${this.apiURL}/${id}`, paquete, this.getFormDataHttpOptions());
+    }
+    // Si es JSON, enviamos con headers JSON
+    return this.http.put(`${this.apiURL}/${id}`, paquete, this.getJsonHttpOptions());
   }
 
-  /** Eliminar paquete */
   delete(id: number): Observable<any> {
     return this.http.delete(`${this.apiURL}/${id}`);
   }
 
-  /** Obtener paquete por ID */
   getById(id: number): Observable<any> {
     return this.http.get<any>(`${this.apiURL}/${id}`);
   }
 
-  /** Obtener todos los destinos */
   getAllDestinos(): Observable<any[]> {
     return this.http.get<any[]>(this.apiDestinosURL);
   }
 
-  /** Obtener todos los proveedores */
   getAllProveedores(): Observable<any[]> {
     return this.http.get<any[]>(this.apiProveedoresURL);
   }
 
-  /** Obtener destino por ID */
   getDestinoPorId(id: number): Observable<any> {
     return this.http.get<any>(`http://localhost:8080/destinos/${id}`);
   }
 
-  /** Obtener proveedor por ID */
   getProveedorPorId(id: number): Observable<any> {
     return this.http.get<any>(`http://localhost:8080/proveedores/${id}`);
   }

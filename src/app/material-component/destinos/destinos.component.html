@@ -17,34 +17,30 @@
     <textarea matInput formControlName="descripcion"></textarea>
   </mat-form-field>
 
+  <!-- Nota informativa sobre la selección en el mapa -->
+  <div class="map-instructions">
+    <p><mat-icon>info</mat-icon> Haz clic en cualquier punto del mapa para seleccionar la ubicación. Se actualizarán automáticamente los campos de ubicación, latitud y longitud.</p>
+  </div>
+
+  <!-- Mapa interactivo para seleccionar coordenadas con Mapbox -->
+  <div #mapContainer class="map-container"></div>
+
   <mat-form-field appearance="fill" class="full-width">
     <mat-label>Ubicación</mat-label>
     <input matInput formControlName="ubicacion">
+    <mat-hint>Se actualiza automáticamente al hacer clic en el mapa</mat-hint>
   </mat-form-field>
-
-  <!-- Mapa interactivo para seleccionar coordenadas -->
-  <div class="map-container mb-3">
-    <google-map
-      height="400px"
-      width="100%"
-      [center]="mapCenter"
-      [zoom]="12"
-      (mapClick)="onMapClick($event)">
-      <map-marker
-        *ngIf="selectedLat && selectedLng"
-        [position]="{ lat: selectedLat, lng: selectedLng }">
-      </map-marker>
-    </google-map>
-  </div>
 
   <mat-form-field appearance="fill" class="full-width">
     <mat-label>Latitud</mat-label>
     <input matInput type="number" formControlName="latitud">
+    <mat-hint>Se actualiza automáticamente al hacer clic en el mapa</mat-hint>
   </mat-form-field>
 
   <mat-form-field appearance="fill" class="full-width">
     <mat-label>Longitud</mat-label>
     <input matInput type="number" formControlName="longitud">
+    <mat-hint>Se actualiza automáticamente al hacer clic en el mapa</mat-hint>
   </mat-form-field>
 
   <mat-form-field appearance="fill" class="full-width">
@@ -54,23 +50,27 @@
 
   <mat-form-field appearance="fill" class="full-width">
     <mat-label>Popularidad</mat-label>
-    <input matInput type="number" formControlName="popularidad">
+    <input matInput type="number" formControlName="popularidad" min="1" max="5">
+    <mat-hint>Valor entre 1 y 5</mat-hint>
   </mat-form-field>
 
   <mat-form-field appearance="fill" class="full-width">
     <mat-label>Precio Promedio</mat-label>
-    <input matInput type="number" formControlName="preciomedio">
+    <input matInput type="number" formControlName="preciomedio" min="0">
   </mat-form-field>
 
   <mat-form-field appearance="fill" class="full-width">
     <mat-label>Rating</mat-label>
     <input matInput type="number" formControlName="rating" step="0.1" min="0" max="5">
+    <mat-hint>Valor entre 0 y 5</mat-hint>
   </mat-form-field>
 
-  <button mat-raised-button color="primary" type="submit">
-    {{ editando ? 'Actualizar' : 'Guardar' }}
-  </button>
-  <button mat-button type="button" (click)="resetForm()">Cancelar</button>
+  <div class="button-group">
+    <button mat-raised-button color="primary" type="submit" [disabled]="!destinoForm.valid">
+      {{ editando ? 'Actualizar' : 'Guardar' }}
+    </button>
+    <button mat-button type="button" (click)="resetForm()">Cancelar</button>
+  </div>
 </form>
 
 <!-- Tabla de destinos -->
@@ -120,3 +120,56 @@
   <tr mat-header-row *matHeaderRowDef="['nombre', 'descripcion', 'ubicacion', 'popularidad', 'preciomedio', 'rating', 'acciones']"></tr>
   <tr mat-row *matRowDef="let row; columns: ['nombre', 'descripcion', 'ubicacion', 'popularidad', 'preciomedio', 'rating', 'acciones']"></tr>
 </table>
+
+<style>
+  .map-instructions {
+    margin-bottom: 10px;
+    background-color: #e3f2fd;
+    padding: 10px;
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+  }
+
+  .map-instructions p {
+    margin: 0;
+    display: flex;
+    align-items: center;
+  }
+
+  .map-instructions mat-icon {
+    margin-right: 8px;
+    color: #1976d2;
+  }
+
+  .map-container {
+    height: 400px;
+    width: 100%;
+    margin-bottom: 20px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    overflow: hidden;
+  }
+
+  .full-width {
+    width: 100%;
+    margin-bottom: 15px;
+  }
+
+  .button-group {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 20px;
+  }
+
+  /* Estilos para el popup del marcador de Mapbox */
+  .mapboxgl-popup {
+    max-width: 200px;
+  }
+
+  .mapboxgl-popup-content {
+    text-align: center;
+    font-family: 'Roboto', sans-serif;
+    padding: 10px;
+  }
+</style>
