@@ -57,6 +57,9 @@ const routes: Routes = [
       { path: 'snackbar', loadComponent: () => import('./material-component/snackbar/snackbar.component').then(m => m.SnackbarComponent) },
       { path: 'slider', loadComponent: () => import('./material-component/slider/slider.component').then(m => m.SliderComponent) },
       { path: 'slide-toggle', loadComponent: () => import('./material-component/slide-toggle/slide-toggle.component').then(m => m.SlideToggleComponent) },
+      {
+        path: 'reservas/crear/:id', loadComponent: () => import('./public/paginas/infDestinos/crearreserva/crearreserva.component').then(m => m.CrearreservaComponent)
+      }
     ]
   },
   {
