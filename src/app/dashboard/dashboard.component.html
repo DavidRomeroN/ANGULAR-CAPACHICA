@@ -1,30 +1,46 @@
 <!-- ============================================================== -->
-<!-- Simple four boxes Row -->
+<!-- Tercer bloque: Botones de accesos rápidos -->
 <!-- ============================================================== -->
+<div class="access-buttons">
+  <app-boton-alimentacion class="quick-btn"></app-boton-alimentacion>
+  <app-boton-artesania class="quick-btn"></app-boton-artesania>
+  <app-boton-hoteleria class="quick-btn"></app-boton-hoteleria>
+  <app-boton-paquetes class="quick-btn"></app-boton-paquetes>
+  <app-boton-servicio class="quick-btn"></app-boton-servicio>
+</div>
+
+
+
+
+
+
+<!-- ============================================================== -->
+<!-- Primer bloque: Gráfico y Proveedores -->
+<!-- ============================================================== -->
+
+
 <div class="row">
-  <!-- column -->
+
+
+  <!-- Gráfico de Paquetes -->
   <div class="col-lg-8 col-sm-12">
     <app-sales-overview></app-sales-overview>
   </div>
-  <!-- column -->
-  <!-- column -->
+
+  <!-- Gestión de Proveedores -->
   <div class="col-lg-4 col-sm-12">
-    <app-our-visiter></app-our-visiter>
+    <app-contacts></app-contacts>
   </div>
-  <!-- column -->
 </div>
 
 <!-- ============================================================== -->
-<!-- Image Card row-->
+<!-- Segundo bloque: Perfil + Reseñas / Actividad -->
 <!-- ============================================================== -->
 <div class="row">
-  <!-- Card column -->
   <div class="col-lg-3 col-sm-12">
     <app-profile></app-profile>
-    <app-contacts></app-contacts>
   </div>
-  <!-- Card column -->
-  <!-- Card column -->
+
   <div class="col-lg-9 col-sm-12">
     <app-activity-timeline></app-activity-timeline>
   </div>

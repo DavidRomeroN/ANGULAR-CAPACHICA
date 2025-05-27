@@ -1,8 +1,8 @@
-import { Component, OnInit, ViewChild } from "@angular/core";
+import { Component, OnInit, ViewChild, ChangeDetectorRef } from '@angular/core';
+import { CommonModule } from '@angular/common';
 import {
   ApexAxisChartSeries,
   ApexChart,
-  ChartComponent,
   ApexDataLabels,
   ApexPlotOptions,
   ApexYAxis,
@@ -12,87 +12,139 @@ import {
   ApexFill,
   ApexTooltip,
   ApexGrid,
-  NgApexchartsModule
-} from "ng-apexcharts";
-import { DemoMaterialModule } from "src/app/demo-material-module";
+  ChartComponent
+} from 'ng-apexcharts';
+import { NgApexchartsModule } from 'ng-apexcharts';
+import { DemoMaterialModule } from 'src/app/demo-material-module';
+import { PaquetesService } from 'src/app/material-component/paquetes/paquetes.service';
 
-export interface ChartOptions {
-  series: ApexAxisChartSeries | any;
-  chart: ApexChart | any;
-  dataLabels: ApexDataLabels | any;
-  plotOptions: ApexPlotOptions | any;
-  yaxis: ApexYAxis | any;
-  xaxis: ApexXAxis | any;
-  fill: ApexFill | any;
-  tooltip: ApexTooltip | any;
-  stroke: ApexStroke | any;
-  legend: ApexLegend | any;
-  grid: ApexGrid | any;
-}
+export type ChartOptions = {
+  series: ApexAxisChartSeries;
+  chart: ApexChart;
+  dataLabels: ApexDataLabels;
+  plotOptions: ApexPlotOptions;
+  yaxis: ApexYAxis;
+  xaxis: ApexXAxis;
+  fill: ApexFill;
+  tooltip: ApexTooltip;
+  stroke: ApexStroke;
+  legend: ApexLegend;
+  grid: ApexGrid;
+};
 
 @Component({
-  selector: "app-sales-overview",
+  selector: 'app-sales-overview',
   standalone: true,
-  imports: [NgApexchartsModule, DemoMaterialModule],
-  templateUrl: "./sales-overview.component.html"
+  templateUrl: './sales-overview.component.html',
+  imports: [CommonModule, NgApexchartsModule, DemoMaterialModule]
 })
 export class SalesOverviewComponent implements OnInit {
-  @ViewChild("chart") chart: ChartComponent = Object.create(null);
-  public chartOptions: Partial<ChartOptions>;
+  @ViewChild('chart') chart!: ChartComponent;
 
-  constructor() {
-    this.chartOptions = {
-      series: [
-        {
-          name: "Pixel",
-          data: [44, 55, 57, 56, 61, 58],
-        },
-        {
-          name: "Ample",
-          data: [76, 85, 101, 98, 87, 105],
-        },
-      ],
-      chart: {
-        type: "bar",
-        fontFamily: "Poppins,sans-serif",
-        height: 320,
-      },
-      grid: {
-        borderColor: "rgba(0,0,0,.2)",
-        strokeDashArray: 3,
-      },
-      plotOptions: {
-        bar: {
-          horizontal: false,
-          columnWidth: "30%",
-          borderRadius: 8,
-          endingShape: "rounded",
-        },
-      },
-      dataLabels: {
-        enabled: false,
-      },
-      stroke: {
-        show: true,
-        width: 2,
-        colors: ["transparent"],
-      },
-      xaxis: {
-        categories: ["Feb", "Mar", "Apr", "May", "Jun", "Jul"],
-      },
+  public chartOptions: ChartOptions = {
+    series: [{ name: 'Paquetes', data: [] }],
+    chart: {
+      type: 'bar',
+      height: 320,
+      fontFamily: 'Poppins, sans-serif'
+    },
+    dataLabels: { enabled: false },
+    plotOptions: {
+      bar: {
+        horizontal: false,
+        columnWidth: '30%',
+        borderRadius: 8
+      }
+    },
+    stroke: { show: true, width: 2, colors: ['transparent'] },
+    xaxis: {
+      type: 'category',
+      categories: [],
+      labels: {
+        style: { fontSize: '13px', fontFamily: 'Poppins, sans-serif' }
+      }
+    },
+    yaxis: {
+      min: 0,
+      forceNiceScale: true,
+      title: { text: 'Cantidad de paquetes' },
+      labels: {
+        formatter: (value: number) => value >= 1000 ? `${value / 1000}K` : value.toFixed(0),
+        style: { fontSize: '13px' }
+      }
+    },
+    fill: { opacity: 1, colors: ['#fb8c00'] },
+    tooltip: { theme: 'dark' },
+    legend: { show: false },
+    grid: {
+      borderColor: 'rgba(0,0,0,.2)',
+      strokeDashArray: 3
+    }
+  };
 
-      legend: {
-        show: false,
-      },
-      fill: {
-        colors: ["#26c6da", "#1e88e5"],
-        opacity: 1,
-      },
-      tooltip: {
-        theme: "dark",
-      },
-    };
+  anosDisponibles: number[] = [];
+  anoSeleccionado: number = new Date().getFullYear();
+
+  constructor(
+    private paqueteService: PaquetesService,
+    private cdr: ChangeDetectorRef
+  ) {}
+
+  ngOnInit(): void {
+    this.obtenerRangoDeAnos();
   }
 
-  ngOnInit(): void { }
+  obtenerRangoDeAnos(): void {
+    this.paqueteService.getAll().subscribe({
+      next: (paquetes: any[]) => {
+        const anosUnicos = new Set<number>();
+        paquetes.forEach((p) => {
+          const rawFecha = p.fechaInicio || p.fecha_inicio;
+          const fecha = new Date(rawFecha);
+          if (!isNaN(fecha.getTime())) {
+            anosUnicos.add(fecha.getFullYear());
+          }
+        });
+        this.anosDisponibles = Array.from(anosUnicos).sort((a, b) => b - a);
+        this.anoSeleccionado = this.anosDisponibles[0] || new Date().getFullYear();
+        this.cargarDatosPaquetes();
+      },
+      error: (err) => console.error('❌ Error al obtener anos:', err)
+    });
+  }
+
+  cargarDatosPaquetes(): void {
+    this.paqueteService.getAll().subscribe({
+      next: (paquetes: any[]) => {
+        const conteoPorMes = new Array(12).fill(0);
+        paquetes.forEach((p) => {
+          const rawFecha = p.fechaInicio || p.fecha_inicio;
+          const fecha = new Date(rawFecha);
+          if (!isNaN(fecha.getTime()) && fecha.getFullYear() === this.anoSeleccionado) {
+            const mes = fecha.getMonth(); // Enero = 0
+            conteoPorMes[mes]++;
+          }
+        });
+
+        const maxCantidad = Math.max(...conteoPorMes);
+        const padding = Math.ceil(maxCantidad * 0.1);
+
+        this.chartOptions.series[0].data = conteoPorMes;
+        this.chartOptions.xaxis.categories = ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'];
+        this.chartOptions.yaxis = {
+          min: 0,
+          max: maxCantidad + padding,
+          forceNiceScale: true,
+          title: { text: 'Cantidad de paquetes' },
+          labels: {
+            formatter: (value: number) => value >= 1000 ? `${value / 1000}K` : value.toFixed(0),
+            style: { fontSize: '13px' }
+          }
+        };
+
+        this.cdr.detectChanges();
+      },
+      error: (err) => console.error('❌ Error al cargar paquetes:', err)
+    });
+  }
 }

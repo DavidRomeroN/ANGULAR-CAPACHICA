@@ -1,4 +1,4 @@
-import { ChangeDetectorRef, Component, OnDestroy } from '@angular/core';
+import {ChangeDetectorRef, Component, OnDestroy, ViewEncapsulation} from '@angular/core';
 import { MediaMatcher } from '@angular/cdk/layout';
 import { MenuItems } from '../../../shared/menu-items/menu-items';
 import { DemoMaterialModule } from 'src/app/demo-material-module';
@@ -10,10 +10,21 @@ import { MatIconModule } from '@angular/material/icon';
   standalone: true,
   imports:[DemoMaterialModule, NgFor, NgIf, RouterModule, CommonModule, MatIconModule],
   templateUrl: './sidebar.component.html',
-  styleUrls: []
+  styleUrls: ['./sidebar.component.scss'],
+  encapsulation: ViewEncapsulation.None
 })
 export class AppSidebarComponent implements OnDestroy {
   mobileQuery: MediaQueryList;
+
+  correoUsuario: string = 'Usuario'; // valor por defecto
+
+  ngOnInit(): void {
+    const usuarioLogueado = localStorage.getItem('usuarioLogueado');
+    if (usuarioLogueado) {
+      const usuario = JSON.parse(usuarioLogueado);
+      this.correoUsuario = usuario.email || usuario.correo || 'Usuario';
+    }
+  }
 
   private _mobileQueryListener: () => void;
 

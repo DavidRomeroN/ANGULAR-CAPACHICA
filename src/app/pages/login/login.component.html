@@ -1,73 +1,57 @@
 <!-- Section: Design Block -->
-<section class="vh-100 d-flex justify-content-center align-items-center" style="background-color: #f5f5f5;">
-  <style>
-    .rounded-t-5 {
-      border-top-left-radius: 0.5rem;
-      border-top-right-radius: 0.5rem;
-    }
-
-    @media (min-width: 992px) {
-      .rounded-tr-lg-0 {
-        border-top-right-radius: 0;
-      }
-
-      .rounded-bl-lg-5 {
-        border-bottom-left-radius: 0.5rem;
-      }
-    }
-  </style>
-
+<section class="vh-100 d-flex justify-content-center align-items-center" style="background-color: #000000;">
   <div class="container">
-    <div class="card mb-3 shadow">
+    <div class="card mb-3 border-0" style="border-radius: 20px; overflow: hidden;">
       <div class="row g-0 d-flex align-items-center">
-        <div class="col-lg-6 d-none d-lg-block">
-          <img src="https://mdbootstrap.com/img/new/ecommerce/vertical/004.jpg" alt="Trendy Pants and Shoes"
-               class="w-100 rounded-t-5 rounded-tr-lg-0 rounded-bl-lg-5" />
+        <!-- LOGO -->
+        <div class="col-lg-6 d-none d-lg-block text-center p-4 bg-black">
+          <img src="assets/images/logo/logo2.png" alt="Logo" class="img-fluid" style="max-width: 100%; height: auto;" />
         </div>
-        <div class="col-lg-6">
-          <div class="card-body py-5 px-md-5">
 
-            <h3 class="mb-5 text-center">Iniciar sesión</h3>
+        <!-- FORMULARIO -->
+        <div class="col-lg-6 bg-white">
+          <div class="card-body px-5 py-4">
+
+            <h3 class="mb-4 text-center fw-bold">Iniciar sesión</h3>
 
             <form [formGroup]="loginForm" (ngSubmit)="onSubmit()">
-            <!-- Email input -->
-              <div class="form-outline mb-4">
-                <input type="text" class="form-control" id="form2Example1" formControlName="email" />
-                <label class="form-label" for="form2Example1">Email address</label>
+
+              <!-- Email input -->
+              <div class="form-floating mb-4">
+                <input type="email" class="form-control rounded-3" id="floatingEmail" placeholder="correo@dominio.com" formControlName="email">
+                <label for="floatingEmail">Email address</label>
               </div>
 
               <!-- Password input -->
-              <div class="form-outline mb-4">
-                <input type="password" class="form-control" id="form2Example2" formControlName="clave" />
-                <label class="form-label" for="form2Example2">Password</label>
+              <div class="form-floating mb-4">
+                <input type="password" class="form-control rounded-3" id="floatingPassword" placeholder="Contraseña" formControlName="clave">
+                <label for="floatingPassword">Password</label>
               </div>
 
-              <!-- 2 column grid layout -->
-              <div class="row mb-4">
-                <div class="col d-flex justify-content-center">
+              <!-- Checkbox & link -->
+              <div class="row mb-3">
+                <div class="col-6 d-flex align-items-center">
                   <div class="form-check">
-                    <input class="form-check-input" type="checkbox" value="" id="form2Example31" checked />
-                    <label class="form-check-label" for="form2Example31"> Remember me </label>
+                    <input class="form-check-input" type="checkbox" id="rememberMe">
+                    <label class="form-check-label small" for="rememberMe">Remember me</label>
                   </div>
                 </div>
-
-                <div class="col text-end">
-                  <a href="#!">Forgot password?</a>
+                <div class="col-6 text-end">
+                  <a href="#!" class="small text-decoration-none text-muted">Forgot password?</a>
                 </div>
               </div>
 
               <!-- Submit button -->
-              <div class="d-grid">
-                <button type="submit" class="btn btn-primary btn-block mb-4" [disabled]="loginForm.invalid">
+              <div class="d-grid mb-4">
+                <button type="submit" class="btn btn-primary btn-lg rounded-3 shadow-sm" [disabled]="loginForm.invalid">
                   Sign in
                 </button>
+              </div>
 
-
-                <div class="text-center">
-                  <span>¿No tienes cuenta?</span>
-                  <a routerLink="/register" class="text-primary ms-2">Regístrate aquí</a>
-                </div>
-
+              <!-- Registro -->
+              <div class="text-center">
+                <span class="small text-muted">¿No tienes cuenta?</span>
+                <a routerLink="/register" class="text-primary fw-semibold ms-2 small">Regístrate aquí</a>
               </div>
             </form>
 
@@ -77,4 +61,3 @@
     </div>
   </div>
 </section>
-<!-- Section: Design Block -->

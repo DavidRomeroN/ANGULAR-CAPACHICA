@@ -1,5 +1,15 @@
+// VARIABLES NECESARIAS
+$white: #fff;
+$info: #17a2b8;
+$light: #f6f6f6;
+$border: #e0e0e0;
+$success: #4caf50;
+$danger: #f44336;
+$warning: #ffc107;
+$bodytext: #6c757d;
+
 /*******************
-Rounds
+  Rounds (íconos redondos de usuarios)
 *******************/
 .round {
   line-height: 48px;
@@ -11,11 +21,61 @@ Rounds
   text-align: center;
   border-radius: 100%;
   background: $info;
+
   img {
     border-radius: 100%;
   }
 }
 
+/*******************
+  Botones de acceso rápido
+*******************/
+.access-buttons {
+  display: flex;
+  justify-content: space-between;
+  gap: 20px;
+  flex-wrap: wrap;
+  margin-bottom: 20px;
+}
+
+.quick-btn {
+  flex: 1 1 calc(20% - 20px); // hasta 5 por fila si hay espacio
+  min-width: 160px;
+  max-width: 220px;
+  height: 110px;
+  background: #ffffff;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease-in-out;
+  cursor: pointer;
+  text-align: center;
+
+  &:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  }
+
+  mat-icon {
+    font-size: 28px;
+    margin-bottom: 6px;
+    color: #1976d2;
+  }
+
+  span {
+    font-weight: 600;
+    font-size: 15px;
+    color: #333;
+  }
+}
+
+
+/*******************
+  Widget de mensajes
+*******************/
 .message-box {
   ul li {
     .nav-link {
@@ -23,82 +83,98 @@ Rounds
       padding-top: 15px;
     }
   }
+
   .message-widget {
     position: relative;
+
     a {
       border-bottom: 1px solid $border;
       display: flex;
       text-decoration: none;
       padding: 9px 15px;
+
       &:hover {
         background: $light;
       }
+
       &:last-child {
-        border-bottom: 0px;
+        border-bottom: 0;
       }
+
       div {
         white-space: normal;
       }
+
       .user-img {
         width: 45px;
         position: relative;
         display: inline-block;
         margin-right: 10px;
+
         img {
           width: 100%;
+          border-radius: 50%;
         }
+
         .profile-status {
           border: 2px solid $white;
           border-radius: 50%;
           display: inline-block;
           height: 10px;
-          left: 33px;
+          width: 10px;
           position: absolute;
           top: -1px;
-          width: 10px;
+          left: 33px;
         }
+
         .online {
           background: $success;
         }
         .busy {
           background: $danger;
         }
-        .away {
-          background: $warning;
-        }
+        .away,
         .offline {
           background: $warning;
         }
       }
+
       .mail-contnet {
         display: inline-block;
         width: 73%;
         vertical-align: middle;
+
         h5 {
-          margin: 5px 0px 0;
+          margin: 5px 0 0;
           color: #212121;
         }
+
         .mail-desc,
         .time {
           font-size: 12px;
-          display: block;
           margin: 1px 0;
-          text-overflow: ellipsis;
           overflow: hidden;
-          color: $bodytext;
           white-space: nowrap;
+          text-overflow: ellipsis;
+          color: $bodytext;
         }
       }
     }
   }
 }
 
+/*******************
+  Botón flotante añadir contacto
+*******************/
 .add-contact {
   position: absolute !important;
   right: 17px;
   top: 57px;
 }
 
+/*******************
+  Perfil reducido (dashboard)
+*******************/
 .little-profile {
   .pro-img,
   .pro-img:first-child {
@@ -106,10 +182,10 @@ Rounds
     position: relative;
     margin-top: -110px;
     margin-bottom: 20px;
+
     img {
       width: 128px;
       height: 128px;
-      -webkit-box-shadow: 0 0 15px rgba(0, 0, 0, 0.2);
       box-shadow: 0 0 15px rgba(0, 0, 0, 0.2);
       border-radius: 100%;
     }
