@@ -26,8 +26,21 @@ const routes: Routes = [
         path: 'detalle-destino/:id',
         loadComponent: () =>
           import('../public/paginas/infDestinos/inf-destino/inf-destino.component').then(m => m.InfDestinoComponent)
-      }
+      },
+      {
+        path: 'detalle-paquete/:id',
+        loadComponent: () =>
+          import('../public/paginas/infDestinos/infPaquetes/inf-paquete/inf-paquete.component')
+            .then(m => m.InfPaqueteComponent)
+      },
 
+
+      {
+        path: 'reservas/crear/:id',
+        loadComponent: () =>
+          import('../public/paginas/infDestinos/crearreserva/crearreserva.component')
+            .then(m => m.CrearreservaComponent)
+      }
 
 
     ]

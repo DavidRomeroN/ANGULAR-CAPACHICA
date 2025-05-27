@@ -16,7 +16,12 @@
 
         <div class="paquete-precio">
           <span class="badge">S/. {{ paquete.precioTotal | number: '1.2-2' }}</span>
-          <button class="btn-ver-mas">VER MÁS</button>
+          <button
+            class="btn-ver-mas"
+            (click)="verDetalle(paquete.id)">
+            VER MÁS
+          </button>
+
         </div>
       </div>
     </div>

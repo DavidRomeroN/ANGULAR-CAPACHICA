@@ -1,5 +1,6 @@
 import { Component, OnInit, ViewChild, ElementRef } from '@angular/core';
 import { PaquetesService } from '../../../material-component/paquetes/paquetes.service';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-paquetes',
@@ -11,18 +12,27 @@ export class PaquetesComponent implements OnInit {
 
   @ViewChild('paqueteContainer', { static: false }) paqueteContainer!: ElementRef;
 
-  constructor(private paquetesService: PaquetesService) {}
+  constructor(
+    private paquetesService: PaquetesService,
+    private router: Router
+  ) {}
 
   ngOnInit(): void {
     this.paquetesService.getAll().subscribe({
       next: (data) => {
-        this.paquetes = data;
+        // Mapear id_paquete => id para que Angular pueda usarlo
+        this.paquetes = data.map(p => ({
+          ...p,
+          id: p.idPaquete
+
+      }));
       },
       error: (err) => {
         console.error('Error al cargar paquetes:', err);
       }
     });
   }
+
 
   scrollPaquetes(direction: 'left' | 'right'): void {
     const container = this.paqueteContainer.nativeElement;
@@ -32,4 +42,16 @@ export class PaquetesComponent implements OnInit {
       behavior: 'smooth'
     });
   }
+
+  verDetalle(id: number): void {
+    console.log('Hiciste clic en VER MÁS con ID:', id); // <--- agrega esto
+
+    if (id) {
+      this.router.navigate(['/capachica/detalle-paquete', id]);
+    } else {
+      console.error('El paquete no tiene ID definido');
+    }
+  }
+
+
 }

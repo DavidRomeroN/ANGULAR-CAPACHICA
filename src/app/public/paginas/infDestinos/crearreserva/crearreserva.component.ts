@@ -1,8 +1,7 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, Input } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
-import { ActivatedRoute } from '@angular/router';
 import { CrearreservaService } from './crearreserva.service';
+import { FormsModule } from '@angular/forms';
 
 @Component({
   selector: 'app-crearreserva',
@@ -12,39 +11,70 @@ import { CrearreservaService } from './crearreserva.service';
   styleUrls: ['./crearreserva.component.scss']
 })
 export class CrearreservaComponent implements OnInit {
-  paquete: any;
-  cantidadPersonas: number = 1;
-  fechaReserva: string = '';
+  @Input() paqueteId!: number; // 👈 Este input lo recibirás del padre
 
-  constructor(
-    private route: ActivatedRoute,
-    private reservaService: CrearreservaService
-  ) {}
+  paquete: any;
+  cantidadPersonas = 1;
+  fechaInicio = '';
+  fechaFin = '';
+  observaciones = '';
+  usuarioEmail = '';
+  usuarioId = 0;
+  mensajeError = '';
+
+  constructor(private reservaService: CrearreservaService) {}
 
   ngOnInit(): void {
-    const paqueteId = this.route.snapshot.paramMap.get('id');
-    if (paqueteId) {
-      this.reservaService.obtenerPaquetePorId(+paqueteId).subscribe({
-        next: data => this.paquete = data,
+    // Obtenemos el paquete desde el input, no desde ActivatedRoute
+    if (this.paqueteId) {
+      this.reservaService.obtenerPaquetePorId(this.paqueteId).subscribe({
+        next: data => {
+          this.paquete = data;
+          this.fechaInicio = data.fechaInicio ? new Date(data.fechaInicio).toISOString().split('T')[0] : '';
+          this.fechaFin = data.fechaFin ? new Date(data.fechaFin).toISOString().split('T')[0] : '';
+
+        },
         error: err => console.error('Error al cargar paquete', err)
       });
+    }
+
+    const usuario = localStorage.getItem('usuarioLogueado');
+    if (usuario) {
+      const parsed = JSON.parse(usuario);
+      this.usuarioEmail = parsed.email;
+      this.usuarioId = parsed.idUsuario;
     }
   }
 
   confirmarReserva(): void {
+    if (this.cantidadPersonas > this.paquete.cuposMaximos) {
+      this.mensajeError = `❌ No hay suficientes cupos. Máximo permitido: ${this.paquete.cuposMaximos}`;
+      return;
+    }
+
+    // Aseguramos el formato de fecha con hora
+    const formatoFecha = (fecha: string) => fecha + 'T00:00:00';
+
     const reserva = {
-      paqueteId: this.paquete.id,
-      usuarioId: 60, // Reemplazar por ID real del usuario autenticado
+      paquete: this.paqueteId,
+      usuario: this.usuarioId,
       cantidadPersonas: this.cantidadPersonas,
-      fechaReserva: this.fechaReserva
+      fechaInicio: formatoFecha(this.fechaInicio),
+      fechaFin: formatoFecha(this.fechaFin),
+      estado: 'PENDIENTE',
+      observaciones: this.observaciones  // Se envía aunque sea cadena vacía
     };
 
     this.reservaService.crearReserva(reserva).subscribe({
-      next: () => alert('Reserva realizada con Ã©xito'),
+      next: () => {
+        alert('✅ Reserva realizada con éxito');
+        this.mensajeError = '';
+      },
       error: err => {
-        console.error('Error al realizar reserva', err);
-        alert('Hubo un error al crear la reserva');
+        console.error('Error al crear reserva', err);
+        alert('❌ Error al crear la reserva');
       }
     });
   }
+
 }

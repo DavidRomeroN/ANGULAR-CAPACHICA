@@ -58,7 +58,7 @@ export class AddPaqueteDialogComponent {
     formData.append('proveedor', formValue.proveedorId.toString());
     formData.append('destino', formValue.destinoId.toString());
 
-    this.paqueteService.createFormData(formData).subscribe({
+    this.paqueteService.create(formData).subscribe({
       next: () => this.dialogRef.close('refresh'),
       error: (err: any) => console.error('Error al crear paquete:', err)
     });
