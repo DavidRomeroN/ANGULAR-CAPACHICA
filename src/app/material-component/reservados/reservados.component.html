@@ -1,0 +1,80 @@
+<h2 style="margin-bottom: 1.5rem; font-size: 1.8rem; color: #333; font-weight: 600;">
+  📋 Reservas Pendientes
+</h2>
+
+<div *ngIf="reservasPendientes.length > 0; else sinPendientes"
+     style="overflow-x: auto; border-radius: 10px; box-shadow: 0 2px 12px rgba(0,0,0,0.1); margin-bottom: 2rem;">
+  <table style="width: 100%; border-collapse: collapse; background-color: #fff;">
+    <thead style="background-color: #f5f5f5;">
+    <tr>
+      <th style="padding: 12px 16px;">Paquete</th>
+      <th style="padding: 12px 16px;">Usuario</th>
+      <th style="padding: 12px 16px;">Personas</th>
+      <th style="padding: 12px 16px;">Fechas</th>
+      <th style="padding: 12px 16px;">Estado</th>
+      <th style="padding: 12px 16px;">Acción</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr *ngFor="let r of reservasPendientes"
+        style="border-top: 1px solid #eee;"
+        onmouseover="this.style.background='#f9f9f9'" onmouseout="this.style.background='#fff'">
+      <td style="padding: 12px 16px;">{{ r.paquete.titulo }}</td>
+      <td style="padding: 12px 16px;">{{ r.usuario.email }}</td>
+      <td style="padding: 12px 16px;">{{ r.cantidadPersonas }}</td>
+      <td style="padding: 12px 16px;">{{ r.fechaInicio | date:'shortDate' }} - {{ r.fechaFin | date:'shortDate' }}</td>
+      <td style="padding: 12px 16px;">{{ r.estado }}</td>
+      <td style="padding: 12px 16px;">
+        <select [value]="r.estado" (change)="onEstadoChange($event, r)"
+                style="padding: 6px 10px; border-radius: 6px; border: 1px solid #ccc; background: #fefefe;">
+          <option value="PENDIENTE">PENDIENTE</option>
+          <option value="CONFIRMADA">CONFIRMADA</option>
+          <option value="CANCELADA">CANCELADA</option>
+          <option value="FINALIZADA">FINALIZADA</option>
+          <option value="NO_ASISTIO">NO_ASISTIÓ</option>
+        </select>
+      </td>
+    </tr>
+    </tbody>
+  </table>
+</div>
+
+<ng-template #sinPendientes>
+  <p style="font-style: italic; color: #888;">No hay reservas pendientes. 🎉</p>
+</ng-template>
+
+<hr style="margin: 2rem 0; border: none; border-top: 1px solid #ddd;">
+
+<h2 style="margin-bottom: 1.5rem; font-size: 1.8rem; color: #333; font-weight: 600;">
+  📚 Historial de Reservas
+</h2>
+
+<div *ngIf="reservasHistorial.length > 0; else sinHistorial"
+     style="overflow-x: auto; border-radius: 10px; box-shadow: 0 2px 12px rgba(0,0,0,0.1);">
+  <table style="width: 100%; border-collapse: collapse; background-color: #fff;">
+    <thead style="background-color: #f5f5f5;">
+    <tr>
+      <th style="padding: 12px 16px;">Paquete</th>
+      <th style="padding: 12px 16px;">Usuario</th>
+      <th style="padding: 12px 16px;">Personas</th>
+      <th style="padding: 12px 16px;">Fechas</th>
+      <th style="padding: 12px 16px;">Estado</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr *ngFor="let r of reservasHistorial"
+        style="border-top: 1px solid #eee;"
+        onmouseover="this.style.background='#f9f9f9'" onmouseout="this.style.background='#fff'">
+      <td style="padding: 12px 16px;">{{ r.paquete.titulo }}</td>
+      <td style="padding: 12px 16px;">{{ r.usuario.email }}</td>
+      <td style="padding: 12px 16px;">{{ r.cantidadPersonas }}</td>
+      <td style="padding: 12px 16px;">{{ r.fechaInicio | date:'shortDate' }} - {{ r.fechaFin | date:'shortDate' }}</td>
+      <td style="padding: 12px 16px; font-weight: 500;">{{ r.estado }}</td>
+    </tr>
+    </tbody>
+  </table>
+</div>
+
+<ng-template #sinHistorial>
+  <p style="font-style: italic; color: #888;">Aún no hay historial de reservas gestionadas.</p>
+</ng-template>

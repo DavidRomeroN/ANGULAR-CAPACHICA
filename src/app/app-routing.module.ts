@@ -30,7 +30,7 @@ const routes: Routes = [
     canActivateChild: [AuthGuard],
     children: [
       { path: 'dashboard', component: DashboardComponent },
-
+      { path: 'reservados', loadComponent: () => import('./material-component/reservados/reservados.component').then(m => m.ReservadosComponent) },
       { path: 'servicios', loadComponent: () => import('./material-component/servicios/servicios.component').then(m => m.ServiciosComponent) },
       { path: 'proveedores', loadComponent: () => import('./material-component/proveedores/proveedores.component').then(m => m.ProveedoresComponent) },
       { path: 'paquetes', loadComponent: () => import('./material-component/paquetes/paquetes.component').then(m => m.PaquetesComponent) },
