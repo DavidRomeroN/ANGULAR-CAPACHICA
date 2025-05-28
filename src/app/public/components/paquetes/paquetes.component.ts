@@ -52,6 +52,20 @@ export class PaquetesComponent implements OnInit {
       console.error('El paquete no tiene ID definido');
     }
   }
+  filtroNombre: string = '';
+  filtroFecha: string = ''; // formato: YYYY-MM-DD
+
+  paquetesFiltrados(): any[] {
+    return this.paquetes.filter(paquete => {
+      const coincideNombre = paquete.titulo.toLowerCase().includes(this.filtroNombre.toLowerCase());
+      const coincideFecha = this.filtroFecha
+        ? new Date(paquete.fechaInicio) >= new Date(this.filtroFecha)
+        : true;
+      return coincideNombre && coincideFecha;
+    });
+  }
+
+
 
 
 }

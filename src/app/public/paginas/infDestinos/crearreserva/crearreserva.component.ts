@@ -1,4 +1,4 @@
-import { Component, OnInit, Input } from '@angular/core';
+import { Component, OnInit, Input, Output, EventEmitter } from '@angular/core';  // <-- Importar Output y EventEmitter
 import { CommonModule } from '@angular/common';
 import { CrearreservaService } from './crearreserva.service';
 import { FormsModule } from '@angular/forms';
@@ -11,7 +11,9 @@ import { FormsModule } from '@angular/forms';
   styleUrls: ['./crearreserva.component.scss']
 })
 export class CrearreservaComponent implements OnInit {
-  @Input() paqueteId!: number; // 👈 Este input lo recibirás del padre
+  @Input() paqueteId!: number;
+
+  @Output() reservaExitosa = new EventEmitter<void>();  // <-- Declarar Output
 
   paquete: any;
   cantidadPersonas = 1;
@@ -25,14 +27,12 @@ export class CrearreservaComponent implements OnInit {
   constructor(private reservaService: CrearreservaService) {}
 
   ngOnInit(): void {
-    // Obtenemos el paquete desde el input, no desde ActivatedRoute
     if (this.paqueteId) {
       this.reservaService.obtenerPaquetePorId(this.paqueteId).subscribe({
         next: data => {
           this.paquete = data;
           this.fechaInicio = data.fechaInicio ? new Date(data.fechaInicio).toISOString().split('T')[0] : '';
           this.fechaFin = data.fechaFin ? new Date(data.fechaFin).toISOString().split('T')[0] : '';
-
         },
         error: err => console.error('Error al cargar paquete', err)
       });
@@ -52,7 +52,6 @@ export class CrearreservaComponent implements OnInit {
       return;
     }
 
-    // Aseguramos el formato de fecha con hora
     const formatoFecha = (fecha: string) => fecha + 'T00:00:00';
 
     const reserva = {
@@ -62,13 +61,15 @@ export class CrearreservaComponent implements OnInit {
       fechaInicio: formatoFecha(this.fechaInicio),
       fechaFin: formatoFecha(this.fechaFin),
       estado: 'PENDIENTE',
-      observaciones: this.observaciones  // Se envía aunque sea cadena vacía
+      observaciones: this.observaciones
     };
 
     this.reservaService.crearReserva(reserva).subscribe({
       next: () => {
         alert('✅ Reserva realizada con éxito');
         this.mensajeError = '';
+        this.recargarPaquete(); // Actualizar el paquete en este componente (opcional)
+        this.reservaExitosa.emit();  // <-- Emitir el evento hacia el padre
       },
       error: err => {
         console.error('Error al crear reserva', err);
@@ -77,4 +78,14 @@ export class CrearreservaComponent implements OnInit {
     });
   }
 
+  private recargarPaquete(): void {
+    this.reservaService.obtenerPaquetePorId(this.paqueteId).subscribe({
+      next: data => {
+        this.paquete = data;
+        this.fechaInicio = data.fechaInicio ? new Date(data.fechaInicio).toISOString().split('T')[0] : '';
+        this.fechaFin = data.fechaFin ? new Date(data.fechaFin).toISOString().split('T')[0] : '';
+      },
+      error: err => console.error('Error al recargar paquete', err)
+    });
+  }
 }
