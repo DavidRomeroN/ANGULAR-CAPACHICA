@@ -25,7 +25,7 @@ export class PaquetesComponent implements OnInit {
           ...p,
           id: p.idPaquete
 
-      }));
+        }));
       },
       error: (err) => {
         console.error('Error al cargar paquetes:', err);
@@ -61,7 +61,9 @@ export class PaquetesComponent implements OnInit {
       const coincideFecha = this.filtroFecha
         ? new Date(paquete.fechaInicio) >= new Date(this.filtroFecha)
         : true;
-      return coincideNombre && coincideFecha;
+      const tieneCupos = paquete.cuposMaximos > 0;  // <-- Filtrar solo paquetes con cupos disponibles
+
+      return coincideNombre && coincideFecha && tieneCupos;
     });
   }
 

@@ -1,9 +1,7 @@
-import { Component, OnInit, Input, Output, EventEmitter } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { CrearreservaService } from './crearreserva.service';
-import { FormsModule } from '@angular/forms';
-import Swal from 'sweetalert2';
-import { Router } from '@angular/router';
+import {Component, OnInit, Input, Output, EventEmitter} from '@angular/core';  // <-- Importar Output y EventEmitter
+import {CommonModule} from '@angular/common';
+import {CrearreservaService} from './crearreserva.service';
+import {FormsModule} from '@angular/forms';
 
 @Component({
   selector: 'app-crearreserva',
@@ -14,7 +12,8 @@ import { Router } from '@angular/router';
 })
 export class CrearreservaComponent implements OnInit {
   @Input() paqueteId!: number;
-  @Output() reservaExitosa = new EventEmitter<void>();
+
+  @Output() reservaExitosa = new EventEmitter<void>();  // <-- Declarar Output
 
   paquete: any;
   cantidadPersonas = 1;
@@ -25,10 +24,8 @@ export class CrearreservaComponent implements OnInit {
   usuarioId = 0;
   mensajeError = '';
 
-  constructor(
-      private reservaService: CrearreservaService,
-      private router: Router
-  ) {}
+  constructor(private reservaService: CrearreservaService) {
+  }
 
   ngOnInit(): void {
     if (this.paqueteId) {
@@ -56,21 +53,6 @@ export class CrearreservaComponent implements OnInit {
       return;
     }
 
-    Swal.fire({
-      title: '¿Confirmar reserva?',
-      text: 'Se enviará un mensaje por WhatsApp al proveedor.',
-      icon: 'question',
-      showCancelButton: true,
-      confirmButtonText: 'Sí, confirmar',
-      cancelButtonText: 'Cancelar'
-    }).then((result) => {
-      if (result.isConfirmed) {
-        this.crearReservaYEnviarWhatsapp();
-      }
-    });
-  }
-
-  crearReservaYEnviarWhatsapp(): void {
     const formatoFecha = (fecha: string) => fecha + 'T00:00:00';
 
     const reserva = {
@@ -85,72 +67,16 @@ export class CrearreservaComponent implements OnInit {
 
     this.reservaService.crearReserva(reserva).subscribe({
       next: () => {
+        alert('✅ Reserva realizada con éxito');
         this.mensajeError = '';
-        this.enviarMensajeWhatsapp();
-        this.reservaExitosa.emit(); // Notifica al componente padre
-
-        Swal.fire({
-          icon: 'success',
-          title: 'Reserva confirmada ✅',
-          text: 'Serás redirigido al inicio...',
-          timer: 1500,
-          showConfirmButton: false
-        });
-
-        setTimeout(() => {
-          this.router.navigate(['/capachica/home']);
-        }, 1800);
-
-        this.recargarPaquete(); // Refresca el paquete si hace falta
+        this.recargarPaquete(); // Actualizar el paquete en este componente (opcional)
+        this.reservaExitosa.emit();  // <-- Emitir el evento hacia el padre
       },
       error: err => {
         console.error('Error al crear reserva', err);
         alert('❌ Error al crear la reserva');
       }
     });
-  }
-
-  enviarMensajeWhatsapp(): void {
-    const formatoFecha = (fechaStr: string): string => {
-      const date = new Date(fechaStr);
-      return `${date.getDate().toString().padStart(2, '0')}/${
-          (date.getMonth() + 1).toString().padStart(2, '0')
-      }/${date.getFullYear()}`;
-    };
-
-    const nombreProveedor = this.paquete.proveedor.nombreCompleto || 'Estimado/a';
-
-    const mensaje = [
-      `👋 Hola ${nombreProveedor}, acabo de realizar una reserva en tu paquete. Aquí están los detalles:`,
-      '',
-      '📢 *¡Reserva confirmada exitosamente!*',
-      '',
-      `📦 *Paquete:* ${this.paquete.titulo}`,
-      `📍 *Localidad:* ${this.paquete.localidad}`,
-      `🎯 *Actividad:* ${this.paquete.tipoActividad}`,
-      `📅 *Fechas:* ${formatoFecha(this.fechaInicio)} al ${formatoFecha(this.fechaFin)}`,
-      `👥 *Cantidad de personas:* ${this.cantidadPersonas}`,
-      '',
-      `👤 *Datos del usuario:*`,
-      `📧 *Email:* ${this.usuarioEmail}`,
-      '',
-      `📝 *Observaciones:*`,
-      `${this.observaciones || 'Sin observaciones'}`,
-      '',
-      '🤝 Gracias por confiar en nosotros. Estaremos encantados de atenderte.'
-    ].join('\n');
-
-    const mensajeCodificado = encodeURIComponent(mensaje);
-    let telefonoProveedor = this.paquete.proveedor.telefono.trim();
-
-    if (!telefonoProveedor.startsWith('+51')) {
-      telefonoProveedor = '+51' + telefonoProveedor.replace(/^0+/, '').replace(/\D/g, '');
-    } else {
-      telefonoProveedor = telefonoProveedor.replace(/\D/g, '');
-    }
-
-    const url = `https://wa.me/${telefonoProveedor}?text=${mensajeCodificado}`;
-    window.open(url, '_blank');
   }
 
   private recargarPaquete(): void {
@@ -163,4 +89,5 @@ export class CrearreservaComponent implements OnInit {
       error: err => console.error('Error al recargar paquete', err)
     });
   }
+
 }
