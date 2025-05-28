@@ -1,30 +1,46 @@
 <div class="paquete-carousel-container">
   <h2 class="carousel-title">Paquetes Destacados</h2>
+  <div class="filtro-container">
+    <input
+      type="text"
+      [(ngModel)]="filtroNombre"
+      placeholder="🔍 Buscar paquete por nombre..."
+      class="input-filtro"
+    />
+  </div>
 
   <div class="carousel-wrapper">
     <button class="arrow-btn left" (click)="scrollPaquetes('left')">&#10094;</button>
 
     <div class="carousel-scroll" #paqueteContainer>
-      <div class="paquete-card" *ngFor="let paquete of paquetes">
-        <img [src]="paquete.imagenUrl" [alt]="paquete.titulo" class="paquete-img" />
+      <ng-container *ngIf="paquetesFiltrados().length > 0; else sinResultados">
+        <div class="paquete-card" *ngFor="let paquete of paquetesFiltrados()">
+          <img [src]="paquete.imagenUrl" [alt]="paquete.titulo" class="paquete-img" />
 
-        <h4 class="paquete-titulo">{{ paquete.titulo }}</h4>
-        <p class="paquete-localidad">{{ paquete.localidad }}</p>
-        <p class="paquete-descripcion">
-          {{ paquete.descripcion.length > 80 ? (paquete.descripcion | slice:0:80) + '...' : paquete.descripcion }}
-        </p>
+          <h4 class="paquete-titulo">{{ paquete.titulo }}</h4>
+          <p class="paquete-localidad">{{ paquete.localidad }}</p>
+          <p class="paquete-descripcion">
+            {{ paquete.descripcion.length > 80 ? (paquete.descripcion | slice:0:80) + '...' : paquete.descripcion }}
+          </p>
+          <p class="paquete-fechas">
+            📅 Del {{ paquete.fechaInicio | date: 'longDate' }} al {{ paquete.fechaFin | date: 'longDate' }}
+          </p>
 
-        <div class="paquete-precio">
-          <span class="badge">S/. {{ paquete.precioTotal | number: '1.2-2' }}</span>
-          <button
-            class="btn-ver-mas"
-            (click)="verDetalle(paquete.id)">
-            VER MÁS
-          </button>
 
+          <div class="paquete-precio">
+            <span class="badge">S/. {{ paquete.precioTotal | number: '1.2-2' }}</span>
+            <button class="btn-ver-mas" (click)="verDetalle(paquete.id)">
+              VER MÁS
+            </button>
+          </div>
         </div>
-      </div>
+      </ng-container>
+
+      <ng-template #sinResultados>
+        <p class="mensaje-sin-resultados">😕 No lo tenemos por el momento</p>
+      </ng-template>
     </div>
+
 
     <button class="arrow-btn right" (click)="scrollPaquetes('right')">&#10095;</button>
   </div>

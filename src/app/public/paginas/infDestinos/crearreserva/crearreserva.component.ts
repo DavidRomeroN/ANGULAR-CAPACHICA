@@ -1,4 +1,4 @@
-import { Component, OnInit, Input } from '@angular/core';
+import { Component, OnInit, Input, Output, EventEmitter } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { CrearreservaService } from './crearreserva.service';
 import { FormsModule } from '@angular/forms';
@@ -14,6 +14,7 @@ import { Router } from '@angular/router';
 })
 export class CrearreservaComponent implements OnInit {
   @Input() paqueteId!: number;
+  @Output() reservaExitosa = new EventEmitter<void>();
 
   paquete: any;
   cantidadPersonas = 1;
@@ -25,8 +26,8 @@ export class CrearreservaComponent implements OnInit {
   mensajeError = '';
 
   constructor(
-    private reservaService: CrearreservaService,
-    private router: Router
+      private reservaService: CrearreservaService,
+      private router: Router
   ) {}
 
   ngOnInit(): void {
@@ -86,6 +87,7 @@ export class CrearreservaComponent implements OnInit {
       next: () => {
         this.mensajeError = '';
         this.enviarMensajeWhatsapp();
+        this.reservaExitosa.emit(); // Notifica al componente padre
 
         Swal.fire({
           icon: 'success',
@@ -98,6 +100,8 @@ export class CrearreservaComponent implements OnInit {
         setTimeout(() => {
           this.router.navigate(['/capachica/home']);
         }, 1800);
+
+        this.recargarPaquete(); // Refresca el paquete si hace falta
       },
       error: err => {
         console.error('Error al crear reserva', err);
@@ -110,7 +114,7 @@ export class CrearreservaComponent implements OnInit {
     const formatoFecha = (fechaStr: string): string => {
       const date = new Date(fechaStr);
       return `${date.getDate().toString().padStart(2, '0')}/${
-        (date.getMonth() + 1).toString().padStart(2, '0')
+          (date.getMonth() + 1).toString().padStart(2, '0')
       }/${date.getFullYear()}`;
     };
 
@@ -149,6 +153,14 @@ export class CrearreservaComponent implements OnInit {
     window.open(url, '_blank');
   }
 
-
-
+  private recargarPaquete(): void {
+    this.reservaService.obtenerPaquetePorId(this.paqueteId).subscribe({
+      next: data => {
+        this.paquete = data;
+        this.fechaInicio = data.fechaInicio ? new Date(data.fechaInicio).toISOString().split('T')[0] : '';
+        this.fechaFin = data.fechaFin ? new Date(data.fechaFin).toISOString().split('T')[0] : '';
+      },
+      error: err => console.error('Error al recargar paquete', err)
+    });
+  }
 }

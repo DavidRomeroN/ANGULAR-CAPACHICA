@@ -36,11 +36,11 @@
     </button>
   </div>
 
-  <!-- Mostramos el componente de reserva solo si se solicita -->
-  <app-crearreserva *ngIf="mostrarFormulario" [paqueteId]="paquete.id ?? paquete.idPaquete"></app-crearreserva>
-
-
-
-
+  <!-- Mostramos el componente de reserva solo si se solicita y escuchamos el evento -->
+  <app-crearreserva
+    *ngIf="mostrarFormulario"
+    [paqueteId]="paquete.id ?? paquete.idPaquete"
+    (reservaExitosa)="onReservaExitosa()">
+  </app-crearreserva>
 
 </div>
