@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { AuthService } from '../../services/auth.service';
-import { Router } from '@angular/router';
+import { Router, ActivatedRoute } from '@angular/router'; // ← Agregar ActivatedRoute
 
 @Component({
   selector: 'app-login',
@@ -9,16 +9,21 @@ import { Router } from '@angular/router';
 })
 export class LoginComponent implements OnInit {
   loginForm!: FormGroup;
+  private returnUrl: string = '/dashboard'; // ← URL por defecto
 
   constructor(
     private fb: FormBuilder,
     private authService: AuthService,
-    private router: Router
+    private router: Router,
+    private route: ActivatedRoute // ← Agregar esto
   ) {}
 
   ngOnInit(): void {
+    // ← Capturar el returnUrl ANTES de verificar si está logueado
+    this.returnUrl = this.route.snapshot.queryParams['returnUrl'] || '/dashboard';
+
     if (this.authService.isLoggedIn()) {
-      this.router.navigate(['/dashboard']);
+      this.router.navigate([this.returnUrl]); // ← Usar returnUrl en lugar de '/dashboard'
     }
 
     this.loginForm = this.fb.group({
@@ -26,10 +31,6 @@ export class LoginComponent implements OnInit {
       clave: ['', Validators.required]
     });
   }
-
-
-
-
 
   onSubmit(): void {
     if (this.loginForm.valid) {
@@ -44,8 +45,9 @@ export class LoginComponent implements OnInit {
             email: response.email
           }));
 
-          // Redirige al dashboard
-          this.router.navigate(['/dashboard']);
+          // ← Redirige al returnUrl en lugar de '/dashboard'
+          console.log('Redirigiendo a:', this.returnUrl); // Para debug
+          this.router.navigate([this.returnUrl]);
         },
         error: (err) => {
           console.error('Error de login:', err);
@@ -54,5 +56,4 @@ export class LoginComponent implements OnInit {
       });
     }
   }
-
 }

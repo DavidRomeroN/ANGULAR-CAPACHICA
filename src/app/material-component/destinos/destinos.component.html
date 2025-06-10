@@ -43,10 +43,12 @@
     <mat-hint>Se actualiza automáticamente al hacer clic en el mapa</mat-hint>
   </mat-form-field>
 
-  <mat-form-field appearance="fill" class="full-width">
-    <mat-label>URL de la Imagen</mat-label>
-    <input matInput formControlName="imagenUrl">
-  </mat-form-field>
+  <!-- Subida de imagen -->
+  <div class="full-width">
+    <label>Subir Imagen:</label>
+    <input type="file" accept="image/*" (change)="onFileSelected($event)">
+  </div>
+
 
   <mat-form-field appearance="fill" class="full-width">
     <mat-label>Popularidad</mat-label>
@@ -121,6 +123,7 @@
   <tr mat-row *matRowDef="let row; columns: ['nombre', 'descripcion', 'ubicacion', 'popularidad', 'preciomedio', 'rating', 'acciones']"></tr>
 </table>
 
+<!-- Estilos -->
 <style>
   .map-instructions {
     margin-bottom: 10px;
@@ -162,7 +165,6 @@
     margin-bottom: 20px;
   }
 
-  /* Estilos para el popup del marcador de Mapbox */
   .mapboxgl-popup {
     max-width: 200px;
   }

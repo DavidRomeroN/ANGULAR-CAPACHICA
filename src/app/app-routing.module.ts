@@ -11,18 +11,38 @@ const routes: Routes = [
       import('./public/public.module').then(m => m.PublicModule) // ✅ esto carga PublicComponent con navbar/footer
   },
 
+  // ========== RUTAS PÚBLICAS (SIN AUTENTICACIÓN) ==========
+  // Estas rutas mostrarán información sin requerir login
+  {
+    path: 'public',
+    children: [
+      {
+        path: 'destinos',
+        loadComponent: () => import('../app/public/paginas/infDestinos/inf-destino/inf-destino.component').then(m => m.InfDestinoComponent)
+      },
+      {
+        path: 'paquetes',
+        loadComponent: () => import('../app/public/paginas/infDestinos/infPaquetes/inf-paquete/inf-paquete.component').then(m => m.InfPaqueteComponent)
+      },
+      {
+        path: 'destino/:id',
+        loadComponent: () => import('../app/public/paginas/infDestinos/inf-destino/inf-destino.component').then(m => m.InfDestinoComponent)
+      },
+      {
+        path: 'paquete/:id',
+        loadComponent: () => import('../app/public/paginas/infDestinos/infPaquetes/inf-paquete/inf-paquete.component').then(m => m.InfPaqueteComponent)
+      }
+    ]
+  },
 
-
+  // ========== REDIRECT INICIAL ==========
   {
     path: '',
-    redirectTo: 'login',
-    pathMatch: 'full' // 👈 importante
+    redirectTo: 'dashboard', // Cambiar para que vaya a la página pública
+    pathMatch: 'full'
   },
-  {
-    path: '',
-    redirectTo: 'login',
-    pathMatch: 'full' // 👈 importante
-  },
+
+  // ========== RUTAS PROTEGIDAS (ADMIN/GESTIÓN) ==========
   {
     path: '',
     component: FullComponent,
@@ -40,7 +60,7 @@ const routes: Routes = [
       { path: 'destinos', loadComponent: () => import('./material-component/destinos/destinos.component').then(m => m.DestinosComponent) },
       { path: 'tipo-servicio', loadComponent: () => import('./material-component/tipo-servicio/tipo-servicio.component').then(m => m.TipoServicioComponent) },
 
-// Carga el componente
+      // Componentes Material
       { path: 'button', loadComponent: () => import('./material-component/buttons/buttons.component').then(m => m.ButtonsComponent) },
       { path: 'grid', loadComponent: () => import('./material-component/grid/grid.component').then(m => m.GridComponent) },
       { path: 'lists', loadComponent: () => import('./material-component/lists/lists.component').then(m => m.ListsComponent) },
@@ -56,12 +76,27 @@ const routes: Routes = [
       { path: 'tooltip', loadComponent: () => import('./material-component/tooltip/tooltip.component').then(m => m.TooltipComponent) },
       { path: 'snackbar', loadComponent: () => import('./material-component/snackbar/snackbar.component').then(m => m.SnackbarComponent) },
       { path: 'slider', loadComponent: () => import('./material-component/slider/slider.component').then(m => m.SliderComponent) },
-      { path: 'slide-toggle', loadComponent: () => import('./material-component/slide-toggle/slide-toggle.component').then(m => m.SlideToggleComponent) },
+      { path: 'slide-toggle', loadComponent: () => import('./material-component/slide-toggle/slide-toggle.component').then(m => m.SlideToggleComponent) }
+    ]
+  },
+
+  // ========== RUTAS QUE REQUIEREN AUTENTICACIÓN PARA RESERVAS ==========
+  {
+    path: 'reservas',
+    canActivate: [AuthGuard],
+    children: [
       {
-        path: 'reservas/crear/:id', loadComponent: () => import('./public/paginas/infDestinos/crearreserva/crearreserva.component').then(m => m.CrearreservaComponent)
+        path: 'crear/:id',
+        loadComponent: () => import('./public/paginas/infDestinos/crearreserva/crearreserva.component').then(m => m.CrearreservaComponent)
+      },
+      {
+        path: 'mis-reservas',
+        loadComponent: () => import('./material-component/reservados/reservados.component').then(m => m.ReservadosComponent)
       }
     ]
   },
+
+  // ========== AUTENTICACIÓN ==========
   {
     path: 'login',
     loadChildren: () => import('./pages/login/login.module').then(m => m.LoginModule)
@@ -70,9 +105,11 @@ const routes: Routes = [
     path: 'register',
     loadChildren: () => import('./pages/register/register.module').then(m => m.RegisterModule)
   },
+
+  // ========== REDIRECTS ==========
   {
     path: '**',
-    redirectTo: 'login'
+    redirectTo: 'public/destinos'
   }
 ];
 

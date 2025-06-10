@@ -12,35 +12,83 @@
     <p><strong>⏳ Duración:</strong> {{ paquete.duracionDias }} días</p>
     <p><strong>👥 Cupos máximos:</strong> {{ paquete.cuposMaximos }}</p>
     <p><strong>🎯 Tipo de actividad:</strong> {{ paquete.tipoActividad }}</p>
-    <p><strong>📦 Estado:</strong> {{ paquete.estado }}</p>
+    <p><strong>📦 Estado:</strong>
+      <span [style.color]="paquete.estado === 'DISPONIBLE' ? '#28a745' : '#dc3545'">
+        {{ paquete.estado }}
+      </span>
+    </p>
   </div>
 
-  <div style="margin-bottom: 1.5rem;">
+  <div style="margin-bottom: 1.5rem;" *ngIf="paquete.proveedor">
     <h3 style="font-size: 1.25rem; margin-bottom: 0.5rem; color: #555;">Proveedor</h3>
     <p><strong>👤 Nombre:</strong> {{ paquete.proveedor.nombreCompleto }}</p>
     <p><strong>📧 Email:</strong> {{ paquete.proveedor.email }}</p>
     <p><strong>📞 Teléfono:</strong> {{ paquete.proveedor.telefono }}</p>
   </div>
 
-  <div>
+  <div style="margin-bottom: 2rem;" *ngIf="paquete.destino">
     <h3 style="font-size: 1.25rem; margin-bottom: 0.5rem; color: #555;">Destino</h3>
     <p><strong>🗺️ Nombre:</strong> {{ paquete.destino.nombre }}</p>
     <p><strong>📄 Descripción:</strong> {{ paquete.destino.descripcion }}</p>
     <p><strong>📍 Ubicación:</strong> {{ paquete.destino.ubicacion }}</p>
   </div>
 
+  <!-- Sección de botón de reserva con lógica condicional -->
   <div style="text-align: center; margin-top: 2rem;">
-    <button (click)="mostrarFormulario = !mostrarFormulario"
-            style="padding: 0.75rem 2rem; background-color: #28a745; color: white; border: none; border-radius: 8px;">
-      Reservar
-    </button>
+
+    <!-- Si el usuario está autenticado -->
+    <div *ngIf="isAuthenticated">
+      <button (click)="manejarReserva()"
+              [disabled]="paquete.estado !== 'DISPONIBLE'"
+              style="padding: 0.75rem 2rem; background-color: #28a745; color: white; border: none; border-radius: 8px; font-size: 1rem; cursor: pointer; transition: background-color 0.3s;"
+              [style.background-color]="paquete.estado !== 'DISPONIBLE' ? '#6c757d' : '#28a745'"
+              [style.cursor]="paquete.estado !== 'DISPONIBLE' ? 'not-allowed' : 'pointer'">
+        {{ paquete.estado === 'DISPONIBLE' ? 'Reservar' : 'No Disponible' }}
+      </button>
+    </div>
+
+    <!-- Si el usuario NO está autenticado -->
+    <div *ngIf="!isAuthenticated" style="padding: 1rem; background-color: #f8f9fa; border-radius: 8px; border: 1px solid #dee2e6;">
+      <p style="margin-bottom: 1rem; color: #6c757d;">
+        💡 Para realizar una reserva, necesitas iniciar sesión o registrarte
+      </p>
+
+      <div style="display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap;">
+        <button (click)="manejarReserva()"
+                style="padding: 0.75rem 1.5rem; background-color: #007bff; color: white; border: none; border-radius: 8px; cursor: pointer; transition: background-color 0.3s;">
+          🔐 Iniciar Sesión para Reservar
+        </button>
+
+        <button (click)="irAlRegistro()"
+                style="padding: 0.75rem 1.5rem; background-color: #28a745; color: white; border: none; border-radius: 8px; cursor: pointer; transition: background-color 0.3s;">
+          📝 Registrarse
+        </button>
+      </div>
+    </div>
+
   </div>
 
-  <!-- Mostramos el componente de reserva solo si se solicita y escuchamos el evento -->
+  <!-- Mostrar el componente de reserva solo si está autenticado Y se solicita -->
   <app-crearreserva
-    *ngIf="mostrarFormulario"
+    *ngIf="mostrarFormulario && isAuthenticated"
     [paqueteId]="paquete.id ?? paquete.idPaquete"
     (reservaExitosa)="onReservaExitosa()">
   </app-crearreserva>
 
+  <!-- Mensaje informativo adicional -->
+  <div style="margin-top: 1.5rem; padding: 1rem; background-color: #e3f2fd; border-radius: 8px; border-left: 4px solid #2196f3;">
+    <h4 style="margin: 0 0 0.5rem 0; color: #1976d2;">ℹ️ Información importante</h4>
+    <ul style="margin: 0; padding-left: 1.2rem; color: #555;">
+      <li>El precio incluye todos los servicios mencionados</li>
+      <li>Las reservas están sujetas a disponibilidad</li>
+      <li>Se requiere confirmación para procesar la reserva</li>
+      <li *ngIf="paquete.cuposMaximos">Cupos limitados: máximo {{ paquete.cuposMaximos }} personas</li>
+    </ul>
+  </div>
+
+</div>
+
+<!-- Loading state -->
+<div *ngIf="!paquete" style="text-align: center; padding: 2rem;">
+  <p>Cargando información del paquete...</p>
 </div>

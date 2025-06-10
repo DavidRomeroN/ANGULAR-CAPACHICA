@@ -51,4 +51,20 @@ export class DestinosComponent implements OnInit {
     this.scrollContainer.nativeElement.scrollLeft += 300;
   }
 
+  filtroNombre: string = '';
+  destinosFiltrados(): Destino[] {
+    return this.destinos.filter(destino => {
+      const coincideNombre = this.filtroNombre
+        ? destino.nombre.toLowerCase().includes(this.filtroNombre.toLowerCase())
+        : true;
+
+      // Puedes agregar más filtros según necesidad. Ejemplo: filtro por ubicación
+      // const coincideUbicacion = this.filtroUbicacion
+      //   ? destino.ubicacion.toLowerCase().includes(this.filtroUbicacion.toLowerCase())
+      //   : true;
+
+      return coincideNombre; // Puedes combinar más condiciones con &&
+    });
+  }
+
 }

@@ -39,62 +39,51 @@ export class DestinosComponent implements OnInit, AfterViewInit {
   usuarioNombre: string = '';
   errorMessage: string = '';
   formularioVisible: boolean = false;
+  subiendoImagen = false;
 
-  // Define las propiedades necesarias para Mapbox
   map: mapboxgl.Map | null = null;
   marker: mapboxgl.Marker | null = null;
-  mapCenter: [number, number] = [-77.0428, -12.0464]; // [lng, lat] - Mapbox usa este orden
+  mapCenter: [number, number] = [-77.0428, -12.0464];
   selectedLat: number | null = null;
   selectedLng: number | null = null;
-  mapboxToken = 'pk.eyJ1IjoiamVhbnJxODgiLCJhIjoiY21hYmExM2liMjljeDJscHdhc25oYWo0bCJ9.Gd8w_nlLHD2YY9UvfoPI9A'; // Reemplaza con tu token de Mapbox
+  mapboxToken = 'pk.eyJ1IjoiamVhbnJxODgiLCJhIjoiY21hYmExM2liMjljeDJscHdhc25oYWo0bCJ9.Gd8w_nlLHD2YY9UvfoPI9A';
+
+  selectedFile: File | null = null;
 
   constructor(private destinoService: DestinosService, private fb: FormBuilder) {
     this.minDate = new Date();
-    // Configura el token de acceso de Mapbox
     (mapboxgl as any).accessToken = this.mapboxToken;
   }
 
   ngOnInit(): void {
     const usuarioLogueado = localStorage.getItem('usuarioLogueado');
+    const controls = {
+      nombre: ['', Validators.required],
+      descripcion: ['', Validators.required],
+      ubicacion: ['', Validators.required],
+      latitud: ['', [Validators.required, Validators.pattern('^-?\\d*\\.?\\d+$')]],
+      longitud: ['', [Validators.required, Validators.pattern('^-?\\d*\\.?\\d+$')]],
+      popularidad: ['', [Validators.required, Validators.min(1), Validators.max(5)]],
+      preciomedio: ['', [Validators.required, Validators.min(0)]],
+      rating: ['', [Validators.required, Validators.min(0), Validators.max(5)]]
+    };
+
+    this.destinoForm = this.fb.group(controls);
+
     if (usuarioLogueado) {
       const usuario = JSON.parse(usuarioLogueado);
-      this.destinoForm = this.fb.group({
-        nombre: ['', Validators.required],
-        descripcion: ['', Validators.required],
-        ubicacion: ['', Validators.required],
-        imagenUrl: ['', Validators.required],
-        latitud: ['', [Validators.required, Validators.pattern('^-?\\d*\\.\\d+$')]],
-        longitud: ['', [Validators.required, Validators.pattern('^-?\\d*\\.\\d+$')]],
-        popularidad: ['', [Validators.required, Validators.min(1), Validators.max(5)]],
-        preciomedio: ['', [Validators.required, Validators.min(0)]],
-        rating: ['', [Validators.required, Validators.min(0), Validators.max(5)]]
-      });
-
       this.usuarioNombre = usuario.email;
-    } else {
-      this.destinoForm = this.fb.group({
-        nombre: ['', Validators.required],
-        descripcion: ['', Validators.required],
-        ubicacion: ['', Validators.required],
-        imagenUrl: ['', Validators.required],
-        latitud: ['', [Validators.required, Validators.pattern('^-?\\d*\\.\\d+$')]],
-        longitud: ['', [Validators.required, Validators.pattern('^-?\\d*\\.\\d+$')]],
-        popularidad: ['', [Validators.required, Validators.min(1), Validators.max(5)]],
-        preciomedio: ['', [Validators.required, Validators.min(0)]],
-        rating: ['', [Validators.required, Validators.min(0), Validators.max(5)]]
-      });
     }
 
     this.cargarDestinos();
   }
 
   ngAfterViewInit(): void {
-    // Inicializar el mapa después de que la vista esté completamente cargada
     this.initMap();
   }
 
   initMap(): void {
-    if (this.mapContainer && this.mapContainer.nativeElement) {
+    if (this.mapContainer?.nativeElement) {
       this.map = new mapboxgl.Map({
         container: this.mapContainer.nativeElement,
         style: 'mapbox://styles/mapbox/streets-v12',
@@ -102,23 +91,16 @@ export class DestinosComponent implements OnInit, AfterViewInit {
         zoom: 12
       });
 
-      // Añadir controles de navegación
       this.map.addControl(new mapboxgl.NavigationControl());
-
-      // Escuchar eventos de clic en el mapa
-      this.map.on('click', (e) => {
-        this.onMapClick(e);
-      });
+      this.map.on('click', (e) => this.onMapClick(e));
     }
   }
 
-  // Método para alternar la visibilidad del formulario
   toggleForm(): void {
     this.formularioVisible = !this.formularioVisible;
     if (!this.formularioVisible) {
       this.resetForm();
     } else {
-      // Si el mapa aún no existe, inicializarlo
       setTimeout(() => {
         if (!this.map && this.mapContainer) {
           this.initMap();
@@ -131,7 +113,6 @@ export class DestinosComponent implements OnInit, AfterViewInit {
     this.destinoService.getAll().subscribe({
       next: (data: any[]) => {
         this.destinos = data;
-        // Lógica adicional si es necesario
       },
       error: (error) => {
         console.error('Error al cargar destinos:', error);
@@ -142,9 +123,8 @@ export class DestinosComponent implements OnInit, AfterViewInit {
 
   guardar(): void {
     this.errorMessage = '';
-    const formValue = this.destinoForm.value;
 
-    if (!formValue.nombre || !formValue.descripcion || !formValue.ubicacion) {
+    if (this.destinoForm.invalid) {
       this.errorMessage = 'Por favor, completa todos los campos requeridos.';
       return;
     }
@@ -152,104 +132,105 @@ export class DestinosComponent implements OnInit, AfterViewInit {
     const usuarioLogueado = localStorage.getItem('usuarioLogueado');
     const usuario = usuarioLogueado ? JSON.parse(usuarioLogueado) : null;
 
-    if (!usuario || !usuario.idUsuario) {
+    if (!usuario?.idUsuario) {
       this.errorMessage = 'No se ha encontrado un usuario logueado.';
       return;
     }
 
-    const destino = {
+    if (!this.selectedFile && !this.editando) {
+      this.errorMessage = 'Por favor, selecciona una imagen.';
+      return;
+    }
+
+    const formValue = this.destinoForm.value;
+
+    // Crear el objeto DTO como JSON
+    const destinoDto = {
       nombre: formValue.nombre,
       descripcion: formValue.descripcion,
       ubicacion: formValue.ubicacion,
-      imagenUrl: formValue.imagenUrl,
-      latitud: formValue.latitud,
-      longitud: formValue.longitud,
-      popularidad: formValue.popularidad,
-      preciomedio: formValue.preciomedio,
-      rating: formValue.rating,
-      usuario: usuario.idUsuario // Asignando el id del usuario logueado
+      latitud: parseFloat(formValue.latitud),
+      longitud: parseFloat(formValue.longitud),
+      popularidad: parseInt(formValue.popularidad),
+      preciomedio: parseFloat(formValue.preciomedio),
+      rating: parseFloat(formValue.rating),
+      usuarioId: usuario.idUsuario // Asegúrate de incluir el ID del usuario
     };
 
-    console.log('Enviando destino:', destino);
+    // Crear FormData con el DTO como JSON y el archivo
+    const formData = new FormData();
+
+    // Crear un blob para el JSON con el tipo correcto
+    const dtoBlob = new Blob([JSON.stringify(destinoDto)], {
+      type: 'application/json'
+    });
+    formData.append('dto', dtoBlob);
+
+    if (this.selectedFile) {
+      formData.append('imagenFile', this.selectedFile, this.selectedFile.name);
+    }
 
     if (this.editando && this.idDestinoEditando !== null) {
-      this.destinoService.update(this.idDestinoEditando, destino).subscribe({
-        next: () => {
+      this.destinoService.update(this.idDestinoEditando, formData).subscribe({
+        next: (response) => {
+          console.log('Destino actualizado exitosamente:', response);
           this.resetForm();
           this.cargarDestinos();
         },
         error: (error) => {
           console.error('Error al actualizar destino:', error);
-          this.errorMessage = 'Error al actualizar el destino. Verifique los datos e intente nuevamente.';
+          this.errorMessage = 'Error al actualizar el destino: ' + (error.error?.detail || error.error?.message || error.message);
         }
       });
     } else {
-      this.destinoService.create(destino).subscribe({
-        next: () => {
+      this.destinoService.create(formData).subscribe({
+        next: (response) => {
+          console.log('Destino creado exitosamente:', response);
           this.resetForm();
           this.cargarDestinos();
         },
         error: (error) => {
           console.error('Error al crear destino:', error);
-          this.errorMessage = 'Error al crear el destino. Verifique los datos e intente nuevamente.';
+          this.errorMessage = 'Error al crear el destino: ' + (error.error?.detail || error.error?.message || error.message);
         }
       });
     }
   }
-
   editar(destino: any): void {
     this.editando = true;
     this.idDestinoEditando = destino.idDestino;
     this.formularioVisible = true;
 
-    // Asegúrate de pasar los valores correctos a patchValue
-    if (destino.nombre && destino.descripcion && destino.ubicacion) {
-      this.destinoForm.patchValue({
-        nombre: destino.nombre,
-        descripcion: destino.descripcion,
-        ubicacion: destino.ubicacion,
-        imagenUrl: destino.imagenUrl,
-        latitud: destino.latitud,
-        longitud: destino.longitud,
-        popularidad: destino.popularidad,
-        preciomedio: destino.preciomedio,
-        rating: destino.rating
-      });
+    this.destinoForm.patchValue({
+      nombre: destino.nombre,
+      descripcion: destino.descripcion,
+      ubicacion: destino.ubicacion,
+      latitud: destino.latitud,
+      longitud: destino.longitud,
+      popularidad: destino.popularidad,
+      preciomedio: destino.preciomedio,
+      rating: destino.rating
+    });
 
-      // Actualizar las coordenadas del mapa y el marcador
-      this.selectedLat = destino.latitud;
-      this.selectedLng = destino.longitud;
+    this.selectedLat = destino.latitud;
+    this.selectedLng = destino.longitud;
+    this.selectedFile = null;
 
-      // Actualizar el mapa después de que sea visible
-      setTimeout(() => {
-        if (this.selectedLat && this.selectedLng) {
-          this.actualizarMarcador(this.selectedLng, this.selectedLat);
-        }
-      }, 200);
-    } else {
-      console.error('Destino con datos incompletos:', destino);
-    }
+    setTimeout(() => {
+      if (this.selectedLat && this.selectedLng) {
+        this.actualizarMarcador(this.selectedLng, this.selectedLat);
+      }
+    }, 200);
 
-    // Verificar si destino.usuario es válido antes de asignar el nombre
-    this.usuarioNombre = destino.usuario ? destino.usuario.nombre : '';
+    this.usuarioNombre = destino.usuario?.nombre || '';
   }
 
   eliminar(id: number): void {
-    const confirmacion = confirm('¿Estás seguro de eliminar este destino?');
-
-    if (confirmacion) {
-      // Si el usuario acepta, se procede a eliminar el destino
+    if (confirm('¿Estás seguro de eliminar este destino?')) {
       this.destinoService.delete(id).subscribe({
-        next: () => {
-          this.cargarDestinos();  // Recargar la lista de destinos
-        },
-        error: (error) => {
-          console.error('Error al eliminar destino:', error);
-        }
+        next: () => this.cargarDestinos(),
+        error: (error) => console.error('Error al eliminar destino:', error)
       });
-    } else {
-      // Si el usuario cancela, no se hace nada
-      console.log('Eliminación cancelada');
     }
   }
 
@@ -264,23 +245,22 @@ export class DestinosComponent implements OnInit, AfterViewInit {
     this.formularioVisible = false;
     this.selectedLat = null;
     this.selectedLng = null;
+    this.selectedFile = null;
 
-    // Eliminar el marcador si existe
     if (this.marker) {
       this.marker.remove();
       this.marker = null;
     }
   }
 
-  // Método para obtener la dirección a partir de coordenadas (geocodificación inversa con Mapbox)
   obtenerDireccion(lng: number, lat: number): void {
     const url = `https://api.mapbox.com/geocoding/v5/mapbox.places/${lng},${lat}.json?access_token=${this.mapboxToken}&language=es`;
 
     fetch(url)
       .then(response => response.json())
       .then(data => {
-        if (data && data.features && data.features.length > 0) {
-          const direccion = data.features[0].place_name;
+        const direccion = data?.features?.[0]?.place_name;
+        if (direccion) {
           this.destinoForm.patchValue({ ubicacion: direccion });
         } else {
           this.errorMessage = 'No se encontró una dirección para estas coordenadas.';
@@ -292,31 +272,22 @@ export class DestinosComponent implements OnInit, AfterViewInit {
       });
   }
 
-
-  // Actualizar o crear un marcador en el mapa
   actualizarMarcador(lng: number, lat: number): void {
     if (!this.map) {
       setTimeout(() => this.actualizarMarcador(lng, lat), 100);
       return;
     }
 
-    // Actualizar el centro del mapa
     this.map.setCenter([lng, lat]);
 
-    // Eliminar el marcador anterior si existe
     if (this.marker) {
       this.marker.remove();
     }
 
-    // Crear un nuevo marcador
-    this.marker = new mapboxgl.Marker({
-      color: '#FF0000',
-      draggable: true
-    })
+    this.marker = new mapboxgl.Marker({ color: '#FF0000', draggable: true })
       .setLngLat([lng, lat])
       .addTo(this.map);
 
-    // Escuchar el evento dragend para actualizar los valores cuando se arrastra el marcador
     this.marker.on('dragend', () => {
       const lngLat = this.marker?.getLngLat();
       if (lngLat) {
@@ -331,23 +302,39 @@ export class DestinosComponent implements OnInit, AfterViewInit {
     });
   }
 
-  // Evento de clic en el mapa
   onMapClick(event: mapboxgl.MapMouseEvent): void {
     if (event.lngLat) {
       this.selectedLng = event.lngLat.lng;
       this.selectedLat = event.lngLat.lat;
 
-      // Actualizar los campos de latitud y longitud en el formulario
       this.destinoForm.patchValue({
         latitud: this.selectedLat,
         longitud: this.selectedLng
       });
 
-      // Añadir o actualizar el marcador
       this.actualizarMarcador(this.selectedLng, this.selectedLat);
-
-      // Obtener y actualizar automáticamente la dirección correspondiente
       this.obtenerDireccion(this.selectedLng, this.selectedLat);
+    }
+  }
+
+  onFileSelected(event: any): void {
+    const file: File = event.target.files[0];
+    if (file) {
+      const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif'];
+      if (!allowedTypes.includes(file.type)) {
+        this.errorMessage = 'Solo se permiten archivos de imagen (JPG, PNG, GIF).';
+        return;
+      }
+
+      const maxSize = 5 * 1024 * 1024;
+      if (file.size > maxSize) {
+        this.errorMessage = 'El archivo es demasiado grande. Máximo 5MB.';
+        return;
+      }
+
+      this.selectedFile = file;
+      this.errorMessage = '';
+      console.log('Archivo seleccionado:', file.name, 'Tipo:', file.type, 'Tamaño:', file.size);
     }
   }
 }

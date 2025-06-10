@@ -29,18 +29,42 @@
           </a>
         </li>
 
-        <!-- ✅ Solo mostrar el botón si el usuario está logueado -->
-        <li class="nav-item" *ngIf="estaLogueado()">
-          <button class="btn btn-primary btn-round" (click)="toggleReservas()">
-            📋 Mis Reservas
-            <span *ngIf="cargandoReservas">...</span>
-          </button>
-        </li>
+        <!-- ✅ Botones para usuarios logueados -->
+        <div *ngIf="estaLogueado()" style="display: flex; gap: 0.5rem; align-items: center;">
+          <!-- Botón Mis Reservas -->
+          <li class="nav-item">
+            <button class="btn btn-primary btn-round" (click)="toggleReservas()">
+              📋 Mis Reservas
+              <span *ngIf="cargandoReservas">...</span>
+            </button>
+          </li>
+
+          <!-- Botón Cerrar Sesión -->
+          <li class="nav-item">
+            <button class="btn btn-outline-danger btn-round" (click)="cerrarSesion()" title="Cerrar Sesión">
+              🚪 Cerrar sesión
+            </button>
+          </li>
+        </div>
+
+        <!-- ✅ Botones para usuarios NO logueados -->
+        <div *ngIf="!estaLogueado()" style="display: flex; gap: 0.5rem; align-items: center;">
+          <li class="nav-item">
+            <button class="btn btn-outline-primary btn-round" (click)="irAlLogin()">
+              🔐 Iniciar Sesión
+            </button>
+          </li>
+          <li class="nav-item">
+            <button class="btn btn-primary btn-round" (click)="irAlRegistro()">
+              📝 Registrarse
+            </button>
+          </li>
+        </div>
       </ul>
     </div>
   </div>
 
-  <!-- ✅ Dropdown mejorado con información completa del paquete -->
+  <!-- ✅ Dropdown mejorado con filtros y información completa del paquete -->
   <div
     *ngIf="mostrarReservas && estaLogueado()"
     style="
@@ -51,23 +75,88 @@
             padding: 1rem;
             border-radius: 12px;
             box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-            width: 380px;
-            max-height: 500px;
-            overflow-y: auto;
+            width: 420px;
+            max-height: 600px;
+            overflow: hidden;
             z-index: 1050;
             border: 1px solid #e0e0e0;
         "
     (click)="$event.stopPropagation()"
   >
-    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+    <!-- Header con título y botón cerrar -->
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; padding-bottom: 0.5rem; border-bottom: 1px solid #eee;">
       <h5 style="margin: 0; color: #333;">Mis Reservas</h5>
       <button
         (click)="cerrarReservas()"
-        style="background: none; border: none; font-size: 18px; cursor: pointer; color: #666;"
+        style="background: none; border: none; font-size: 18px; cursor: pointer; color: #666; padding: 4px;"
         title="Cerrar"
       >
         ✕
       </button>
+    </div>
+
+    <!-- ✅ Filtros de búsqueda -->
+    <div *ngIf="!cargandoReservas && reservas && reservas.length > 0" style="margin-bottom: 1rem; padding: 0.75rem; background: #f8f9fa; border-radius: 8px;">
+      <!-- Filtro por texto -->
+      <div style="margin-bottom: 0.75rem;">
+        <input
+          type="text"
+          [(ngModel)]="filtroTexto"
+          (input)="aplicarFiltros()"
+          placeholder="🔍 Buscar por título, descripción, localidad..."
+          style="
+            width: 100%;
+            padding: 0.5rem;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-size: 13px;
+            box-sizing: border-box;
+          "
+        />
+      </div>
+
+      <!-- Filtro por estado y botón limpiar -->
+      <div style="display: flex; gap: 0.5rem; align-items: center;">
+        <select
+          [(ngModel)]="filtroEstado"
+          (change)="aplicarFiltros()"
+          style="
+            flex: 1;
+            padding: 0.5rem;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-size: 13px;
+            background: white;
+          "
+        >
+          <option value="">📋 Todos los estados</option>
+          <option *ngFor="let estado of obtenerEstadosUnicos()" [value]="estado">
+            {{ obtenerEstadoEspanol(estado) }}
+          </option>
+        </select>
+
+        <button
+          (click)="limpiarFiltros()"
+          style="
+            padding: 0.5rem 0.75rem;
+            background: #6c757d;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-size: 12px;
+            cursor: pointer;
+            white-space: nowrap;
+          "
+          title="Limpiar filtros"
+        >
+          🗑️ Limpiar
+        </button>
+      </div>
+
+      <!-- Contador de resultados -->
+      <div style="margin-top: 0.5rem; font-size: 11px; color: #666; text-align: center;">
+        Mostrando {{ reservasFiltradas.length }} de {{ reservas.length }} reservas
+      </div>
     </div>
 
     <!-- ✅ Estado de carga -->
@@ -75,10 +164,14 @@
       <div style="font-size: 16px; color: #666;">🔄 Cargando reservas...</div>
     </div>
 
-    <!-- ✅ Lista de reservas con información completa del paquete -->
-    <div *ngIf="!cargandoReservas && reservas && reservas.length > 0" style="max-height: 400px; overflow-y: auto;">
-      <div *ngFor="let reserva of reservas" style="margin-bottom: 1rem; padding: 1rem; background: #f8f9fa; border-radius: 10px; border-left: 4px solid #007bff; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+    <!-- ✅ Lista de reservas filtradas con información completa del paquete -->
+    <div *ngIf="!cargandoReservas && reservasFiltradas && reservasFiltradas.length > 0" style="max-height: 400px; overflow-y: auto; padding-right: 4px;">
+      <div *ngFor="let reserva of reservasFiltradas; let i = index" style="margin-bottom: 1rem; padding: 1rem; background: #f8f9fa; border-radius: 10px; border-left: 4px solid #007bff; box-shadow: 0 2px 4px rgba(0,0,0,0.1); position: relative;">
 
+        <!-- Badge de "Más reciente" para la primera reserva -->
+        <div *ngIf="i === 0" style="position: absolute; top: -8px; right: 8px; background: #28a745; color: white; padding: 2px 8px; border-radius: 10px; font-size: 10px; font-weight: 600;">
+          ✨ Más reciente
+        </div>
         <!-- Título del paquete -->
         <div style="margin-bottom: 0.75rem;">
           <h6 style="margin: 0; color: #333; font-weight: 600; font-size: 15px; line-height: 1.3;">
@@ -149,7 +242,19 @@
       </div>
     </div>
 
-    <!-- ✅ Sin reservas -->
+    <!-- ✅ Sin reservas que coincidan con el filtro -->
+    <div *ngIf="!cargandoReservas && reservas && reservas.length > 0 && reservasFiltradas.length === 0" style="text-align: center; padding: 2rem; color: #666;">
+      <div style="font-size: 48px; margin-bottom: 1rem;">🔍</div>
+      <p style="margin: 0; font-size: 14px;">No se encontraron reservas con los filtros aplicados.</p>
+      <button
+        (click)="limpiarFiltros()"
+        style="margin-top: 1rem; padding: 0.5rem 1rem; background: #007bff; color: white; border: none; border-radius: 6px; cursor: pointer; font-size: 12px;"
+      >
+        Mostrar todas las reservas
+      </button>
+    </div>
+
+    <!-- ✅ Sin reservas en total -->
     <div *ngIf="!cargandoReservas && (!reservas || reservas.length === 0)" style="text-align: center; padding: 2rem; color: #666;">
       <div style="font-size: 48px; margin-bottom: 1rem;">📋</div>
       <p style="margin: 0; font-size: 14px;">No tienes reservas registradas.</p>
