@@ -1,39 +1,175 @@
-<section class="vh-100 d-flex justify-content-center align-items-center" style="background-color: #f5f5f5;">
+<!-- Section: Design Block -->
+<section class="vh-100 d-flex justify-content-center align-items-center" style="background-color: #000000;">
   <div class="container">
-    <div class="card mb-3 shadow">
-      <div class="card-body p-5">
-        <h3 class="mb-4 text-center">Registro</h3>
+    <div class="card mb-3 border-0" style="border-radius: 20px; overflow: hidden;">
+      <div class="row g-0 d-flex align-items-center">
+        <!-- LOGO -->
+        <div class="col-lg-6 d-none d-lg-block text-center p-4 bg-black">
+          <img src="assets/images/logo/logo2.png" alt="Logo" class="img-fluid" style="max-width: 100%; height: auto;" />
+        </div>
 
-        <form [formGroup]="registerForm" (ngSubmit)="onSubmit()">
+        <!-- CONTENIDO PRINCIPAL -->
+        <div class="col-lg-6 bg-white">
+          <div class="card-body px-5 py-4">
 
-          <div class="form-outline mb-3">
-            <label class="form-label">Usuario</label>
-            <input type="text" class="form-control" formControlName="user">
+            <!-- FORMULARIO DE REGISTRO -->
+            <div *ngIf="showRegistrationForm">
+              <h3 class="mb-4 text-center fw-bold">Crear cuenta</h3>
+
+              <!-- Mensaje de error -->
+              <div *ngIf="errorMessage" class="alert alert-danger alert-dismissible fade show" role="alert">
+                <i class="fas fa-exclamation-triangle me-2"></i>
+                {{ errorMessage }}
+                <button type="button" class="btn-close" (click)="clearError()"></button>
+              </div>
+
+              <form [formGroup]="registerForm" (ngSubmit)="onSubmit()">
+
+                <!-- Email input -->
+                <div class="form-floating mb-3">
+                  <input
+                    type="email"
+                    class="form-control rounded-3"
+                    [class.is-invalid]="email?.invalid && email?.touched"
+                    [class.is-valid]="email?.valid && email?.touched"
+                    id="floatingEmail"
+                    placeholder="correo@dominio.com"
+                    formControlName="email">
+                  <label for="floatingEmail">Email</label>
+
+                  <!-- Validación de email -->
+                  <div *ngIf="email?.invalid && email?.touched" class="invalid-feedback">
+                    <div *ngIf="email?.errors?.['required']">El email es requerido</div>
+                    <div *ngIf="email?.errors?.['email']">Ingresa un email válido</div>
+                  </div>
+                </div>
+
+                <!-- Password input -->
+                <div class="form-floating mb-3">
+                  <input
+                    type="password"
+                    class="form-control rounded-3"
+                    [class.is-invalid]="clave?.invalid && clave?.touched"
+                    [class.is-valid]="clave?.valid && clave?.touched"
+                    id="floatingPassword"
+                    placeholder="Contraseña"
+                    formControlName="clave">
+                  <label for="floatingPassword">Contraseña</label>
+
+                  <!-- Validación de contraseña -->
+                  <div *ngIf="clave?.invalid && clave?.touched" class="invalid-feedback">
+                    <div *ngIf="clave?.errors?.['required']">La contraseña es requerida</div>
+                    <div *ngIf="clave?.errors?.['minlength']">La contraseña debe tener al menos 6 caracteres</div>
+                  </div>
+                </div>
+
+                <!-- Confirm Password input -->
+                <div class="form-floating mb-4">
+                  <input
+                    type="password"
+                    class="form-control rounded-3"
+                    [class.is-invalid]="(confirmPassword?.invalid && confirmPassword?.touched) || (registerForm.errors?.['passwordMismatch'] && confirmPassword?.touched)"
+                    [class.is-valid]="confirmPassword?.valid && confirmPassword?.touched && !registerForm.errors?.['passwordMismatch']"
+                    id="floatingConfirmPassword"
+                    placeholder="Confirmar contraseña"
+                    formControlName="confirmPassword">
+                  <label for="floatingConfirmPassword">Confirmar contraseña</label>
+
+                  <!-- Validación de confirmación de contraseña -->
+                  <div *ngIf="(confirmPassword?.invalid && confirmPassword?.touched) || (registerForm.errors?.['passwordMismatch'] && confirmPassword?.touched)" class="invalid-feedback">
+                    <div *ngIf="confirmPassword?.errors?.['required']">Confirma tu contraseña</div>
+                    <div *ngIf="registerForm.errors?.['passwordMismatch']">Las contraseñas no coinciden</div>
+                  </div>
+                </div>
+
+                <!-- Submit button -->
+                <div class="d-grid mb-4">
+                  <button
+                    type="submit"
+                    class="btn btn-success btn-lg rounded-3 shadow-sm position-relative"
+                    [disabled]="registerForm.invalid || isLoading">
+
+                    <!-- Spinner de carga -->
+                    <span *ngIf="isLoading" class="spinner-border spinner-border-sm me-2" role="status">
+                      <span class="visually-hidden">Loading...</span>
+                    </span>
+
+                    <span *ngIf="!isLoading">Crear cuenta</span>
+                    <span *ngIf="isLoading">Creando cuenta...</span>
+                  </button>
+                </div>
+
+                <!-- Login link -->
+                <div class="text-center">
+                  <span class="small text-muted">¿Ya tienes cuenta?</span>
+                  <a (click)="goToLogin()" class="text-primary fw-semibold ms-2 small" style="cursor: pointer;">Inicia sesión aquí</a>
+                </div>
+              </form>
+            </div>
+
+            <!-- MENSAJE DE ÉXITO -->
+            <div *ngIf="showSuccessMessage">
+              <div class="text-center">
+                <div class="mb-4">
+                  <i class="fas fa-envelope-circle-check text-success" style="font-size: 4rem;"></i>
+                </div>
+
+                <h3 class="mb-4 text-center fw-bold text-success">¡Registro exitoso!</h3>
+
+                <!-- Mensaje de éxito -->
+                <div class="alert alert-success mb-4" role="alert">
+                  <i class="fas fa-check-circle me-2"></i>
+                  {{ successMessage }}
+                </div>
+
+                <!-- Mensaje de error (si hay) -->
+                <div *ngIf="errorMessage" class="alert alert-danger alert-dismissible fade show" role="alert">
+                  <i class="fas fa-exclamation-triangle me-2"></i>
+                  {{ errorMessage }}
+                  <button type="button" class="btn-close" (click)="clearError()"></button>
+                </div>
+
+                <!-- Información adicional -->
+                <div class="alert alert-info mb-4">
+                  <i class="fas fa-info-circle me-2"></i>
+                  <strong>Importante:</strong> El enlace de verificación expira en 24 horas.
+                </div>
+
+                <!-- Botones de acción -->
+                <div class="d-grid gap-2 mb-3">
+                  <button
+                    type="button"
+                    class="btn btn-outline-primary btn-lg rounded-3"
+                    (click)="resendVerificationEmail()"
+                    [disabled]="isLoading">
+
+                    <span *ngIf="isLoading" class="spinner-border spinner-border-sm me-2" role="status"></span>
+                    <i *ngIf="!isLoading" class="fas fa-paper-plane me-2"></i>
+                    <span *ngIf="!isLoading">Reenviar email de verificación</span>
+                    <span *ngIf="isLoading">Enviando...</span>
+                  </button>
+
+                  <button
+                    type="button"
+                    class="btn btn-secondary btn-lg rounded-3"
+                    (click)="goToLogin()">
+                    <i class="fas fa-sign-in-alt me-2"></i>
+                    Ir al inicio de sesión
+                  </button>
+                </div>
+
+                <!-- Link para volver al registro -->
+                <div class="text-center">
+                  <a (click)="goBackToRegistration()" class="text-secondary small" style="cursor: pointer;">
+                    <i class="fas fa-arrow-left me-1"></i>
+                    Volver al registro
+                  </a>
+                </div>
+              </div>
+            </div>
+
           </div>
-
-          <div class="form-outline mb-3">
-            <label class="form-label">Contraseña</label>
-            <input type="password" class="form-control" formControlName="clave">
-          </div>
-
-          <div class="form-outline mb-3">
-            <label class="form-label">Rol</label>
-            <select class="form-select" formControlName="rol">
-              <option value="USER">Usuario</option>
-              <option value="ADMIN">Administrador</option>
-            </select>
-          </div>
-
-          <div class="form-outline mb-3">
-            <label class="form-label">Estado</label>
-            <input type="text" class="form-control" formControlName="estado" placeholder="ACTIVO">
-          </div>
-
-          <div class="d-grid">
-            <button class="btn btn-success" type="submit" [disabled]="registerForm.invalid">Registrarse</button>
-          </div>
-
-        </form>
+        </div>
       </div>
     </div>
   </div>

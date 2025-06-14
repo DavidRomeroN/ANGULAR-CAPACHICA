@@ -38,7 +38,7 @@ const routes: Routes = [
   // ========== REDIRECT INICIAL ==========
   {
     path: '',
-    redirectTo: 'dashboard', // Cambiar para que vaya a la página pública
+    redirectTo: 'capachica', // Cambiar para que vaya a la página pública
     pathMatch: 'full'
   },
 
@@ -59,7 +59,6 @@ const routes: Routes = [
       { path: 'servicio-alimento', loadComponent: () => import('./material-component/servicio_alimento/servicio-alimento.component').then(m => m.ServicioAlimentoComponent) },
       { path: 'destinos', loadComponent: () => import('./material-component/destinos/destinos.component').then(m => m.DestinosComponent) },
       { path: 'tipo-servicio', loadComponent: () => import('./material-component/tipo-servicio/tipo-servicio.component').then(m => m.TipoServicioComponent) },
-
       // Componentes Material
       { path: 'button', loadComponent: () => import('./material-component/buttons/buttons.component').then(m => m.ButtonsComponent) },
       { path: 'grid', loadComponent: () => import('./material-component/grid/grid.component').then(m => m.GridComponent) },

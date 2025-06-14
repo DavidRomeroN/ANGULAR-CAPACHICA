@@ -9,7 +9,7 @@ import { Router, ActivatedRoute } from '@angular/router'; // ← Agregar Activat
 })
 export class LoginComponent implements OnInit {
   loginForm!: FormGroup;
-  private returnUrl: string = '/dashboard'; // ← URL por defecto
+  private returnUrl: string = '/capachica'; // ← URL por defecto
 
   constructor(
     private fb: FormBuilder,
@@ -20,7 +20,7 @@ export class LoginComponent implements OnInit {
 
   ngOnInit(): void {
     // ← Capturar el returnUrl ANTES de verificar si está logueado
-    this.returnUrl = this.route.snapshot.queryParams['returnUrl'] || '/dashboard';
+    this.returnUrl = this.route.snapshot.queryParams['returnUrl'] || '/capachica';
 
     if (this.authService.isLoggedIn()) {
       this.router.navigate([this.returnUrl]); // ← Usar returnUrl en lugar de '/dashboard'
