@@ -1,54 +1,184 @@
 <div *ngIf="paquete" style="max-width: 700px; margin: auto; font-family: 'Segoe UI', sans-serif; background: #f9f9f9; padding: 2rem; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.1);">
-  <h2 style="text-align: center; color: #333; margin-bottom: 1rem;">
-    Reserva para: <strong>{{ paquete.titulo }}</strong>
-  </h2>
 
-  <p style="text-align: center; color: #666; font-size: 1rem;"><strong>📧 Usuario:</strong> {{ usuarioEmail }}</p>
+  <!-- Botón de debug (remover en producción) -->
+  <button (click)="debugPaquete()"
+          style="position: absolute; top: 10px; right: 10px; background: #ff6b6b; color: white; border: none; padding: 5px 10px; border-radius: 4px; font-size: 0.8rem; cursor: pointer;">
+    🐛 Debug
+  </button>
 
-  <form (ngSubmit)="confirmarReserva()" #reservaForm="ngForm" style="margin-top: 2rem; display: flex; flex-direction: column; gap: 1rem;">
+  <!-- Formulario de reserva (solo se muestra si no se ha completado la reserva) -->
+  <div *ngIf="!reservaCompletada">
+    <h2 style="text-align: center; color: #333; margin-bottom: 1rem;">
+      Reserva para: <strong>{{ paquete.titulo }}</strong>
+    </h2>
 
-    <div>
-      <label for="titulo" style="font-weight: 600;">Paquete</label>
-      <input type="text" id="titulo" [value]="paquete.titulo" disabled
-             style="width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 6px; background-color: #e9ecef;" />
+    <p style="text-align: center; color: #666; font-size: 1rem;">
+      <strong>📧 Usuario:</strong> {{ usuarioEmail }}
+    </p>
+
+    <!-- Info del proveedor para verificar -->
+    <div style="background: #e8f4fd; padding: 1rem; border-radius: 8px; margin-bottom: 1rem; font-size: 0.9rem;">
+      <strong>🔍 Info del proveedor:</strong><br>
+      Nombre: {{ paquete.proveedor?.nombreCompleto || 'No definido' }}<br>
+      Teléfono: {{ paquete.proveedor?.telefono || 'No definido' }}
     </div>
 
-    <div style="display: flex; gap: 1rem;">
-      <div style="flex: 1;">
-        <label for="inicio" style="font-weight: 600;">Fecha de inicio</label>
-        <input type="date" id="inicio" [value]="fechaInicio" disabled
+    <form (ngSubmit)="confirmarReserva()" #reservaForm="ngForm" style="margin-top: 2rem; display: flex; flex-direction: column; gap: 1rem;">
+
+      <div>
+        <label for="titulo" style="font-weight: 600;">Paquete</label>
+        <input type="text" id="titulo" [value]="paquete.titulo" disabled
                style="width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 6px; background-color: #e9ecef;" />
       </div>
 
-      <div style="flex: 1;">
-        <label for="fin" style="font-weight: 600;">Fecha de fin</label>
-        <input type="date" id="fin" [value]="fechaFin" disabled
-               style="width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 6px; background-color: #e9ecef;" />
+      <div style="display: flex; gap: 1rem;">
+        <div style="flex: 1;">
+          <label for="inicio" style="font-weight: 600;">Fecha de inicio</label>
+          <input type="date" id="inicio" [value]="fechaInicio" disabled
+                 style="width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 6px; background-color: #e9ecef;" />
+        </div>
+
+        <div style="flex: 1;">
+          <label for="fin" style="font-weight: 600;">Fecha de fin</label>
+          <input type="date" id="fin" [value]="fechaFin" disabled
+                 style="width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 6px; background-color: #e9ecef;" />
+        </div>
       </div>
+
+      <div>
+        <label for="cantidad" style="font-weight: 600;">Cantidad de personas</label>
+        <input type="number" id="cantidad" [(ngModel)]="cantidadPersonas" name="cantidadPersonas"
+               [max]="paquete.cuposMaximos" min="1" required
+               style="width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 6px;" />
+        <small style="color: gray;">👥 Cupos disponibles: {{ paquete.cuposMaximos }}</small>
+
+        <!-- Mostrar total calculado en tiempo real -->
+        <div *ngIf="cantidadPersonas > 0" style="margin-top: 0.5rem; padding: 10px; background-color: #e3f2fd; border-radius: 6px; border-left: 4px solid #2196f3;">
+          <strong style="color: #1976d2;">💰 Total estimado: S/. {{ totalCalculado | number:'1.2-2' }}</strong>
+        </div>
+      </div>
+
+      <div *ngIf="mensajeError" style="color: #d9534f; font-weight: 500; padding: 10px; background-color: #f8d7da; border: 1px solid #f5c6cb; border-radius: 6px;">
+        {{ mensajeError }}
+      </div>
+
+      <div>
+        <label for="obs" style="font-weight: 600;">Observaciones</label>
+        <textarea id="obs" [(ngModel)]="observaciones" name="observaciones" required
+                  rows="3" style="width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 6px; resize: vertical;"
+                  placeholder="Escribe aquí cualquier observación o solicitud especial..."></textarea>
+      </div>
+
+      <button type="submit"
+              style="margin-top: 1rem; background-color: #28a745; color: white; padding: 12px; border: none; border-radius: 8px; font-size: 1rem; font-weight: 600; cursor: pointer; transition: background-color 0.3s ease;">
+        Confirmar Reserva
+      </button>
+    </form>
+  </div>
+
+  <!-- Vista de confirmación con botón WhatsApp -->
+  <div *ngIf="reservaCompletada" style="text-align: center;">
+
+    <!-- Estado de debug para verificar datos -->
+    <div style="background: #fff3cd; border: 1px solid #ffeaa7; padding: 1rem; border-radius: 8px; margin-bottom: 1rem; text-align: left; font-size: 0.9rem;">
+      <strong>🔍 Estado actual:</strong><br>
+      • Reserva completada: {{ reservaCompletada ? '✅ Sí' : '❌ No' }}<br>
+      • Teléfono proveedor: {{ paquete?.proveedor?.telefono || '❌ No encontrado' }}<br>
+      • Nombre proveedor: {{ paquete?.proveedor?.nombreCompleto || '❌ No encontrado' }}
     </div>
 
-    <div>
-      <label for="cantidad" style="font-weight: 600;">Cantidad de personas</label>
-      <input type="number" id="cantidad" [(ngModel)]="cantidadPersonas" name="cantidadPersonas"
-             [max]="paquete.cuposMaximos" min="1" required
-             style="width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 6px;" />
-      <small style="color: gray;">👥 Cupos disponibles: {{ paquete.cuposMaximos }}</small>
-
+    <!-- Mensaje de éxito -->
+    <div style="background-color: #d4edda; border: 1px solid #c3e6cb; color: #155724; padding: 1.5rem; border-radius: 8px; margin-bottom: 2rem;">
+      <h3 style="margin: 0 0 1rem 0; color: #155724; font-size: 1.5rem;">
+        ✅ ¡Reserva Confirmada!
+      </h3>
+      <p style="margin: 0; font-size: 1rem;">
+        Tu reserva para <strong>{{ paquete.titulo }}</strong> ha sido procesada exitosamente.
+      </p>
     </div>
 
-    <div *ngIf="mensajeError" style="color: #d9534f; font-weight: 500;">
-      {{ mensajeError }}
+    <!-- Mostrar sección WhatsApp solo si hay teléfono -->
+    <div *ngIf="paquete?.proveedor?.telefono; else sinTelefono"
+         style="background: linear-gradient(135deg, #e8f5e8, #f0f9f0); border: 2px solid #25d366; padding: 2rem; border-radius: 15px; margin-bottom: 2rem; position: relative; overflow: hidden;">
+
+      <!-- Decoración de fondo -->
+      <div style="position: absolute; top: -10px; right: -10px; width: 50px; height: 50px; background: rgba(37, 211, 102, 0.1); border-radius: 50%; opacity: 0.7;"></div>
+      <div style="position: absolute; bottom: -20px; left: -20px; width: 80px; height: 80px; background: rgba(37, 211, 102, 0.05); border-radius: 50%;"></div>
+
+      <h4 style="margin: 0 0 1rem 0; color: #155724; font-size: 1.4rem; text-align: center; position: relative; z-index: 1;">
+        💬 ¡Último paso para confirmar tu viaje!
+      </h4>
+
+      <p style="color: #155724; margin-bottom: 1.5rem; text-align: center; font-size: 1.1rem; position: relative; z-index: 1;">
+        Contacta directamente con <strong>{{ paquete.proveedor?.nombreCompleto }}</strong> para coordinar todos los detalles de tu aventura.
+      </p>
+
+      <!-- Información del proveedor -->
+      <div style="background: rgba(255, 255, 255, 0.7); padding: 1rem; border-radius: 10px; margin-bottom: 1.5rem; text-align: center; position: relative; z-index: 1;">
+        <div style="display: flex; justify-content: center; align-items: center; gap: 0.5rem; margin-bottom: 0.5rem;">
+          <span style="font-size: 1.2rem;">👤</span>
+          <strong style="color: #155724; font-size: 1.1rem;">{{ paquete.proveedor?.nombreCompleto }}</strong>
+        </div>
+        <div style="display: flex; justify-content: center; align-items: center; gap: 0.5rem;">
+          <span style="font-size: 1.1rem;">📱</span>
+          <span style="color: #666; font-size: 1rem;">{{ paquete.proveedor?.telefono }}</span>
+        </div>
+      </div>
+
+      <!-- Botón principal de WhatsApp -->
+      <div style="text-align: center; position: relative; z-index: 1;">
+        <button (click)="contactarPorWhatsApp()"
+                style="background: linear-gradient(135deg, #25d366, #1ebe57); color: white; border: none; padding: 18px 35px; border-radius: 30px; font-size: 1.2rem; font-weight: 700; cursor: pointer; display: inline-flex; align-items: center; gap: 12px; transition: all 0.3s ease; box-shadow: 0 6px 20px rgba(37, 211, 102, 0.4); text-transform: uppercase; letter-spacing: 0.5px; position: relative; overflow: hidden;"
+                onmouseover="this.style.transform='translateY(-3px) scale(1.05)'; this.style.boxShadow='0 8px 25px rgba(37, 211, 102, 0.5)'"
+                onmouseout="this.style.transform='translateY(0) scale(1)'; this.style.boxShadow='0 6px 20px rgba(37, 211, 102, 0.4)'"
+                onmousedown="this.style.transform='translateY(-1px) scale(1.02)'"
+                onmouseup="this.style.transform='translateY(-3px) scale(1.05)'">
+
+          <span style="font-size: 1.4rem; z-index: 1;">📱</span>
+          <span style="z-index: 1;">Contactar Ahora</span>
+        </button>
+      </div>
+
+      <!-- Mensaje adicional -->
+      <p style="margin-top: 1.5rem; color: #155724; font-size: 0.95rem; text-align: center; font-style: italic; position: relative; z-index: 1;">
+        <span style="font-size: 1.1rem;">✨</span>
+        El mensaje incluirá automáticamente todos los detalles de tu reserva
+      </p>
     </div>
 
-    <div>
-      <label for="obs" style="font-weight: 600;">Observaciones</label>
-      <textarea id="obs" [(ngModel)]="observaciones" name="observaciones" required
-                rows="3" style="width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 6px; resize: vertical;"></textarea>
+    <!-- Template alternativo si no hay teléfono -->
+    <ng-template #sinTelefono>
+      <div style="background: #fff3cd; border: 1px solid #ffeaa7; color: #856404; padding: 1.5rem; border-radius: 8px; margin-bottom: 2rem;">
+        <h4 style="margin: 0 0 1rem 0; color: #856404;">⚠️ Información de contacto no disponible</h4>
+        <p style="margin: 0;">
+          No se encontró número de teléfono del proveedor. Puedes contactar al administrador del sistema para obtener la información de contacto.
+        </p>
+      </div>
+    </ng-template>
+
+    <!-- Botón Nueva Reserva centrado -->
+    <div style="text-align: center; margin-top: 1.5rem;">
+      <button (click)="nuevaReserva()"
+              style="background: linear-gradient(135deg, #007bff, #0056b3); color: white; border: none; padding: 12px 30px; border-radius: 8px; font-size: 1rem; font-weight: 600; cursor: pointer; transition: all 0.3s ease;"
+              onmouseover="this.style.transform='translateY(-2px)'"
+              onmouseout="this.style.transform='translateY(0)'">
+        🔄 Nueva Reserva
+      </button>
     </div>
 
-    <button type="submit"
-            style="margin-top: 1rem; background-color: #28a745; color: white; padding: 12px; border: none; border-radius: 8px; font-size: 1rem; font-weight: 600; cursor: pointer; transition: background-color 0.3s ease;">
-      Confirmar Reserva
-    </button>
-  </form>
+  </div>
+
 </div>
+
+<!-- Loading state -->
+<div *ngIf="!paquete" style="text-align: center; padding: 2rem;">
+  <div style="display: inline-block; width: 40px; height: 40px; border: 4px solid #f3f3f3; border-top: 4px solid #3498db; border-radius: 50%; animation: spin 1s linear infinite;"></div>
+  <p style="margin-top: 1rem;">Cargando información del paquete...</p>
+</div>
+
+<style>
+  @keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+  }
+</style>

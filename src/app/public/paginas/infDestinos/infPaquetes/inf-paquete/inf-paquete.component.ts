@@ -93,13 +93,25 @@ export class InfPaqueteComponent implements OnInit {
     this.mostrarFormulario = true;
   }
 
-  // Este método lo llamamos cuando el hijo emita que la reserva fue exitosa
+  // MÉTODO CORREGIDO: No ocultar el formulario después de la reserva exitosa
   onReservaExitosa(): void {
-    this.mostrarFormulario = false;
+    // NO ponemos mostrarFormulario = false aquí
+    // El componente hijo maneja su propio estado de reservaCompletada
+
+    // Solo recargar el paquete para actualizar los datos
     const id = this.paquete.id ?? this.paquete.idPaquete;
     this.paquetesService.getById(id).subscribe({
-      next: data => this.paquete = data,
+      next: data => {
+        this.paquete = data;
+        console.log('Paquete recargado después de reserva exitosa');
+      },
       error: err => console.error('Error al recargar paquete', err)
     });
+  }
+
+  // NUEVO MÉTODO: Para manejar cuando el usuario quiere volver al paquete
+  onVolverAlPaquete(): void {
+    this.mostrarFormulario = false;
+    console.log('Usuario volvió al detalle del paquete');
   }
 }

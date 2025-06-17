@@ -68,11 +68,12 @@
 
   </div>
 
-  <!-- Mostrar el componente de reserva solo si está autenticado Y se solicita -->
+  <!-- COMPONENTE DE RESERVA - SOLO UNA VEZ CON TODOS LOS EVENTOS -->
   <app-crearreserva
     *ngIf="mostrarFormulario && isAuthenticated"
     [paqueteId]="paquete.id ?? paquete.idPaquete"
-    (reservaExitosa)="onReservaExitosa()">
+    (reservaExitosa)="onReservaExitosa()"
+    (volverAlPaquete)="onVolverAlPaquete()">
   </app-crearreserva>
 
   <!-- Mensaje informativo adicional -->

@@ -1,7 +1,7 @@
 <nav class="navbar navbar-expand-lg fixed-top navbar-transparent" color-on-scroll="500">
   <div class="container">
     <div class="navbar-translate">
-      <a class="navbar-brand" href="https://www.creative-tim.com">Contactate con Nosotros</a>
+      <a class="navbar-brand" href="http://localhost:4200/capachica/home">VOLVER AL INICIO </a>
       <button class="navbar-toggler navbar-burger" type="button" data-toggle="collapse" data-target="#navbarToggler" aria-controls="navbarTogglerDemo02" aria-expanded="false" aria-label="Toggle navigation" (click)="sidebarToggle()">
         <span class="navbar-toggler-bar"></span>
         <span class="navbar-toggler-bar"></span>
@@ -64,7 +64,7 @@
     </div>
   </div>
 
-  <!-- ✅ Dropdown mejorado con filtros y información completa del paquete -->
+  <!-- ✅ Dropdown mejorado con filtros, información completa del paquete Y BOTONES WHATSAPP -->
   <div
     *ngIf="mostrarReservas && estaLogueado()"
     style="
@@ -75,8 +75,8 @@
             padding: 1rem;
             border-radius: 12px;
             box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-            width: 420px;
-            max-height: 600px;
+            width: 460px;
+            max-height: 650px;
             overflow: hidden;
             z-index: 1050;
             border: 1px solid #e0e0e0;
@@ -164,14 +164,15 @@
       <div style="font-size: 16px; color: #666;">🔄 Cargando reservas...</div>
     </div>
 
-    <!-- ✅ Lista de reservas filtradas con información completa del paquete -->
-    <div *ngIf="!cargandoReservas && reservasFiltradas && reservasFiltradas.length > 0" style="max-height: 400px; overflow-y: auto; padding-right: 4px;">
+    <!-- ✅ Lista de reservas filtradas con BOTONES WHATSAPP -->
+    <div *ngIf="!cargandoReservas && reservasFiltradas && reservasFiltradas.length > 0" style="max-height: 450px; overflow-y: auto; padding-right: 4px;">
       <div *ngFor="let reserva of reservasFiltradas; let i = index" style="margin-bottom: 1rem; padding: 1rem; background: #f8f9fa; border-radius: 10px; border-left: 4px solid #007bff; box-shadow: 0 2px 4px rgba(0,0,0,0.1); position: relative;">
 
         <!-- Badge de "Más reciente" para la primera reserva -->
         <div *ngIf="i === 0" style="position: absolute; top: -8px; right: 8px; background: #28a745; color: white; padding: 2px 8px; border-radius: 10px; font-size: 10px; font-weight: 600;">
           ✨ Más reciente
         </div>
+
         <!-- Título del paquete -->
         <div style="margin-bottom: 0.75rem;">
           <h6 style="margin: 0; color: #333; font-weight: 600; font-size: 15px; line-height: 1.3;">
@@ -197,13 +198,13 @@
           </div>
 
           <div style="display: flex; align-items: center; color: #555;">
-            💰 <strong style="margin-left: 4px;">Precio:</strong>
-            <span style="margin-left: 4px;">S/. {{ reserva.paquetePrecio }}</span>
+            💰 <strong style="margin-left: 4px;">Total:</strong>
+            <span style="margin-left: 4px;">S/. {{ calcularTotalReserva(reserva) }}</span>
           </div>
         </div>
 
         <!-- Estado de la reserva -->
-        <div style="margin-bottom: 0.5rem;">
+        <div style="margin-bottom: 0.75rem;">
           <span
             [style.background-color]="reserva.estado === 'CONFIRMADA' ? '#28a745' : reserva.estado === 'PENDIENTE' ? '#ffc107' : '#dc3545'"
             style="color: white; padding: 0.25rem 0.5rem; border-radius: 12px; font-size: 11px; font-weight: 500;">
@@ -212,7 +213,7 @@
         </div>
 
         <!-- Información adicional del paquete -->
-        <div style="display: flex; flex-wrap: wrap; gap: 0.5rem; font-size: 11px; color: #777; margin-bottom: 0.5rem;">
+        <div style="display: flex; flex-wrap: wrap; gap: 0.5rem; font-size: 11px; color: #777; margin-bottom: 0.75rem;">
           <span *ngIf="reserva.paqueteDuracion" style="background: #e9ecef; padding: 2px 6px; border-radius: 6px;">
             ⏱️ {{ reserva.paqueteDuracion }} días
           </span>
@@ -225,20 +226,82 @@
         </div>
 
         <!-- Destino si está disponible -->
-        <div *ngIf="reserva.destinoNombre" style="font-size: 11px; color: #666; margin-bottom: 0.5rem;">
+        <div *ngIf="reserva.destinoNombre" style="font-size: 11px; color: #666; margin-bottom: 0.75rem;">
           🌍 <strong>Destino:</strong> {{ reserva.destinoNombre }}
           <span *ngIf="reserva.destinoUbicacion"> - {{ reserva.destinoUbicacion }}</span>
         </div>
 
         <!-- Descripción breve -->
-        <div *ngIf="reserva.paqueteDescripcion" style="font-size: 11px; color: #888; line-height: 1.4; max-height: 40px; overflow: hidden; text-overflow: ellipsis;">
+        <div *ngIf="reserva.paqueteDescripcion" style="font-size: 11px; color: #888; line-height: 1.4; max-height: 40px; overflow: hidden; text-overflow: ellipsis; margin-bottom: 0.75rem;">
           {{ reserva.paqueteDescripcion }}
         </div>
 
         <!-- Observaciones si existen -->
-        <div *ngIf="reserva.observaciones" style="margin-top: 0.5rem; padding: 0.5rem; background: #fff3cd; border-radius: 6px; font-size: 11px; color: #856404;">
+        <div *ngIf="reserva.observaciones" style="margin-bottom: 0.75rem; padding: 0.5rem; background: #fff3cd; border-radius: 6px; font-size: 11px; color: #856404;">
           <strong>📝 Observaciones:</strong> {{ reserva.observaciones }}
         </div>
+
+        <!-- 🚀 NUEVA SECCIÓN: INFORMACIÓN DEL PROVEEDOR Y BOTÓN WHATSAPP -->
+        <div *ngIf="reserva.proveedorNombre || reserva.proveedorTelefono" style="background: linear-gradient(135deg, #e8f5e8, #f0f9f0); padding: 0.75rem; border-radius: 8px; border: 1px solid #c3e6cb; margin-top: 0.75rem;">
+
+          <!-- Información del proveedor -->
+          <div style="margin-bottom: 0.75rem;">
+            <div style="font-size: 12px; font-weight: 600; color: #155724; margin-bottom: 0.5rem;">
+              👤 Información del Proveedor:
+            </div>
+            <div style="font-size: 11px; color: #155724;">
+              <div *ngIf="reserva.proveedorNombre" style="margin-bottom: 2px;">
+                <strong>Nombre:</strong> {{ reserva.proveedorNombre }}
+              </div>
+              <div *ngIf="reserva.proveedorEmail" style="margin-bottom: 2px;">
+                <strong>Email:</strong> {{ reserva.proveedorEmail }}
+              </div>
+              <div *ngIf="reserva.proveedorTelefono" style="margin-bottom: 2px;">
+                <strong>Teléfono:</strong> {{ reserva.proveedorTelefono }}
+              </div>
+            </div>
+          </div>
+
+          <!-- Botón de WhatsApp -->
+          <div style="text-align: center;">
+            <button
+              *ngIf="reserva.proveedorTelefono"
+              (click)="contactarProveedorWhatsApp(reserva)"
+              style="
+                background: linear-gradient(135deg, #25d366, #1ebe57);
+                color: white;
+                border: none;
+                padding: 8px 16px;
+                border-radius: 20px;
+                font-size: 11px;
+                font-weight: 600;
+                cursor: pointer;
+                display: inline-flex;
+                align-items: center;
+                gap: 6px;
+                transition: all 0.3s ease;
+                box-shadow: 0 2px 8px rgba(37, 211, 102, 0.3);
+              "
+              onmouseover="this.style.transform='translateY(-1px) scale(1.02)'; this.style.boxShadow='0 4px 12px rgba(37, 211, 102, 0.4)'"
+              onmouseout="this.style.transform='translateY(0) scale(1)'; this.style.boxShadow='0 2px 8px rgba(37, 211, 102, 0.3)'"
+              title="Contactar al proveedor por WhatsApp"
+            >
+              <span style="font-size: 12px;">📱</span>
+              Contactar Proveedor
+            </button>
+
+            <!-- Mensaje si no hay teléfono -->
+            <div *ngIf="!reserva.proveedorTelefono" style="background: #fff3cd; padding: 0.5rem; border-radius: 6px; font-size: 10px; color: #856404; text-align: center;">
+              ⚠️ No hay teléfono disponible para este proveedor
+            </div>
+          </div>
+        </div>
+
+        <!-- Mensaje si no hay información del proveedor -->
+        <div *ngIf="!reserva.proveedorNombre && !reserva.proveedorTelefono" style="background: #f8d7da; color: #721c24; padding: 0.5rem; border-radius: 6px; font-size: 10px; text-align: center; margin-top: 0.75rem;">
+          ⚠️ Información del proveedor no disponible
+        </div>
+
       </div>
     </div>
 
