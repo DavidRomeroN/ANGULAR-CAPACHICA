@@ -12,12 +12,15 @@ import { ComponentsModule } from './components/components.module';
 import { ExamplesModule } from './examples/examples.module';
 import {CommonModule} from "@angular/common";
 import { PublicRoutingModule } from './public.routing';
+import { CarritoComponent } from './shared/navbar/Carrito/carrito.component';
+
 
 @NgModule({
   declarations: [
     NavbarComponent,
     FooterComponent,
-    PublicComponent
+    PublicComponent,
+    CarritoComponent
   ],
   imports: [
     NgbModule,

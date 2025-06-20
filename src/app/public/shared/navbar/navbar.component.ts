@@ -9,16 +9,20 @@ import {AuthService} from "../../../services/auth.service";
   templateUrl: './navbar.component.html',
   styleUrls: ['./navbar.component.scss']
 })
+
+
 export class NavbarComponent implements OnInit {
   private toggleButton: any;
   private sidebarVisible: boolean;
 
+  mostrarCarrito = false;
   mostrarReservas = false;
   reservas: any[] = [];
   reservasFiltradas: any[] = [];
   cargandoReservas = false;
   filtroTexto = '';
   filtroEstado = '';
+  cantidadCarrito = 0;
 
   constructor(
     public location: Location,
@@ -33,6 +37,10 @@ export class NavbarComponent implements OnInit {
   ngOnInit() {
     const navbar: HTMLElement = this.element.nativeElement;
     this.toggleButton = navbar.getElementsByClassName('navbar-toggler')[0];
+  }
+
+  actualizarCantidad(cantidad: number) {
+    this.cantidadCarrito = cantidad;
   }
 
   sidebarOpen() {

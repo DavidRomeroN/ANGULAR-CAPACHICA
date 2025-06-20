@@ -6,6 +6,16 @@ import { CrearreservaService } from '../../crearreserva/crearreserva.service';
 import { AuthService } from 'src/app/services/auth.service';
 import { FormsModule } from '@angular/forms';
 import { CrearreservaComponent } from "../../crearreserva/crearreserva.component";
+import {CarritoService} from "../../../../shared/Services/carrito.service";
+import {CarritoItem} from "../../../../shared/models/carrito-item.model";
+
+
+export enum TipoElemento {
+  SERVICIO = 'SERVICIO',
+  ACTIVIDAD = 'ACTIVIDAD',
+  PAQUETE = 'PAQUETE'
+}
+
 
 @Component({
   selector: 'app-inf-paquete',
@@ -18,6 +28,9 @@ export class InfPaqueteComponent implements OnInit {
   paquete: any;
   mostrarFormulario = false;
   isAuthenticated = false;
+  usuarioId: number = 0;
+  cantidadCarrito: number = 1;
+
 
   cantidadPersonas = 1;
   fechaInicio = '';
@@ -31,7 +44,8 @@ export class InfPaqueteComponent implements OnInit {
     private router: Router,
     private paquetesService: PaquetesService,
     private reservaService: CrearreservaService,
-    private authService: AuthService
+    private authService: AuthService,
+    private carritoService: CarritoService
   ) {
   }
 
@@ -48,7 +62,37 @@ export class InfPaqueteComponent implements OnInit {
 
   checkAuthStatus(): void {
     this.isAuthenticated = this.authService.isLoggedIn();
+
+    if (this.isAuthenticated) {
+      const user = this.authService.getLoggedUser();
+      this.usuarioId = user?.idUsuario || 0; // asegúrate de que sea 'idUsuario'
+    }
   }
+
+
+  agregarAlCarrito() {
+    if (this.paquete && this.isAuthenticated) {
+      const item = {
+        usuarioId: this.usuarioId,
+        tipoElemento: TipoElemento.PAQUETE,
+        idElemento: this.paquete.id || this.paquete.idPaquete,
+        cantidad: this.cantidadCarrito,
+        precioUnitario: this.paquete.precioTotal
+      };
+
+      console.log('Item que se enviará al backend:', item);
+      this.carritoService.agregarItem(this.usuarioId, item).subscribe(() => {
+        alert('Agregado al carrito con éxito');
+
+      });
+    } else {
+      alert('Debes iniciar sesión para agregar al carrito.');
+    }
+
+
+  }
+
+
 
   cargarPaquete(id: number): void {
     this.paquetesService.getById(id).subscribe({
@@ -88,6 +132,7 @@ export class InfPaqueteComponent implements OnInit {
       }
     });
   }
+
 
   mostrarReserva(): void {
     this.mostrarFormulario = true;

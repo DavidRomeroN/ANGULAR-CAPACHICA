@@ -33,42 +33,43 @@
     <p><strong>📍 Ubicación:</strong> {{ paquete.destino.ubicacion }}</p>
   </div>
 
-  <!-- Sección de botón de reserva con lógica condicional -->
-  <div style="text-align: center; margin-top: 2rem;">
+  <!-- Sección de botones -->
+  <div *ngIf="isAuthenticated && paquete.estado === 'DISPONIBLE'" style="margin-top: 2rem; display: flex; gap: 1rem; align-items: center; flex-wrap: wrap;">
+    <label for="cantidadInput">👥 Cantidad de personas:</label>
+    <input
+      id="cantidadInput"
+      type="number"
+      [(ngModel)]="cantidadCarrito"
+      min="1"
+      [max]="paquete.cuposMaximos"
+      style="width: 70px;"
+    />
 
-    <!-- Si el usuario está autenticado -->
-    <div *ngIf="isAuthenticated">
-      <button (click)="manejarReserva()"
-              [disabled]="paquete.estado !== 'DISPONIBLE'"
-              style="padding: 0.75rem 2rem; background-color: #28a745; color: white; border: none; border-radius: 8px; font-size: 1rem; cursor: pointer; transition: background-color 0.3s;"
-              [style.background-color]="paquete.estado !== 'DISPONIBLE' ? '#6c757d' : '#28a745'"
-              [style.cursor]="paquete.estado !== 'DISPONIBLE' ? 'not-allowed' : 'pointer'">
-        {{ paquete.estado === 'DISPONIBLE' ? 'Reservar' : 'No Disponible' }}
-      </button>
-    </div>
+    <button (click)="agregarAlCarrito()" class="btn btn-primary">
+      🛒 Agregar al Carrito
+    </button>
 
-    <!-- Si el usuario NO está autenticado -->
-    <div *ngIf="!isAuthenticated" style="padding: 1rem; background-color: #f8f9fa; border-radius: 8px; border: 1px solid #dee2e6;">
-      <p style="margin-bottom: 1rem; color: #6c757d;">
-        💡 Para realizar una reserva, necesitas iniciar sesión o registrarte
-      </p>
-
-      <div style="display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap;">
-        <button (click)="manejarReserva()"
-                style="padding: 0.75rem 1.5rem; background-color: #007bff; color: white; border: none; border-radius: 8px; cursor: pointer; transition: background-color 0.3s;">
-          🔐 Iniciar Sesión para Reservar
-        </button>
-
-        <button (click)="irAlRegistro()"
-                style="padding: 0.75rem 1.5rem; background-color: #28a745; color: white; border: none; border-radius: 8px; cursor: pointer; transition: background-color 0.3s;">
-          📝 Registrarse
-        </button>
-      </div>
-    </div>
-
+    <button (click)="manejarReserva()" class="btn btn-success">
+      📝 Reservar
+    </button>
   </div>
 
   <!-- COMPONENTE DE RESERVA - SOLO UNA VEZ CON TODOS LOS EVENTOS -->
+
+  <!-- Si el usuario NO está autenticado -->
+  <div *ngIf="!isAuthenticated" style="padding: 1rem; background-color: #f8f9fa; border-radius: 8px; border: 1px solid #dee2e6;">
+    <p style="margin-bottom: 1rem; color: #6c757d;">
+      💡 Para realizar una reserva, necesitas iniciar sesión o registrarte
+    </p>
+
+    <div style="display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap;">
+      <button (click)="manejarReserva()" class="btn btn-primary">🔐 Iniciar Sesión</button>
+      <button (click)="irAlRegistro()" class="btn btn-success">📝 Registrarse</button>
+    </div>
+  </div>
+
+  <!-- Componente de formulario de reserva -->
+
   <app-crearreserva
     *ngIf="mostrarFormulario && isAuthenticated"
     [paqueteId]="paquete.id ?? paquete.idPaquete"
@@ -76,7 +77,7 @@
     (volverAlPaquete)="onVolverAlPaquete()">
   </app-crearreserva>
 
-  <!-- Mensaje informativo adicional -->
+  <!-- Info adicional -->
   <div style="margin-top: 1.5rem; padding: 1rem; background-color: #e3f2fd; border-radius: 8px; border-left: 4px solid #2196f3;">
     <h4 style="margin: 0 0 0.5rem 0; color: #1976d2;">ℹ️ Información importante</h4>
     <ul style="margin: 0; padding-left: 1.2rem; color: #555;">
@@ -86,10 +87,9 @@
       <li *ngIf="paquete.cuposMaximos">Cupos limitados: máximo {{ paquete.cuposMaximos }} personas</li>
     </ul>
   </div>
-
 </div>
 
-<!-- Loading state -->
+<!-- Loading -->
 <div *ngIf="!paquete" style="text-align: center; padding: 2rem;">
   <p>Cargando información del paquete...</p>
 </div>

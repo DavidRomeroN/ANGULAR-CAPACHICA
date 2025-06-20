@@ -28,6 +28,28 @@
             <p class="d-lg-none">Instagram</p>
           </a>
         </li>
+        <!-- Botón del carrito -->
+        <li class="nav-item" style="position: relative;">
+          <a class="nav-link" (click)="mostrarCarrito = !mostrarCarrito" style="cursor: pointer;" title="Ver Carrito">
+            <i class="fa fa-shopping-cart"></i>
+
+            <!-- 🔴 Badge con cantidad -->
+            <span *ngIf="cantidadCarrito > 0" class="carrito-badge">{{ cantidadCarrito }}</span>
+          </a>
+
+          <!-- 🛒 Panel del carrito -->
+          <div *ngIf="mostrarCarrito" class="carrito-container">
+            <app-carrito [visible]="true" (carritoActualizado)="actualizarCantidad($event)"></app-carrito>
+          </div>
+        </li>
+
+
+
+
+
+
+
+
 
         <!-- ✅ Botones para usuarios logueados -->
         <div *ngIf="estaLogueado()" style="display: flex; gap: 0.5rem; align-items: center;">
