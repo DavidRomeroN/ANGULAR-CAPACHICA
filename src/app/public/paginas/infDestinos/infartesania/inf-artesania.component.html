@@ -1,0 +1,213 @@
+<div class="detalle-container" *ngIf="servicioArtesania">
+  <!-- Imagen principal del taller de artesanía -->
+  <div class="imagen-artesania">
+    <img [src]="servicioArtesania.imagenUrl || 'assets/images/default-artesania.jpg'"
+         [alt]="servicioArtesania.tipoArtesania" />
+    <div class="overlay-info">
+      <span class="nivel-badge" [style.background-color]="getNivelColor()">
+        {{ getNivelTexto() }}
+      </span>
+    </div>
+  </div>
+
+  <!-- Información principal del taller -->
+  <div class="info-artesania">
+    <h2 class="titulo">{{ servicioArtesania.tipoArtesania }}</h2>
+    <p class="artesano">
+      <i class="fa fa-user"></i>
+      {{ servicioArtesania.artesano || servicioArtesania.servicio?.proveedor?.nombreCompleto }}
+    </p>
+
+    <p class="descripcion">{{ servicioArtesania.descripcion }}</p>
+
+    <!-- Información detallada del taller -->
+    <div class="info-detallada">
+      <div class="info-item">
+        <strong>Origen Cultural:</strong>
+        {{ servicioArtesania.origenCultural || 'No especificado' }}
+      </div>
+
+      <div class="info-item">
+        <strong>Duración:</strong>
+        {{ servicioArtesania.duracionTaller || 0 }} horas
+      </div>
+
+      <div class="info-item">
+        <strong>Máximo Participantes:</strong>
+        {{ servicioArtesania.maxParticipantes || 0 }}
+      </div>
+
+      <div class="info-item">
+        <strong>Incluye Material:</strong>
+        <span [class]="servicioArtesania.incluyeMaterial ? 'texto-positivo' : 'texto-negativo'">
+          {{ servicioArtesania.incluyeMaterial ? 'Sí' : 'No' }}
+        </span>
+      </div>
+
+      <div class="info-item">
+        <strong>Visita Taller:</strong>
+        <span [class]="servicioArtesania.visitaTaller ? 'texto-positivo' : 'texto-negativo'">
+          {{ servicioArtesania.visitaTaller ? 'Sí' : 'No' }}
+        </span>
+      </div>
+
+      <div class="info-item precio-destacado">
+        <strong>Precio:</strong>
+        <span class="precio">S/. {{ servicioArtesania.servicio?.precio || 0 | number:'1.2-2' }}</span>
+      </div>
+    </div>
+
+    <!-- Botones de acción principales -->
+    <div class="acciones-principales" *ngIf="isAuthenticated">
+      <button class="btn btn-whatsapp" (click)="contactarArtesanoWhatsApp()">
+        <i class="fab fa-whatsapp"></i> Contactar Artesano
+      </button>
+
+      <button class="btn btn-solicitar" (click)="solicitarTaller()">
+        <i class="fa fa-calendar-plus"></i> Solicitar Taller
+      </button>
+
+      <button class="btn btn-carrito" (click)="agregarAlCarrito()">
+        <i class="fa fa-cart-plus"></i> Agregar al Carrito
+      </button>
+    </div>
+
+    <!-- Botones para usuarios no autenticados -->
+    <div class="acciones-auth" *ngIf="!isAuthenticated">
+      <p class="mensaje-auth">Inicia sesión para solicitar este taller</p>
+      <button class="btn btn-login" (click)="irAlLogin()">
+        <i class="fa fa-sign-in-alt"></i> Iniciar Sesión
+      </button>
+      <button class="btn btn-register" (click)="irAlRegistro()">
+        <i class="fa fa-user-plus"></i> Registrarse
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Formulario de solicitud de taller -->
+<div class="formulario-overlay" *ngIf="mostrarFormulario && !solicitudCompletada">
+  <div class="formulario-container">
+    <h3>Solicitar Taller de {{ servicioArtesania?.tipoArtesania }}</h3>
+
+    <form (ngSubmit)="confirmarSolicitud()">
+      <div class="form-group">
+        <label for="cantidadParticipantes">Cantidad de Participantes:</label>
+        <input type="number"
+               id="cantidadParticipantes"
+               [(ngModel)]="cantidadParticipantes"
+               name="cantidadParticipantes"
+               min="1"
+               [max]="servicioArtesania?.maxParticipantes"
+               class="form-control"
+               required>
+        <small class="form-text">Máximo: {{ servicioArtesania?.maxParticipantes }} participantes</small>
+      </div>
+
+      <div class="form-group">
+        <label for="fechaInicio">Fecha de Inicio:</label>
+        <input type="date"
+               id="fechaInicio"
+               [(ngModel)]="fechaInicio"
+               name="fechaInicio"
+               class="form-control"
+               required>
+      </div>
+
+      <div class="form-group">
+        <label for="fechaFin">Fecha de Fin:</label>
+        <input type="date"
+               id="fechaFin"
+               [(ngModel)]="fechaFin"
+               name="fechaFin"
+               class="form-control"
+               required>
+      </div>
+
+      <div class="form-group">
+        <label for="observaciones">Observaciones:</label>
+        <textarea id="observaciones"
+                  [(ngModel)]="observaciones"
+                  name="observaciones"
+                  class="form-control"
+                  rows="4"
+                  placeholder="Describe tus expectativas, experiencia previa, o cualquier requerimiento especial..."
+                  required></textarea>
+      </div>
+
+      <!-- Resumen de la solicitud -->
+      <div class="resumen-solicitud">
+        <h4>Resumen de tu Solicitud</h4>
+        <p><strong>Participantes:</strong> {{ cantidadParticipantes }}</p>
+        <p><strong>Período:</strong> {{ fechaInicio | date:'dd/MM/yyyy' }} - {{ fechaFin | date:'dd/MM/yyyy' }}</p>
+        <p><strong>Total Estimado:</strong> S/. {{ totalCalculado | number:'1.2-2' }}</p>
+      </div>
+
+      <!-- Mensaje de error -->
+      <div class="alert alert-danger" *ngIf="mensajeError">
+        {{ mensajeError }}
+      </div>
+
+      <!-- Botones del formulario -->
+      <div class="form-actions">
+        <button type="button" class="btn btn-cancelar" (click)="mostrarFormulario = false">
+          Cancelar
+        </button>
+        <button type="submit" class="btn btn-confirmar">
+          <i class="fa fa-check"></i> Confirmar Solicitud
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Confirmación de solicitud completada -->
+<div class="confirmacion-overlay" *ngIf="solicitudCompletada">
+  <div class="confirmacion-container">
+    <div class="icono-exito">
+      <i class="fa fa-check-circle"></i>
+    </div>
+
+    <h3>¡Solicitud Enviada con Éxito!</h3>
+
+    <div class="detalles-solicitud">
+      <h4>Detalles de tu Solicitud:</h4>
+      <p><strong>Taller:</strong> {{ servicioArtesania?.tipoArtesania }}</p>
+      <p><strong>Artesano:</strong> {{ servicioArtesania?.artesano || servicioArtesania?.servicio?.proveedor?.nombreCompleto }}</p>
+      <p><strong>Participantes:</strong> {{ solicitudRealizada?.cantidadParticipantes }}</p>
+      <p><strong>Fechas:</strong> {{ solicitudRealizada?.fechaInicio | date:'dd/MM/yyyy' }} - {{ solicitudRealizada?.fechaFin | date:'dd/MM/yyyy' }}</p>
+      <p><strong>Estado:</strong> <span class="estado-pendiente">PENDIENTE</span></p>
+    </div>
+
+    <div class="mensaje-siguiente-paso">
+      <p>El artesano recibirá tu solicitud y se contactará contigo para coordinar los detalles del taller.</p>
+      <p>También puedes contactarlo directamente por WhatsApp.</p>
+    </div>
+
+    <div class="acciones-confirmacion">
+      <button class="btn btn-whatsapp" (click)="contactarArtesanoWhatsApp()">
+        <i class="fab fa-whatsapp"></i> Contactar por WhatsApp
+      </button>
+
+      <button class="btn btn-nueva-solicitud" (click)="nuevaSolicitud()">
+        <i class="fa fa-plus"></i> Nueva Solicitud
+      </button>
+
+      <button class="btn btn-mis-solicitudes" (click)="verMisSolicitudes()">
+        <i class="fa fa-list"></i> Ver Mis Solicitudes
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Mensaje cuando no se encuentra el servicio -->
+<div class="error-container" *ngIf="!servicioArtesania">
+  <div class="error-message">
+    <i class="fa fa-exclamation-triangle"></i>
+    <h3>Taller no encontrado</h3>
+    <p>El taller de artesanía que buscas no está disponible o no existe.</p>
+    <button class="btn btn-volver" (click)="router.navigate(['/capachica'])">
+      <i class="fa fa-arrow-left"></i> Volver al Inicio
+    </button>
+  </div>
+</div>

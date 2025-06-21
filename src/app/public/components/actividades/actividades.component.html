@@ -1,0 +1,50 @@
+<div class="actividad-carousel-container">
+  <h2 class="carousel-title">Actividades Destacadas</h2>
+
+  <div class="filtro-container">
+    <input
+      type="text"
+      [(ngModel)]="filtroNombre"
+      placeholder="🔍 Buscar actividad por nombre..."
+      class="input-filtro"
+    />
+  </div>
+
+  <div class="carousel-wrapper">
+    <button class="arrow-btn left" (click)="scrollActividades('left')">&#10094;</button>
+
+    <div class="carousel-scroll" #actividadContainer>
+      <ng-container *ngIf="actividadesFiltradas().length > 0; else sinResultados">
+        <div class="actividad-card" *ngFor="let actividad of actividadesFiltradas()">
+          <img
+            [src]="actividad.imagenUrl"
+            [alt]="actividad.titulo"
+            class="actividad-img"
+            (error)="onImageError($event)" />
+
+          <h4 class="actividad-titulo">{{ actividad.titulo }}</h4>
+          <p class="actividad-tipo">{{ actividad.tipo }}</p>
+          <p class="actividad-descripcion">
+            {{ actividad.descripcion.length > 80 ? (actividad.descripcion | slice:0:80) + '...' : actividad.descripcion }}
+          </p>
+          <p class="actividad-duracion">
+            ⏰ {{ actividad.duracionHoras }} horas
+          </p>
+
+          <div class="actividad-precio">
+            <span class="badge">S/. {{ actividad.precioBase | number: '1.2-2' }}</span>
+            <button class="btn-ver-mas" (click)="verDetalle(actividad.id)">
+              VER MÁS
+            </button>
+          </div>
+        </div>
+      </ng-container>
+
+      <ng-template #sinResultados>
+        <p class="mensaje-sin-resultados">😕 No hay actividades disponibles por el momento</p>
+      </ng-template>
+    </div>
+
+    <button class="arrow-btn right" (click)="scrollActividades('right')">&#10095;</button>
+  </div>
+</div>

@@ -1,0 +1,519 @@
+// Variables de colores
+$color-primario: #8B4513;
+$color-secundario: #D2691E;
+$color-whatsapp: #25D366;
+$color-exito: #28a745;
+$color-peligro: #dc3545;
+$color-advertencia: #ffc107;
+$color-info: #17a2b8;
+
+// Contenedor principal
+.detalle-container {
+  display: flex;
+  gap: 2rem;
+  max-width: 1200px;
+  margin: 2rem auto;
+  padding: 0 1rem;
+
+  @media (max-width: 768px) {
+    flex-direction: column;
+    gap: 1rem;
+  }
+}
+
+// Imagen del taller
+.imagen-artesania {
+  flex: 1;
+  position: relative;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.1);
+
+  img {
+    width: 100%;
+    height: 400px;
+    object-fit: cover;
+    transition: transform 0.3s ease;
+
+    &:hover {
+      transform: scale(1.05);
+    }
+  }
+
+  .overlay-info {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+
+    .nivel-badge {
+      padding: 0.5rem 1rem;
+      border-radius: 20px;
+      color: white;
+      font-weight: bold;
+      font-size: 0.9rem;
+      text-shadow: 0 1px 2px rgba(0,0,0,0.3);
+    }
+  }
+}
+
+// Información del taller
+.info-artesania {
+  flex: 1;
+
+  .titulo {
+    font-size: 2.5rem;
+    color: $color-primario;
+    margin-bottom: 0.5rem;
+    font-weight: 700;
+  }
+
+  .artesano {
+    color: $color-secundario;
+    font-size: 1.2rem;
+    margin-bottom: 1rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+
+    i {
+      color: $color-primario;
+    }
+  }
+
+  .descripcion {
+    color: #6c757d;
+    line-height: 1.6;
+    margin-bottom: 2rem;
+    font-size: 1.1rem;
+  }
+}
+
+// Información detallada
+.info-detallada {
+  background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+  padding: 1.5rem;
+  border-radius: 12px;
+  margin-bottom: 2rem;
+  border-left: 4px solid $color-primario;
+
+  .info-item {
+    margin-bottom: 1rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.5rem 0;
+    border-bottom: 1px solid rgba(0,0,0,0.1);
+
+    &:last-child {
+      border-bottom: none;
+      margin-bottom: 0;
+    }
+
+    strong {
+      color: $color-primario;
+      flex: 1;
+    }
+
+    &.precio-destacado {
+      background: rgba(139, 69, 19, 0.1);
+      padding: 1rem;
+      border-radius: 8px;
+      margin-top: 1rem;
+
+      .precio {
+        font-size: 1.5rem;
+        font-weight: bold;
+        color: $color-primario;
+      }
+    }
+  }
+
+  .texto-positivo {
+    color: $color-exito;
+    font-weight: bold;
+  }
+
+  .texto-negativo {
+    color: $color-peligro;
+    font-weight: bold;
+  }
+}
+
+// Acciones principales
+.acciones-principales {
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+  margin-bottom: 2rem;
+
+  @media (max-width: 768px) {
+    flex-direction: column;
+  }
+}
+
+// Acciones para usuarios no autenticados
+.acciones-auth {
+  text-align: center;
+  padding: 2rem;
+  background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+  border-radius: 12px;
+  border: 2px dashed $color-primario;
+
+  .mensaje-auth {
+    color: $color-primario;
+    font-size: 1.1rem;
+    margin-bottom: 1rem;
+    font-weight: 600;
+  }
+
+  .btn {
+    margin: 0 0.5rem;
+  }
+}
+
+// Estilos de botones
+.btn {
+  padding: 0.75rem 1.5rem;
+  border: none;
+  border-radius: 8px;
+  font-weight: 600;
+  text-decoration: none;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 1rem;
+
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+  }
+
+  &.btn-whatsapp {
+    background: $color-whatsapp;
+    color: white;
+
+    &:hover {
+      background: darken($color-whatsapp, 10%);
+    }
+  }
+
+  &.btn-solicitar {
+    background: $color-primario;
+    color: white;
+
+    &:hover {
+      background: darken($color-primario, 10%);
+    }
+  }
+
+  &.btn-carrito {
+    background: $color-info;
+    color: white;
+
+    &:hover {
+      background: darken($color-info, 10%);
+    }
+  }
+
+  &.btn-login {
+    background: $color-exito;
+    color: white;
+
+    &:hover {
+      background: darken($color-exito, 10%);
+    }
+  }
+
+  &.btn-register {
+    background: $color-secundario;
+    color: white;
+
+    &:hover {
+      background: darken($color-secundario, 10%);
+    }
+  }
+
+  &.btn-cancelar {
+    background: #6c757d;
+    color: white;
+
+    &:hover {
+      background: darken(#6c757d, 10%);
+    }
+  }
+
+  &.btn-confirmar {
+    background: $color-exito;
+    color: white;
+
+    &:hover {
+      background: darken($color-exito, 10%);
+    }
+  }
+
+  &.btn-nueva-solicitud {
+    background: $color-primario;
+    color: white;
+
+    &:hover {
+      background: darken($color-primario, 10%);
+    }
+  }
+
+  &.btn-mis-solicitudes {
+    background: $color-info;
+    color: white;
+
+    &:hover {
+      background: darken($color-info, 10%);
+    }
+  }
+
+  &.btn-volver {
+    background: $color-secundario;
+    color: white;
+
+    &:hover {
+      background: darken($color-secundario, 10%);
+    }
+  }
+}
+
+// Formulario de solicitud
+.formulario-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0,0,0,0.7);
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: fadeIn 0.3s ease;
+
+  .formulario-container {
+    background: white;
+    padding: 2rem;
+    border-radius: 12px;
+    max-width: 600px;
+    width: 90%;
+    max-height: 90vh;
+    overflow-y: auto;
+    box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+
+    h3 {
+      color: $color-primario;
+      margin-bottom: 1.5rem;
+      text-align: center;
+    }
+
+    .form-group {
+      margin-bottom: 1.5rem;
+
+      label {
+        display: block;
+        margin-bottom: 0.5rem;
+        color: $color-primario;
+        font-weight: 600;
+      }
+
+      .form-control {
+        width: 100%;
+        padding: 0.75rem;
+        border: 2px solid #e9ecef;
+        border-radius: 8px;
+        font-size: 1rem;
+        transition: border-color 0.3s ease;
+
+        &:focus {
+          outline: none;
+          border-color: $color-primario;
+          box-shadow: 0 0 0 3px rgba(139, 69, 19, 0.1);
+        }
+      }
+
+      .form-text {
+        color: #6c757d;
+        font-size: 0.9rem;
+        margin-top: 0.25rem;
+      }
+    }
+
+    .resumen-solicitud {
+      background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+      padding: 1.5rem;
+      border-radius: 8px;
+      margin-bottom: 1.5rem;
+      border-left: 4px solid $color-primario;
+
+      h4 {
+        color: $color-primario;
+        margin-bottom: 1rem;
+      }
+
+      p {
+        margin-bottom: 0.5rem;
+
+        &:last-child {
+          font-weight: bold;
+          font-size: 1.1rem;
+          color: $color-primario;
+        }
+      }
+    }
+
+    .form-actions {
+      display: flex;
+      gap: 1rem;
+      justify-content: flex-end;
+
+      @media (max-width: 480px) {
+        flex-direction: column;
+      }
+    }
+  }
+}
+
+// Confirmación de solicitud
+.confirmacion-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0,0,0,0.7);
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: fadeIn 0.3s ease;
+
+  .confirmacion-container {
+    background: white;
+    padding: 2rem;
+    border-radius: 12px;
+    max-width: 500px;
+    width: 90%;
+    text-align: center;
+    box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+
+    .icono-exito {
+      font-size: 4rem;
+      color: $color-exito;
+      margin-bottom: 1rem;
+      animation: bounceIn 0.5s ease;
+    }
+
+    h3 {
+      color: $color-primario;
+      margin-bottom: 1.5rem;
+    }
+
+    .detalles-solicitud {
+      background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+      padding: 1.5rem;
+      border-radius: 8px;
+      margin-bottom: 1.5rem;
+      text-align: left;
+
+      h4 {
+        color: $color-primario;
+        margin-bottom: 1rem;
+        text-align: center;
+      }
+
+      p {
+        margin-bottom: 0.5rem;
+
+        .estado-pendiente {
+          color: $color-advertencia;
+          font-weight: bold;
+          background: rgba(255, 193, 7, 0.1);
+          padding: 0.25rem 0.5rem;
+          border-radius: 4px;
+        }
+      }
+    }
+
+    .mensaje-siguiente-paso {
+      margin-bottom: 2rem;
+      color: #6c757d;
+      line-height: 1.6;
+
+      p {
+        margin-bottom: 0.5rem;
+      }
+    }
+
+    .acciones-confirmacion {
+      display: flex;
+      gap: 1rem;
+      justify-content: center;
+      flex-wrap: wrap;
+
+      @media (max-width: 480px) {
+        flex-direction: column;
+      }
+    }
+  }
+}
+
+// Error container
+.error-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 400px;
+
+  .error-message {
+    text-align: center;
+    padding: 2rem;
+
+    i {
+      font-size: 4rem;
+      color: $color-advertencia;
+      margin-bottom: 1rem;
+    }
+
+    h3 {
+      color: $color-primario;
+      margin-bottom: 1rem;
+    }
+
+    p {
+      color: #6c757d;
+      margin-bottom: 2rem;
+    }
+  }
+}
+
+// Alertas
+.alert {
+  padding: 1rem;
+  border-radius: 8px;
+  margin-bottom: 1rem;
+  border: 1px solid transparent;
+
+  &.alert-danger {
+    background: rgba(220, 53, 69, 0.1);
+    border-color: rgba(220, 53, 69, 0.3);
+    color: $color-peligro;
+  }
+}
+
+// Animaciones
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes bounceIn {
+  0% { transform: scale(0.3); opacity: 0; }
+  50% { transform: scale(1.05); }
+  70% { transform: scale(0.9); }
+  100% { transform: scale(1); opacity: 1; }
+}

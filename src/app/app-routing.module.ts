@@ -5,50 +5,61 @@ import { DashboardComponent } from './dashboard/dashboard.component';
 import { AuthGuard } from './guards/auth.guard';
 
 const routes: Routes = [
+  // ========== REDIRECT INICIAL ==========
+  {
+    path: '',
+    redirectTo: '/capachica',
+    pathMatch: 'full'
+  },
+
+  // ========== RUTAS PÚBLICAS PRINCIPALES ==========
   {
     path: 'capachica',
     loadChildren: () =>
-      import('./public/public.module').then(m => m.PublicModule) // ✅ esto carga PublicComponent con navbar/footer
+      import('./public/public.module').then(m => m.PublicModule)
   },
 
-  // ========== RUTAS PÚBLICAS (SIN AUTENTICACIÓN) ==========
-  // Estas rutas mostrarán información sin requerir login
+  // ========== RUTAS PÚBLICAS DIRECTAS (SIN AUTENTICACIÓN) ==========
   {
     path: 'public',
     children: [
       {
         path: 'destinos',
-        loadComponent: () => import('../app/public/paginas/infDestinos/inf-destino/inf-destino.component').then(m => m.InfDestinoComponent)
+        loadComponent: () => import('./public/paginas/infDestinos/inf-destino/inf-destino.component').then(m => m.InfDestinoComponent)
       },
       {
         path: 'paquetes',
-        loadComponent: () => import('../app/public/paginas/infDestinos/infPaquetes/inf-paquete/inf-paquete.component').then(m => m.InfPaqueteComponent)
+        loadComponent: () => import('./public/paginas/infDestinos/infPaquetes/inf-paquete/inf-paquete.component').then(m => m.InfPaqueteComponent)
       },
       {
         path: 'destino/:id',
-        loadComponent: () => import('../app/public/paginas/infDestinos/inf-destino/inf-destino.component').then(m => m.InfDestinoComponent)
+        loadComponent: () => import('./public/paginas/infDestinos/inf-destino/inf-destino.component').then(m => m.InfDestinoComponent)
       },
       {
         path: 'paquete/:id',
-        loadComponent: () => import('../app/public/paginas/infDestinos/infPaquetes/inf-paquete/inf-paquete.component').then(m => m.InfPaqueteComponent)
+        loadComponent: () => import('./public/paginas/infDestinos/infPaquetes/inf-paquete/inf-paquete.component').then(m => m.InfPaqueteComponent)
+      },
+      {
+        path: 'artesania/:id',
+        loadComponent: () => import('./public/paginas/infDestinos/infartesania/inf-artesania.component').then(m => m.InfArtesaniaComponent)
       }
     ]
   },
 
-  // ========== REDIRECT INICIAL ==========
+  // ========== RUTAS DIRECTAS PARA DETALLES ==========
   {
-    path: '',
-    redirectTo: 'capachica', // Cambiar para que vaya a la página pública
-    pathMatch: 'full'
+    path: 'artesania/:id',
+    loadComponent: () => import('./public/paginas/infDestinos/infartesania/inf-artesania.component').then(m => m.InfArtesaniaComponent)
   },
 
   // ========== RUTAS PROTEGIDAS (ADMIN/GESTIÓN) ==========
   {
-    path: '',
+    path: 'admin',
     component: FullComponent,
     canActivate: [AuthGuard],
     canActivateChild: [AuthGuard],
     children: [
+      { path: '', redirectTo: 'dashboard', pathMatch: 'full' },
       { path: 'dashboard', component: DashboardComponent },
       { path: 'reservados', loadComponent: () => import('./material-component/reservados/reservados.component').then(m => m.ReservadosComponent) },
       { path: 'servicios', loadComponent: () => import('./material-component/servicios/servicios.component').then(m => m.ServiciosComponent) },
@@ -59,6 +70,7 @@ const routes: Routes = [
       { path: 'servicio-alimento', loadComponent: () => import('./material-component/servicio_alimento/servicio-alimento.component').then(m => m.ServicioAlimentoComponent) },
       { path: 'destinos', loadComponent: () => import('./material-component/destinos/destinos.component').then(m => m.DestinosComponent) },
       { path: 'tipo-servicio', loadComponent: () => import('./material-component/tipo-servicio/tipo-servicio.component').then(m => m.TipoServicioComponent) },
+
       // Componentes Material
       { path: 'button', loadComponent: () => import('./material-component/buttons/buttons.component').then(m => m.ButtonsComponent) },
       { path: 'grid', loadComponent: () => import('./material-component/grid/grid.component').then(m => m.GridComponent) },
@@ -108,12 +120,15 @@ const routes: Routes = [
   // ========== REDIRECTS ==========
   {
     path: '**',
-    redirectTo: 'public/destinos'
+    redirectTo: '/capachica'
   }
 ];
 
 @NgModule({
-  imports: [RouterModule.forRoot(routes)],
+  imports: [RouterModule.forRoot(routes, {
+    enableTracing: false, // Cambiar a true solo para debug
+    onSameUrlNavigation: 'reload'
+  })],
   exports: [RouterModule]
 })
 export class AppRoutingModule {}

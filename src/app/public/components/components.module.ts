@@ -14,14 +14,25 @@ import { NgbdModalComponent } from './modal/modal.component';
 import { NgbdModalContent } from './modal/modal.component';
 import { DestinosComponent } from './destinos/destinos.component';
 import { PaquetesComponent } from './paquetes/paquetes.component';
+import {ServicioArtesaniaComponent} from "../../material-component/servicio-artesania/servicio-artesania.component";
+import {InfArtesaniaComponent} from "../paginas/infDestinos/infartesania/inf-artesania.component";
+import {ArtesaniasComponent} from "./artesania/artesanias.component";
+import {PublicModule} from "../public.module";
+import {ActividadesComponent} from "./actividades/actividades.component";
+
 
 @NgModule({
-    imports: [
-        CommonModule,
-        FormsModule,
-        NgbModule,
-        RouterModule
-    ],
+  imports: [
+    CommonModule,
+    FormsModule,
+    NgbModule,
+    RouterModule,
+    ServicioArtesaniaComponent,
+    InfArtesaniaComponent,
+    ArtesaniasComponent,
+
+    PublicModule
+  ],
     declarations: [
         ComponentsComponent,
         BasicelementsComponent,
@@ -32,7 +43,8 @@ import { PaquetesComponent } from './paquetes/paquetes.component';
         NgbdModalComponent,
         NgbdModalContent,
         DestinosComponent,
-        PaquetesComponent
+        PaquetesComponent,
+        ActividadesComponent
     ],
     exports:[ ComponentsComponent ]
 })

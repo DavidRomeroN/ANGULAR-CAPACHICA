@@ -1,0 +1,66 @@
+<div class="artesanias-container">
+  <h2 class="section-title">Talleres de Artesanía Destacados</h2>
+
+  <!-- Loading state -->
+  <div *ngIf="isLoading" class="loading-container">
+    <p>Cargando talleres de artesanía...</p>
+  </div>
+
+  <!-- Error state -->
+  <div *ngIf="error" class="error-container">
+    <p>{{ error }}</p>
+  </div>
+
+  <!-- Content -->
+  <div *ngIf="!isLoading && !error" class="carousel-wrapper">
+    <button class="scroll-btn left" (click)="scrollLeft()">&#9664;</button>
+
+    <div #scrollContainer class="cards-container">
+      <div *ngFor="let artesania of artesaniasFiltradas()" class="card">
+        <div class="card-header">
+          <img [src]="artesania.imagenUrl || artesania.servicio?.imagenUrl || 'assets/images/default-artesania.jpg'"
+               [alt]="artesania.tipoArtesania"
+               class="card-img">
+          <div class="nivel-badge" [style.background-color]="getNivelColor(artesania.nivelDificultad)">
+            {{ getNivelTexto(artesania.nivelDificultad) }}
+          </div>
+        </div>
+
+        <div class="card-body">
+          <h5 class="card-title">{{ artesania.tipoArtesania }}</h5>
+          <p class="card-subtitle">
+            <i class="fas fa-user"></i> {{ artesania.artesano }}
+          </p>
+          <p class="card-location">
+            <i class="fas fa-map-marker-alt"></i> {{ artesania.origenCultural }}
+          </p>
+
+          <div class="card-details">
+            <span class="detail-item">
+              <i class="fas fa-clock"></i> {{ artesania.duracionTaller }}h
+            </span>
+            <span class="detail-item">
+              <i class="fas fa-users"></i> Max: {{ artesania.maxParticipantes }}
+            </span>
+            <span class="detail-item" *ngIf="artesania.incluyeMaterial">
+              <i class="fas fa-tools"></i> Material incluido
+            </span>
+          </div>
+
+          <div class="precio-info" *ngIf="artesania.servicio?.precio">
+            <span class="precio">S/. {{ artesania.servicio.precio | number:'1.2-2' }}</span>
+          </div>
+
+          <button class="btn-ver-mas" (click)="verMasArtesania(artesania.idArtesania)">VER MÁS</button>
+        </div>
+      </div>
+    </div>
+
+    <button class="scroll-btn right" (click)="scrollRight()">&#9654;</button>
+  </div>
+
+  <!-- Empty state -->
+  <div *ngIf="!isLoading && !error && artesaniasFiltradas().length === 0" class="empty-container">
+    <p>No hay talleres de artesanía disponibles en este momento.</p>
+  </div>
+</div>

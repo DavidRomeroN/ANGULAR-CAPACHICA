@@ -23,6 +23,42 @@
                 <button type="button" class="btn-close" (click)="clearError()"></button>
               </div>
 
+              <!-- NUEVA SECCIÓN: Google Auth -->
+              <div class="google-auth-section mb-4">
+                <!-- Botón personalizado de Google -->
+                <div class="d-grid mb-3">
+                  <button
+                    type="button"
+                    class="btn btn-outline-dark btn-lg d-flex align-items-center justify-content-center gap-2"
+                    [disabled]="googleLoading || isLoading"
+                    (click)="signUpWithGoogle()">
+                    <img src="https://developers.google.com/identity/images/g-logo.png"
+                         alt="Google"
+                         style="width: 20px; height: 20px;">
+                    <span *ngIf="!googleLoading">Registrarse con Google</span>
+                    <span *ngIf="googleLoading">
+                      <span class="spinner-border spinner-border-sm me-2" role="status"></span>
+                      Conectando...
+                    </span>
+                  </button>
+                </div>
+
+                <!-- Contenedor para el botón oficial de Google (se renderiza automáticamente) -->
+                <div class="d-flex justify-content-center mb-3">
+                  <div id="google-signup-button"></div>
+                </div>
+
+                <!-- Divider -->
+                <div class="text-center my-3">
+                  <div class="d-flex align-items-center">
+                    <hr class="flex-grow-1">
+                    <span class="px-3 text-muted small">O regístrate con email</span>
+                    <hr class="flex-grow-1">
+                  </div>
+                </div>
+              </div>
+
+              <!-- FORMULARIO EXISTENTE (sin cambios) -->
               <form [formGroup]="registerForm" (ngSubmit)="onSubmit()">
 
                 <!-- Email input -->
@@ -34,7 +70,8 @@
                     [class.is-valid]="email?.valid && email?.touched"
                     id="floatingEmail"
                     placeholder="correo@dominio.com"
-                    formControlName="email">
+                    formControlName="email"
+                    [disabled]="isLoading || googleLoading">
                   <label for="floatingEmail">Email</label>
 
                   <!-- Validación de email -->
@@ -53,7 +90,8 @@
                     [class.is-valid]="clave?.valid && clave?.touched"
                     id="floatingPassword"
                     placeholder="Contraseña"
-                    formControlName="clave">
+                    formControlName="clave"
+                    [disabled]="isLoading || googleLoading">
                   <label for="floatingPassword">Contraseña</label>
 
                   <!-- Validación de contraseña -->
@@ -72,7 +110,8 @@
                     [class.is-valid]="confirmPassword?.valid && confirmPassword?.touched && !registerForm.errors?.['passwordMismatch']"
                     id="floatingConfirmPassword"
                     placeholder="Confirmar contraseña"
-                    formControlName="confirmPassword">
+                    formControlName="confirmPassword"
+                    [disabled]="isLoading || googleLoading">
                   <label for="floatingConfirmPassword">Confirmar contraseña</label>
 
                   <!-- Validación de confirmación de contraseña -->
@@ -87,7 +126,7 @@
                   <button
                     type="submit"
                     class="btn btn-success btn-lg rounded-3 shadow-sm position-relative"
-                    [disabled]="registerForm.invalid || isLoading">
+                    [disabled]="registerForm.invalid || isLoading || googleLoading">
 
                     <!-- Spinner de carga -->
                     <span *ngIf="isLoading" class="spinner-border spinner-border-sm me-2" role="status">
@@ -102,12 +141,17 @@
                 <!-- Login link -->
                 <div class="text-center">
                   <span class="small text-muted">¿Ya tienes cuenta?</span>
-                  <a (click)="goToLogin()" class="text-primary fw-semibold ms-2 small" style="cursor: pointer;">Inicia sesión aquí</a>
+                  <a (click)="goToLogin()"
+                     class="text-primary fw-semibold ms-2 small"
+                     style="cursor: pointer;"
+                     [class.disabled]="isLoading || googleLoading">
+                    Inicia sesión aquí
+                  </a>
                 </div>
               </form>
             </div>
 
-            <!-- MENSAJE DE ÉXITO -->
+            <!-- MENSAJE DE ÉXITO (sin cambios) -->
             <div *ngIf="showSuccessMessage">
               <div class="text-center">
                 <div class="mb-4">
@@ -174,3 +218,53 @@
     </div>
   </div>
 </section>
+
+<!-- Estilos adicionales para Google Auth -->
+<style>
+  .google-auth-section .btn-outline-dark {
+    transition: all 0.3s ease;
+  }
+
+  .google-auth-section .btn-outline-dark:hover:not(:disabled) {
+    background-color: #f8f9fa;
+    border-color: #6c757d;
+    transform: translateY(-1px);
+  }
+
+  .google-auth-section .btn-outline-dark:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+
+  hr {
+    border-color: #dee2e6;
+    opacity: 0.5;
+  }
+
+  .text-muted {
+    color: #6c757d !important;
+  }
+
+  .disabled {
+    pointer-events: none;
+    opacity: 0.6;
+  }
+
+  /* Asegurar que el botón de Google se vea bien */
+  #google-signup-button {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+
+  /* Responsive adjustments */
+  @media (max-width: 576px) {
+    .card-body {
+      padding: 1.5rem !important;
+    }
+
+    .google-auth-section .btn {
+      font-size: 0.95rem;
+    }
+  }
+</style>

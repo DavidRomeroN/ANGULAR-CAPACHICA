@@ -12,11 +12,20 @@ import {Router} from '@angular/router';
   styleUrls: ['./crearreserva.component.scss']
 })
 export class CrearreservaComponent implements OnInit {
-  @Input() paqueteId!: number;
-  @Output() reservaExitosa = new EventEmitter<void>();
-  @Output() volverAlPaquete = new EventEmitter<void>(); // NUEVO OUTPUT
+  // Inputs para ambos tipos
+  @Input() paqueteId?: number;
+  @Input() actividadId?: number;
+  @Input() tipoReserva: 'PAQUETE' | 'ACTIVIDAD' = 'PAQUETE';
 
+  // Outputs
+  @Output() reservaExitosa = new EventEmitter<void>();
+  @Output() volverAlPaquete = new EventEmitter<void>();
+
+  // Datos del item (paquete o actividad)
   paquete: any;
+  actividad: any;
+
+  // Formulario
   cantidadPersonas = 1;
   fechaInicio = '';
   fechaFin = '';
@@ -35,22 +44,29 @@ export class CrearreservaComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
-    console.log('Iniciando componente con paqueteId:', this.paqueteId);
+    console.log('Iniciando componente con:', {
+      paqueteId: this.paqueteId,
+      actividadId: this.actividadId,
+      tipoReserva: this.tipoReserva
+    });
 
     if (this.paqueteId) {
+      this.tipoReserva = 'PAQUETE';
       this.cargarPaquete();
+    } else if (this.actividadId) {
+      this.tipoReserva = 'ACTIVIDAD';
+      this.cargarActividad();
     }
 
     this.cargarUsuario();
   }
 
   private cargarPaquete(): void {
-    this.reservaService.obtenerPaquetePorId(this.paqueteId).subscribe({
+    this.reservaService.obtenerPaquetePorId(this.paqueteId!).subscribe({
       next: data => {
         console.log('Paquete cargado:', data);
         this.paquete = data;
 
-        // Validar que el proveedor tenga teléfono
         if (!this.paquete.proveedor?.telefono) {
           console.warn('⚠️ El paquete no tiene número de teléfono del proveedor');
         }
@@ -61,6 +77,37 @@ export class CrearreservaComponent implements OnInit {
       error: err => {
         console.error('Error al cargar paquete:', err);
         this.mensajeError = 'Error al cargar la información del paquete';
+      }
+    });
+  }
+
+  private cargarActividad(): void {
+    this.reservaService.obtenerActividadPorId(this.actividadId!).subscribe({
+      next: data => {
+        console.log('Actividad cargada:', data);
+        this.actividad = data;
+
+        if (!this.actividad.proveedor?.telefono) {
+          console.warn('⚠️ La actividad no tiene número de teléfono del proveedor');
+        }
+
+        // Para actividades, las fechas las define el usuario
+        const hoy = new Date();
+        this.fechaInicio = hoy.toISOString().split('T')[0];
+
+        // Fecha fin por defecto (mismo día para actividades de pocas horas)
+        if (this.actividad.duracionHoras <= 12) {
+          this.fechaFin = this.fechaInicio;
+        } else {
+          // Para actividades de más de 12 horas, agregar un día
+          const manana = new Date(hoy);
+          manana.setDate(manana.getDate() + 1);
+          this.fechaFin = manana.toISOString().split('T')[0];
+        }
+      },
+      error: err => {
+        console.error('Error al cargar actividad:', err);
+        this.mensajeError = 'Error al cargar la información de la actividad';
       }
     });
   }
@@ -80,10 +127,18 @@ export class CrearreservaComponent implements OnInit {
   }
 
   confirmarReserva(): void {
-    // Validaciones
-    if (this.cantidadPersonas > this.paquete.cuposMaximos) {
-      this.mensajeError = `❌ No hay suficientes cupos. Máximo permitido: ${this.paquete.cuposMaximos}`;
-      return;
+    // Validaciones específicas por tipo
+    if (this.tipoReserva === 'PAQUETE') {
+      if (this.cantidadPersonas > this.paquete.cuposMaximos) {
+        this.mensajeError = `❌ No hay suficientes cupos. Máximo permitido: ${this.paquete.cuposMaximos}`;
+        return;
+      }
+    } else {
+      // Para actividades, validar límites razonables
+      if (this.cantidadPersonas > 20) {
+        this.mensajeError = `❌ Máximo 20 personas por actividad`;
+        return;
+      }
     }
 
     if (!this.observaciones.trim()) {
@@ -91,16 +146,31 @@ export class CrearreservaComponent implements OnInit {
       return;
     }
 
+    if (!this.fechaInicio || !this.fechaFin) {
+      this.mensajeError = '❌ Las fechas son obligatorias';
+      return;
+    }
+
     const formatoFecha = (fecha: string) => fecha + 'T00:00:00';
 
-    const reserva = {
+    const reserva = this.tipoReserva === 'PAQUETE' ? {
       paquete: this.paqueteId,
       usuario: this.usuarioId,
       cantidadPersonas: this.cantidadPersonas,
       fechaInicio: formatoFecha(this.fechaInicio),
       fechaFin: formatoFecha(this.fechaFin),
       estado: 'PENDIENTE',
-      observaciones: this.observaciones
+      observaciones: this.observaciones,
+      tipoReserva: 'PAQUETE'
+    } : {
+      actividad: this.actividadId,
+      usuario: this.usuarioId,
+      cantidadPersonas: this.cantidadPersonas,
+      fechaInicio: formatoFecha(this.fechaInicio),
+      fechaFin: formatoFecha(this.fechaFin),
+      estado: 'PENDIENTE',
+      observaciones: this.observaciones,
+      tipoReserva: 'ACTIVIDAD'
     };
 
     console.log('Enviando reserva:', reserva);
@@ -109,31 +179,25 @@ export class CrearreservaComponent implements OnInit {
       next: (response) => {
         console.log('Reserva creada exitosamente:', response);
 
-        // Manejar el caso cuando response es null o undefined
         let reservaId: number;
-
         if (response && response.id) {
-          // Si la respuesta tiene un ID, usarlo
           reservaId = response.id;
         } else {
-          // Si no hay ID en la respuesta, generar uno temporal
           reservaId = Date.now();
           console.warn('⚠️ La respuesta del servidor no contiene ID, usando ID temporal:', reservaId);
         }
 
-        // Guardar datos de la reserva para mostrar en el resumen
         this.reservaRealizada = {
           ...reserva,
           id: reservaId,
           fechaCreacion: new Date()
         };
 
-        // Cambiar estado para mostrar confirmación
         this.reservaCompletada = true;
         this.mensajeError = '';
 
-        alert('✅ Reserva realizada con éxito');
-        this.recargarPaquete();
+        alert(`✅ Reserva de ${this.tipoReserva.toLowerCase()} realizada con éxito`);
+        this.recargarItem();
         this.reservaExitosa.emit();
       },
       error: err => {
@@ -144,55 +208,36 @@ export class CrearreservaComponent implements OnInit {
     });
   }
 
-  // Método mejorado para contactar por WhatsApp
   contactarPorWhatsApp(): void {
     console.log('Intentando contactar por WhatsApp...');
-    console.log('Datos del paquete:', this.paquete);
 
-    // Validar que existe el proveedor y su teléfono
-    if (!this.paquete?.proveedor?.telefono) {
+    const item = this.tipoReserva === 'PAQUETE' ? this.paquete : this.actividad;
+    console.log('Datos del item:', item);
+
+    if (!item?.proveedor?.telefono) {
       console.error('No se encontró teléfono del proveedor');
       alert('❌ No se encontró número de teléfono del proveedor. Contacta al administrador.');
       return;
     }
 
-    // Limpiar el número de teléfono
-    let numeroTelefono = this.paquete.proveedor.telefono.toString().replace(/[^\d]/g, '');
-    console.log('Número original:', this.paquete.proveedor.telefono);
-    console.log('Número limpio:', numeroTelefono);
+    let numeroTelefono = item.proveedor.telefono.toString().replace(/[^\d]/g, '');
 
-    // Agregar código de país si es necesario (Perú +51)
     if (!numeroTelefono.startsWith('51') && numeroTelefono.length === 9) {
       numeroTelefono = '51' + numeroTelefono;
     }
 
-    console.log('Número final:', numeroTelefono);
-
-    // Crear mensaje personalizado
     const mensaje = this.crearMensajeWhatsApp();
-    console.log('Mensaje creado:', mensaje);
-
-    // Crear URL de WhatsApp con mejor codificación para emojis
-    const mensajeCodificado = encodeURIComponent(mensaje)
-      .replace(/'/g, '%27')
-      .replace(/"/g, '%22');
-
+    const mensajeCodificado = encodeURIComponent(mensaje);
     const whatsappUrl = `https://wa.me/${numeroTelefono}?text=${mensajeCodificado}`;
-    console.log('URL de WhatsApp:', whatsappUrl);
 
     try {
-      // Intentar abrir WhatsApp
       const ventanaWhatsApp = window.open(whatsappUrl, '_blank', 'width=800,height=600');
 
       if (!ventanaWhatsApp || ventanaWhatsApp.closed || typeof ventanaWhatsApp.closed == 'undefined') {
-        // Si el popup fue bloqueado
-        console.warn('Popup bloqueado, mostrando alternativa');
         this.mostrarAlternativaWhatsApp(numeroTelefono, mensaje);
       } else {
-        console.log('✅ WhatsApp abierto correctamente');
-        // Mostrar mensaje de confirmación después de un breve delay
         setTimeout(() => {
-          alert('📱 Redirigiendo a WhatsApp... Si no se abrió automáticamente, verifica que tengas WhatsApp instalado.');
+          alert('📱 Redirigiendo a WhatsApp...');
         }, 1000);
       }
     } catch (error) {
@@ -212,13 +257,19 @@ export class CrearreservaComponent implements OnInit {
       });
     };
 
-    return `Hola ${this.paquete.proveedor?.nombreCompleto || 'estimado proveedor'}! 👋
+    const item = this.tipoReserva === 'PAQUETE' ? this.paquete : this.actividad;
+    const nombre = item?.proveedor?.nombreCompleto || 'estimado proveedor';
+    const titulo = this.tipoReserva === 'PAQUETE' ? item?.titulo : item?.titulo;
+    const precio = this.tipoReserva === 'PAQUETE' ? item?.precioTotal : item?.precioBase;
+
+    if (this.tipoReserva === 'PAQUETE') {
+      return `Hola ${nombre}! 👋
 
 Acabo de realizar una reserva para tu paquete turistico y me gustaria coordinar los detalles.
 
 *DETALLES DE MI RESERVA:*
 
-🏷 *Paquete:* ${this.paquete.titulo}
+🏷 *Paquete:* ${titulo}
 📅 *Fechas:* ${fechaFormateada(this.fechaInicio)} al ${fechaFormateada(this.fechaFin)}
 👥 *Personas:* ${this.cantidadPersonas}
 💰 *Total:* S/. ${this.totalCalculado.toFixed(2)}
@@ -237,6 +288,34 @@ Me gustaria coordinar:
 Quedo atento a tu respuesta! 😊
 
 _Mensaje enviado desde el sistema de reservas_`;
+    } else {
+      return `Hola ${nombre}! 👋
+
+Acabo de realizar una reserva para tu actividad y me gustaria coordinar los detalles.
+
+*DETALLES DE MI RESERVA:*
+
+🎯 *Actividad:* ${titulo}
+📅 *Fechas:* ${fechaFormateada(this.fechaInicio)} al ${fechaFormateada(this.fechaFin)}
+👥 *Personas:* ${this.cantidadPersonas}
+⏰ *Duración:* ${item?.duracionHoras || 0} horas
+💰 *Total:* S/. ${this.totalCalculado.toFixed(2)}
+📧 *Mi email:* ${this.usuarioEmail}
+
+📝 *Observaciones:*
+${this.observaciones || 'Ninguna observacion especial'}
+
+Me gustaria coordinar:
+✅ Confirmacion de disponibilidad
+✅ Punto de encuentro
+✅ Que incluye la actividad
+✅ Que debo llevar
+✅ Metodo de pago
+
+Quedo atento a tu respuesta! 😊
+
+_Mensaje enviado desde el sistema de reservas_`;
+    }
   }
 
   private mostrarAlternativaWhatsApp(numeroTelefono: string, mensaje: string): void {
@@ -280,6 +359,31 @@ _Mensaje enviado desde el sistema de reservas_`;
     document.body.insertAdjacentHTML('beforeend', modalHtml);
   }
 
+  // Getters adaptativos
+  get itemActual(): any {
+    return this.tipoReserva === 'PAQUETE' ? this.paquete : this.actividad;
+  }
+
+  get tituloItem(): string {
+    return this.tipoReserva === 'PAQUETE' ?
+      (this.paquete?.titulo || '') :
+      (this.actividad?.titulo || '');
+  }
+
+  get limitePersonas(): number {
+    return this.tipoReserva === 'PAQUETE' ?
+      (this.paquete?.cuposMaximos || 20) :
+      20; // Límite por defecto para actividades
+  }
+
+  get totalCalculado(): number {
+    if (this.tipoReserva === 'PAQUETE') {
+      return this.paquete ? (this.paquete.precioTotal * this.cantidadPersonas) : 0;
+    } else {
+      return this.actividad ? (this.actividad.precioBase * this.cantidadPersonas) : 0;
+    }
+  }
+
   // Método auxiliar para formatear fechas
   public formatearFecha(fecha: string): string {
     if (!fecha) return '';
@@ -292,7 +396,6 @@ _Mensaje enviado desde el sistema de reservas_`;
     });
   }
 
-  // Getters para fechas formateadas
   get fechaInicioFormateada(): string {
     return this.formatearFecha(this.fechaInicio);
   }
@@ -301,39 +404,37 @@ _Mensaje enviado desde el sistema de reservas_`;
     return this.formatearFecha(this.fechaFin);
   }
 
-  // Método para obtener el total calculado
-  get totalCalculado(): number {
-    return this.paquete ? (this.paquete.precioTotal * this.cantidadPersonas) : 0;
-  }
-
-  // MÉTODOS DE NAVEGACIÓN ACTUALIZADOS
+  // MÉTODOS DE NAVEGACIÓN
   volverAInicio(): void {
     this.reservaCompletada = false;
     this.reservaRealizada = null;
-    // Emitir evento al padre para ocultar el formulario completo
     this.volverAlPaquete.emit();
   }
 
   verMisReservas(): void {
-    // this.router.navigate(['/mis-reservas']);
     console.log('Navegar a mis reservas');
   }
 
   nuevaReserva(): void {
-    // Resetear el formulario pero mantener el componente visible
     this.reservaCompletada = false;
     this.reservaRealizada = null;
     this.cantidadPersonas = 1;
     this.observaciones = '';
     this.mensajeError = '';
 
-    // Recargar las fechas del paquete
-    this.fechaInicio = this.paquete.fechaInicio ? new Date(this.paquete.fechaInicio).toISOString().split('T')[0] : '';
-    this.fechaFin = this.paquete.fechaFin ? new Date(this.paquete.fechaFin).toISOString().split('T')[0] : '';
+    // Recargar fechas según el tipo
+    if (this.tipoReserva === 'PAQUETE') {
+      this.fechaInicio = this.paquete.fechaInicio ? new Date(this.paquete.fechaInicio).toISOString().split('T')[0] : '';
+      this.fechaFin = this.paquete.fechaFin ? new Date(this.paquete.fechaFin).toISOString().split('T')[0] : '';
+    } else {
+      const hoy = new Date();
+      this.fechaInicio = hoy.toISOString().split('T')[0];
+      this.fechaFin = this.fechaInicio;
+    }
   }
 
-  private recargarPaquete(): void {
-    if (this.paqueteId) {
+  private recargarItem(): void {
+    if (this.tipoReserva === 'PAQUETE' && this.paqueteId) {
       this.reservaService.obtenerPaquetePorId(this.paqueteId).subscribe({
         next: data => {
           console.log('Paquete recargado:', data);
@@ -341,15 +442,29 @@ _Mensaje enviado desde el sistema de reservas_`;
         },
         error: err => console.error('Error al recargar paquete:', err)
       });
+    } else if (this.tipoReserva === 'ACTIVIDAD' && this.actividadId) {
+      this.reservaService.obtenerActividadPorId(this.actividadId).subscribe({
+        next: data => {
+          console.log('Actividad recargada:', data);
+          this.actividad = data;
+        },
+        error: err => console.error('Error al recargar actividad:', err)
+      });
     }
   }
 
-  // Método para debug - remover en producción
-  debugPaquete(): void {
-    console.log('=== DEBUG PAQUETE ===');
-    console.log('Paquete completo:', this.paquete);
-    console.log('Proveedor:', this.paquete?.proveedor);
-    console.log('Teléfono:', this.paquete?.proveedor?.telefono);
+  // Método para debug
+  debugItem(): void {
+    console.log('=== DEBUG ITEM ===');
+    console.log('Tipo:', this.tipoReserva);
+    console.log('Item completo:', this.itemActual);
+    console.log('Proveedor:', this.itemActual?.proveedor);
+    console.log('Teléfono:', this.itemActual?.proveedor?.telefono);
     console.log('Reserva completada:', this.reservaCompletada);
+  }
+
+  // Método alternativo para compatibilidad (puedes remover después)
+  debugPaquete(): void {
+    this.debugItem();
   }
 }

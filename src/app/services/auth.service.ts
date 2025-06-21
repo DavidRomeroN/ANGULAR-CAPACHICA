@@ -10,6 +10,8 @@ export class AuthService {
 
   constructor(private http: HttpClient) {}
 
+  // ========== MÉTODOS EXISTENTES (mantener sin cambios) ==========
+
   // Método de login
   login(credentials: { email: string, clave: string }): Observable<any> {
     return this.http.post<any>(`${this.baseApiUrl}/login`, credentials).pipe(
@@ -34,13 +36,12 @@ export class AuthService {
     );
   }
 
-  // ✅ ACTUALIZADO: Verificar email con token desde URL y auto-login
+  // Verificar email con token desde URL y auto-login
   verifyEmailByToken(token: string): Observable<any> {
     return this.http.get<any>(`${this.baseApiUrl}/verify?token=${token}`).pipe(
       tap(response => {
         console.log('Respuesta de verificación:', response);
 
-        // ✅ Si la verificación incluye datos de login, guardarlos automáticamente
         if (response.token && response.email) {
           localStorage.setItem('token', response.token);
           localStorage.setItem('usuarioLogueado', JSON.stringify({
@@ -68,6 +69,49 @@ export class AuthService {
       })
     );
   }
+
+  // ========== NUEVOS MÉTODOS PARA GOOGLE AUTH ==========
+
+  // Validar token de Google para login
+  googleLogin(googleToken: string): Observable<any> {
+    return this.http.post<any>(`${this.baseApiUrl}/google/login`, {
+      googleToken: googleToken
+    }).pipe(
+      tap(response => {
+        if (response && response.success && response.token) {
+          localStorage.setItem('token', response.token);
+          localStorage.setItem('usuarioLogueado', JSON.stringify({
+            idUsuario: response.usuario.idUsuario,
+            email: response.usuario.email,
+            nombreCompleto: response.usuario.nombreCompleto
+          }));
+          console.log('Usuario logueado con Google exitosamente');
+        }
+      })
+    );
+  }
+
+  // Registrar usuario con Google
+  googleRegister(googleToken: string, additionalData?: any): Observable<any> {
+    return this.http.post<any>(`${this.baseApiUrl}/google/register`, {
+      googleToken: googleToken,
+      ...additionalData
+    }).pipe(
+      tap(response => {
+        if (response && response.success && response.token) {
+          localStorage.setItem('token', response.token);
+          localStorage.setItem('usuarioLogueado', JSON.stringify({
+            idUsuario: response.usuario.idUsuario,
+            email: response.usuario.email,
+            nombreCompleto: response.usuario.nombreCompleto
+          }));
+          console.log('Usuario registrado con Google exitosamente');
+        }
+      })
+    );
+  }
+
+  // ========== MÉTODOS DE UTILIDAD (mantener sin cambios) ==========
 
   // Verificar si el usuario está logueado
   isLoggedIn(): boolean {

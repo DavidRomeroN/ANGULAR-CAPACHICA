@@ -1,8 +1,9 @@
-  <!-- Section: Design Block -->
+<!-- Section: Design Block -->
 <section class="vh-100 d-flex justify-content-center align-items-center" style="background-color: #000000;">
   <div class="container">
     <div class="card mb-3 border-0" style="border-radius: 20px; overflow: hidden;">
       <div class="row g-0 d-flex align-items-center">
+
         <!-- LOGO -->
         <div class="col-lg-6 d-none d-lg-block text-center p-4 bg-black">
           <img src="assets/images/logo/logo2.png" alt="Logo" class="img-fluid" style="max-width: 100%; height: auto;" />
@@ -14,17 +15,74 @@
 
             <h3 class="mb-4 text-center fw-bold">Iniciar sesión</h3>
 
+            <!-- NUEVO: Mensaje de error -->
+            <div *ngIf="errorMessage" class="alert alert-danger alert-dismissible fade show" role="alert">
+              <i class="fas fa-exclamation-triangle me-2"></i>
+              {{ errorMessage }}
+              <button type="button" class="btn-close" (click)="clearError()"></button>
+            </div>
+
+            <!-- NUEVA SECCIÓN: Google Auth -->
+            <div class="google-auth-section mb-4">
+              <!-- Botón personalizado de Google -->
+              <div class="d-grid mb-3">
+                <button
+                  type="button"
+                  class="btn btn-outline-dark btn-lg d-flex align-items-center justify-content-center gap-2"
+                  [disabled]="googleLoading || isLoading"
+                  (click)="signInWithGoogle()">
+                  <img src="https://developers.google.com/identity/images/g-logo.png"
+                       alt="Google"
+                       style="width: 20px; height: 20px;">
+                  <span *ngIf="!googleLoading">Continuar con Google</span>
+                  <span *ngIf="googleLoading">
+                    <span class="spinner-border spinner-border-sm me-2" role="status"></span>
+                    Conectando...
+                  </span>
+                </button>
+              </div>
+
+              <!-- Contenedor para el botón oficial de Google (se renderiza automáticamente) -->
+              <div class="d-flex justify-content-center mb-3">
+                <div id="google-signin-button"></div>
+              </div>
+
+              <!-- Divider -->
+              <div class="text-center my-3">
+                <div class="d-flex align-items-center">
+                  <hr class="flex-grow-1">
+                  <span class="px-3 text-muted small">O continúa con email</span>
+                  <hr class="flex-grow-1">
+                </div>
+              </div>
+            </div>
+
+            <!-- FORMULARIO EXISTENTE -->
             <form [formGroup]="loginForm" (ngSubmit)="onSubmit()">
 
               <!-- Email input -->
               <div class="form-floating mb-4">
-                <input type="email" class="form-control rounded-3" id="floatingEmail" placeholder="correo@dominio.com" formControlName="email">
+                <input
+                  type="email"
+                  class="form-control rounded-3"
+                  id="floatingEmail"
+                  placeholder="correo@dominio.com"
+                  formControlName="email"
+                  [disabled]="isLoading || googleLoading"
+                  (focus)="clearError()">
                 <label for="floatingEmail">Email address</label>
               </div>
 
               <!-- Password input -->
               <div class="form-floating mb-4">
-                <input type="password" class="form-control rounded-3" id="floatingPassword" placeholder="Contraseña" formControlName="clave">
+                <input
+                  type="password"
+                  class="form-control rounded-3"
+                  id="floatingPassword"
+                  placeholder="Contraseña"
+                  formControlName="clave"
+                  [disabled]="isLoading || googleLoading"
+                  (focus)="clearError()">
                 <label for="floatingPassword">Password</label>
               </div>
 
@@ -32,7 +90,11 @@
               <div class="row mb-3">
                 <div class="col-6 d-flex align-items-center">
                   <div class="form-check">
-                    <input class="form-check-input" type="checkbox" id="rememberMe">
+                    <input
+                      class="form-check-input"
+                      type="checkbox"
+                      id="rememberMe"
+                      [disabled]="isLoading || googleLoading">
                     <label class="form-check-label small" for="rememberMe">Remember me</label>
                   </div>
                 </div>
@@ -43,15 +105,30 @@
 
               <!-- Submit button -->
               <div class="d-grid mb-4">
-                <button type="submit" class="btn btn-primary btn-lg rounded-3 shadow-sm" [disabled]="loginForm.invalid">
-                  Sign in
+                <button
+                  type="submit"
+                  class="btn btn-primary btn-lg rounded-3 shadow-sm position-relative"
+                  [disabled]="loginForm.invalid || isLoading || googleLoading">
+
+                  <!-- NUEVO: Spinner de carga -->
+                  <span *ngIf="isLoading" class="spinner-border spinner-border-sm me-2" role="status">
+                    <span class="visually-hidden">Loading...</span>
+                  </span>
+
+                  <span *ngIf="!isLoading">Sign in</span>
+                  <span *ngIf="isLoading">Iniciando sesión...</span>
                 </button>
               </div>
 
               <!-- Registro -->
               <div class="text-center">
                 <span class="small text-muted">¿No tienes cuenta?</span>
-                <a routerLink="/register" class="text-primary fw-semibold ms-2 small">Regístrate aquí</a>
+                <a (click)="goToRegister()"
+                   class="text-primary fw-semibold ms-2 small"
+                   style="cursor: pointer;"
+                   [class.disabled]="isLoading || googleLoading">
+                  Regístrate aquí
+                </a>
               </div>
             </form>
 
@@ -61,3 +138,57 @@
     </div>
   </div>
 </section>
+
+<!-- NUEVOS estilos para Google Auth -->
+<style>
+  .google-auth-section .btn-outline-dark {
+    transition: all 0.3s ease;
+  }
+
+  .google-auth-section .btn-outline-dark:hover:not(:disabled) {
+    background-color: #f8f9fa;
+    border-color: #6c757d;
+    transform: translateY(-1px);
+  }
+
+  .google-auth-section .btn-outline-dark:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+
+  hr {
+    border-color: #dee2e6;
+    opacity: 0.5;
+  }
+
+  .text-muted {
+    color: #6c757d !important;
+  }
+
+  .disabled {
+    pointer-events: none;
+    opacity: 0.6;
+  }
+
+  .alert {
+    border-radius: 8px;
+  }
+
+  /* Asegurar que el botón de Google se vea bien */
+  #google-signin-button {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+
+  /* Responsive adjustments */
+  @media (max-width: 576px) {
+    .card-body {
+      padding: 1.5rem !important;
+    }
+
+    .google-auth-section .btn {
+      font-size: 0.95rem;
+    }
+  }
+</style>
