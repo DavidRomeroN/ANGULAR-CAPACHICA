@@ -117,6 +117,16 @@ const routes: Routes = [
     loadChildren: () => import('./pages/register/register.module').then(m => m.RegisterModule)
   },
 
+  // ========== OAUTH2 CALLBACK - AGREGAR ESTAS RUTAS ==========
+  {
+    path: 'auth/oauth2/callback',
+    loadComponent: () => import('./components/oauth2-callback/oauth2-callback.component').then(m => m.OAuth2CallbackComponent)
+  },
+  {
+    path: 'auth/error',
+    loadComponent: () => import('./components/oauth2-callback/oauth2-callback.component').then(m => m.OAuth2CallbackComponent)
+  },
+
   // ========== REDIRECTS ==========
   {
     path: '**',

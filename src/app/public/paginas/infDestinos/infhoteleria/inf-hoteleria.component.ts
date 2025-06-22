@@ -1,21 +1,21 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
-
-
 import { AuthService } from 'src/app/services/auth.service';
 import { FormsModule } from '@angular/forms';
-import {ServicioHoteleriaService} from "../../../../material-component/servicio-hoteleria/servicio-hoteleria.service";
-import {CrearreservaService} from "../crearreserva/crearreserva.service";
-import {CrearreservaComponent} from "../crearreserva/crearreserva.component";
+import { ServicioHoteleriaService } from '../../../../material-component/servicio-hoteleria/servicio-hoteleria.service';
+import { CrearreservaService } from '../crearreserva/crearreserva.service';
+import { CrearreservaComponent } from '../crearreserva/crearreserva.component';
+import {CarritoService} from "../../../shared/Services/carrito.service";
 
+// Asegúrate de tener este servicio
 
 @Component({
   selector: 'app-inf-hotel',
   standalone: true,
-  imports: [CommonModule, FormsModule, CrearreservaComponent],
-  templateUrl: './inf-hotel.component.html',
-  styleUrls: ['./inf-hotel.component.scss']
+  imports: [CommonModule, FormsModule],
+  templateUrl: './inf-hoteleria.component.html',
+  styleUrls: ['./inf-hoteleria.component.scss']
 })
 export class InfHotelComponent implements OnInit {
   hotel: any;
@@ -23,23 +23,31 @@ export class InfHotelComponent implements OnInit {
   isAuthenticated = false;
 
   cantidadPersonas = 1;
+  cantidadCarrito = 1;
   fechaInicio = '';
   fechaFin = '';
   observaciones = '';
 
   hotelId!: number;
 
+  reservaCompletada = false;
+  reservaRealizada: any = null;
+  mensajeError = '';
+  totalCalculado = 0;
+
+  usuarioId = 0;
+  usuarioEmail = '';
+
   constructor(
     private route: ActivatedRoute,
-    private router: Router,
+    public router: Router,
     private servicioHoteleriaService: ServicioHoteleriaService,
     private reservaService: CrearreservaService,
-    private authService: AuthService
-  ) {
-  }
+    private authService: AuthService,
+    private carritoService: CarritoService
+  ) {}
 
   ngOnInit(): void {
-    // Verificar estado de autenticación
     this.checkAuthStatus();
 
     const id = this.route.snapshot.paramMap.get('id');
@@ -51,72 +59,50 @@ export class InfHotelComponent implements OnInit {
 
   checkAuthStatus(): void {
     this.isAuthenticated = this.authService.isLoggedIn();
+    if (this.isAuthenticated) {
+      const user = this.authService.getLoggedUser();
+      this.usuarioId = user?.idUsuario || 0;
+      this.usuarioEmail = user?.email || '';
+    }
   }
 
   cargarHotel(id: number): void {
-    // Como tu servicio no tiene getById, necesitamos obtener todos y filtrar
-    this.servicioHoteleriaService.getHoteleria().subscribe({
+    this.servicioHoteleriaService.getHoteles().subscribe({
       next: data => {
-        this.hotel = data.find(hotel => hotel.idHoteleria === id);
+        this.hotel = data.find(h => h.idHoteleria === id);
         if (!this.hotel) {
           console.error('Hotel no encontrado');
-          this.router.navigate(['/serviciohoteles']); // Redirigir si no se encuentra
+          this.router.navigate(['/serviciohoteles']);
         }
       },
       error: err => console.error('Error al cargar hotel', err)
     });
   }
 
-  /**
-   * Método principal para manejar el clic en "Reservar"
-   */
   manejarReserva(): void {
-    // Verificar nuevamente la autenticación antes de proceder
     this.checkAuthStatus();
 
     if (!this.isAuthenticated) {
-      // Si no está autenticado, redirigir al login con returnUrl
-      this.router.navigate(['/login'], {
-        queryParams: {
-          returnUrl: this.router.url
-        }
-      });
+      this.irAlLogin();
       return;
     }
 
-    // Validar capacidad antes de mostrar formulario
     if (this.cantidadPersonas > this.hotel?.maxPersonas) {
-      alert(`La cantidad de personas no puede exceder ${this.hotel.maxPersonas} para este tipo de habitación.`);
+      alert(`La cantidad de personas no puede exceder ${this.hotel.maxPersonas}`);
       return;
     }
 
-    // Si está autenticado, mostrar el formulario de reserva
     this.mostrarFormulario = true;
-  }
-
-  /**
-   * Método para ir al registro
-   */
-  irAlRegistro(): void {
-    this.router.navigate(['/register'], {
-      queryParams: {
-        returnUrl: this.router.url
-      }
-    });
   }
 
   mostrarReserva(): void {
-    // Validar capacidad antes de mostrar formulario
     if (this.cantidadPersonas > this.hotel?.maxPersonas) {
-      alert(`La cantidad de personas no puede exceder ${this.hotel.maxPersonas} para este tipo de habitación.`);
+      alert(`La cantidad de personas no puede exceder ${this.hotel.maxPersonas}`);
       return;
     }
     this.mostrarFormulario = true;
   }
 
-  /**
-   * Validar cantidad de personas según capacidad máxima del hotel
-   */
   validarCantidadPersonas(): void {
     if (this.hotel && this.cantidadPersonas > this.hotel.maxPersonas) {
       this.cantidadPersonas = this.hotel.maxPersonas;
@@ -127,56 +113,123 @@ export class InfHotelComponent implements OnInit {
     }
   }
 
-  /**
-   * Obtener el precio total considerando las noches y personas
-   */
   calcularPrecioTotal(): number {
     if (!this.hotel || !this.fechaInicio || !this.fechaFin) {
       return 0;
     }
 
-    const fechaInicioDate = new Date(this.fechaInicio);
-    const fechaFinDate = new Date(this.fechaFin);
-    const diffTime = Math.abs(fechaFinDate.getTime() - fechaInicioDate.getTime());
+    const inicio = new Date(this.fechaInicio);
+    const fin = new Date(this.fechaFin);
+    const diffTime = Math.abs(fin.getTime() - inicio.getTime());
     const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
 
-    return this.hotel.servicio.precioBase * diffDays;
+    this.totalCalculado = this.hotel.servicio.precioBase * diffDays;
+    return this.totalCalculado;
   }
 
-  /**
-   * Verificar si las fechas son válidas
-   */
   validarFechas(): boolean {
-    if (!this.fechaInicio || !this.fechaFin) {
-      return false;
-    }
+    if (!this.fechaInicio || !this.fechaFin) return false;
 
-    const fechaInicioDate = new Date(this.fechaInicio);
-    const fechaFinDate = new Date(this.fechaFin);
+    const inicio = new Date(this.fechaInicio);
+    const fin = new Date(this.fechaFin);
     const hoy = new Date();
     hoy.setHours(0, 0, 0, 0);
 
-    // La fecha de inicio debe ser hoy o posterior
-    if (fechaInicioDate < hoy) {
-      return false;
-    }
-
-    // La fecha de fin debe ser posterior a la fecha de inicio
-    if (fechaFinDate <= fechaInicioDate) {
-      return false;
-    }
+    if (inicio < hoy) return false;
+    if (fin <= inicio) return false;
 
     return true;
   }
 
-  // MÉTODO CORREGIDO: No ocultar el formulario después de la reserva exitosa
-  onReservaExitosa(): void {
-    // NO ponemos mostrarFormulario = false aquí
-    // El componente hijo maneja su propio estado de reservaCompletada
+  confirmarReserva(): void {
+    if (!this.fechaInicio || !this.fechaFin || !this.observaciones.trim()) {
+      this.mensajeError = 'Todos los campos son obligatorios.';
+      return;
+    }
 
-    // Solo recargar el hotel para actualizar los datos
+    const reserva = {
+      hotelId: this.hotelId,
+      usuarioId: this.usuarioId,
+      cantidad: this.cantidadPersonas,
+      fechaInicio: this.fechaInicio + 'T00:00:00',
+      fechaFin: this.fechaFin + 'T00:00:00',
+      observaciones: this.observaciones
+    };
+
+    console.log('Reserva enviada:', reserva);
+
+    this.reservaRealizada = {
+      ...reserva,
+      id: Date.now(),
+      fecha: new Date()
+    };
+
+    this.reservaCompletada = true;
+    alert('✅ Reserva realizada con éxito');
+  }
+
+  contactarHotelWhatsApp(): void {
+    const telefono = this.hotel?.servicio?.proveedor?.telefono || '';
+    if (!telefono) {
+      alert('❌ Teléfono no disponible');
+      return;
+    }
+
+    let numero = telefono.toString().replace(/[^\d]/g, '');
+    if (!numero.startsWith('51') && numero.length === 9) {
+      numero = '51' + numero;
+    }
+
+    const mensaje = `Hola ${this.hotel?.servicio?.proveedor?.nombreCompleto || 'Estimado'}:
+Estoy interesado en reservar en su hotel "${this.hotel?.nombre}" del ${this.fechaInicio} al ${this.fechaFin}.
+Somos ${this.cantidadPersonas} personas.
+Correo: ${this.usuarioEmail}
+Gracias.`;
+
+    const url = `https://wa.me/${numero}?text=${encodeURIComponent(mensaje)}`;
+    window.open(url, '_blank');
+  }
+
+  agregarAlCarrito(): void {
+    if (!this.isAuthenticated) {
+      this.irAlLogin();
+      return;
+    }
+
+    const item = {
+      usuarioId: this.usuarioId,
+      tipoElemento: 'SERVICIO',
+      idElemento: this.hotelId,
+      cantidad: this.cantidadCarrito,
+      precioUnitario: this.hotel?.servicio?.precioBase || 0
+    };
+
+    this.carritoService.agregarItem(this.usuarioId, item).subscribe(() => {
+      alert('✅ Hotel agregado al carrito');
+    });
+  }
+
+  irAlLogin(): void {
+    this.router.navigate(['/login'], {
+      queryParams: { returnUrl: this.router.url }
+    });
+  }
+
+  verMisReservas(): void {
+    this.router.navigate(['/reservas']);
+  }
+
+  nuevaReserva(): void {
+    this.reservaCompletada = false;
+    this.reservaRealizada = null;
+    this.fechaInicio = '';
+    this.fechaFin = '';
+    this.observaciones = '';
+  }
+
+  onReservaExitosa(): void {
     const id = this.hotel.idHoteleria ?? this.hotel.id;
-    this.servicioHoteleriaService.getHoteleria().subscribe({
+    this.servicioHoteleriaService.getHoteles().subscribe({
       next: data => {
         this.hotel = data.find(hotel => hotel.idHoteleria === id);
         console.log('Hotel recargado después de reserva exitosa');
@@ -185,24 +238,27 @@ export class InfHotelComponent implements OnInit {
     });
   }
 
-  // NUEVO MÉTODO: Para manejar cuando el usuario quiere volver al hotel
   onVolverAlHotel(): void {
     this.mostrarFormulario = false;
     console.log('Usuario volvió al detalle del hotel');
   }
 
-  /**
-   * Obtener el texto de estrellas para mostrar
-   */
   obtenerEstrellas(): string {
     if (!this.hotel?.estrellas) return '';
     return '★'.repeat(this.hotel.estrellas) + '☆'.repeat(5 - this.hotel.estrellas);
   }
 
-  /**
-   * Verificar si incluye desayuno
-   */
   incluyeDesayuno(): boolean {
     return this.hotel?.incluyeDesayuno === 'Si';
   }
+
+  getFechaFormateada(fecha: string): string {
+    return new Date(fecha).toLocaleDateString();
+  }
+  irAlRegistro(): void {
+    this.router.navigate(['/register'], {
+      queryParams: { returnUrl: this.router.url }
+    });
+  }
+
 }

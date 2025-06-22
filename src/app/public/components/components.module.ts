@@ -19,6 +19,7 @@ import {InfArtesaniaComponent} from "../paginas/infDestinos/infartesania/inf-art
 import {ArtesaniasComponent} from "./artesania/artesanias.component";
 import {PublicModule} from "../public.module";
 import {ActividadesComponent} from "./actividades/actividades.component";
+import {HoteleriaComponent} from "./hoteles/hoteles.component";
 
 
 @NgModule({
@@ -31,7 +32,8 @@ import {ActividadesComponent} from "./actividades/actividades.component";
     InfArtesaniaComponent,
     ArtesaniasComponent,
 
-    PublicModule
+    PublicModule,
+    HoteleriaComponent
   ],
     declarations: [
         ComponentsComponent,
@@ -44,7 +46,7 @@ import {ActividadesComponent} from "./actividades/actividades.component";
         NgbdModalContent,
         DestinosComponent,
         PaquetesComponent,
-        ActividadesComponent
+        ActividadesComponent,
     ],
     exports:[ ComponentsComponent ]
 })

@@ -11,7 +11,7 @@ declare const google: any;
 })
 export class LoginComponent implements OnInit, AfterViewInit {
   loginForm!: FormGroup;
-  private returnUrl: string = '/capachica'; // Cambiar de '/dashboard' a '/capachica'
+  private returnUrl: string = '/capachica';
 
   // NUEVAS propiedades para Google Auth
   googleLoading: boolean = false;
@@ -31,8 +31,15 @@ export class LoginComponent implements OnInit, AfterViewInit {
     this.returnUrl = this.route.snapshot.queryParams['returnUrl'] || '/capachica';
 
     if (this.authService.isLoggedIn()) {
+      console.log('🔀 Usuario ya logueado, redirigiendo...');
       this.router.navigate([this.returnUrl]);
       return;
+    }
+
+    // Verificar si hay un error de OAuth2 en los parámetros
+    const error = this.route.snapshot.queryParams['error'];
+    if (error) {
+      this.errorMessage = decodeURIComponent(error);
     }
 
     this.loginForm = this.fb.group({
@@ -40,18 +47,18 @@ export class LoginComponent implements OnInit, AfterViewInit {
       clave: ['', Validators.required]
     });
 
-    // NUEVO: Inicializar Google Auth
+    // Inicializar Google Auth
     this.initializeGoogleAuth();
   }
 
   ngAfterViewInit(): void {
-    // NUEVO: Renderizar botón de Google después de que se cargue la vista
+    // Renderizar botón de Google después de que se cargue la vista
     setTimeout(() => {
       this.renderGoogleButton();
     }, 1000);
   }
 
-  // NUEVO: Inicializar Google Auth
+  // Inicializar Google Auth
   private async initializeGoogleAuth(): Promise<void> {
     try {
       // Cargar script de Google si no existe
@@ -75,11 +82,11 @@ export class LoginComponent implements OnInit, AfterViewInit {
     }
   }
 
-  // NUEVO: Configurar Google Auth
+  // Configurar Google Auth
   private setupGoogleAuth(): void {
     if (typeof google !== 'undefined' && google.accounts) {
       google.accounts.id.initialize({
-        client_id: '513028086734-lc187t5b3e67buvqrhi6mq8tnm9odrol.apps.googleusercontent.com', // Client ID de ejemplo
+        client_id: '513028086734-lc187t5b3e67buvqrhi6mq8tnm9odrol.apps.googleusercontent.com',
         callback: (response: any) => this.handleGoogleCallback(response),
         auto_select: false,
         cancel_on_tap_outside: true
@@ -90,7 +97,7 @@ export class LoginComponent implements OnInit, AfterViewInit {
     }
   }
 
-  // NUEVO: Renderizar botón de Google
+  // Renderizar botón de Google
   private renderGoogleButton(): void {
     if (this.googleInitialized && typeof google !== 'undefined') {
       const buttonElement = document.getElementById('google-signin-button');
@@ -107,64 +114,27 @@ export class LoginComponent implements OnInit, AfterViewInit {
     }
   }
 
-  // NUEVO: Manejar respuesta de Google - SOLO FRONTEND (SIN BACKEND)
+  // Manejar respuesta de Google - USAR BACKEND
   private async handleGoogleCallback(response: any): Promise<void> {
     this.googleLoading = true;
     this.errorMessage = '';
 
     try {
-      console.log('Google callback response:', response);
+      console.log('Google callback response recibido, redirigiendo al backend...');
 
-      // DECODIFICAR directamente el JWT token de Google
-      const userData = this.decodeGoogleJWT(response.credential);
+      // Guardar returnUrl para después del callback
+      sessionStorage.setItem('oauth2_return_url', this.returnUrl);
 
-      if (userData && userData.email) {
-        // Simular login exitoso - guardar datos en localStorage
-        localStorage.setItem('usuarioLogueado', JSON.stringify({
-          idUsuario: Date.now(), // ID temporal basado en timestamp
-          email: userData.email,
-          nombreCompleto: userData.name || userData.email.split('@')[0]
-        }));
-
-        // Simular token JWT
-        localStorage.setItem('token', 'google_auth_token_' + Date.now());
-
-        console.log('✅ Login con Google exitoso (solo frontend)');
-        console.log('👤 Usuario:', userData.email);
-        console.log('🎯 Redirigiendo a:', this.returnUrl);
-
-        alert('✅ Inicio de sesión exitoso con Google');
-        this.router.navigate([this.returnUrl]);
-      } else {
-        throw new Error('No se pudieron obtener los datos del usuario de Google');
-      }
+      // Redirigir al backend
+      window.location.href = 'http://localhost:8080/oauth2/authorization/google';
     } catch (error) {
       console.error('Error en callback de Google:', error);
       this.errorMessage = 'Error al procesar los datos de Google. Intenta nuevamente.';
-    } finally {
       this.googleLoading = false;
     }
   }
 
-  // NUEVO: Decodificar JWT de Google (solo frontend)
-  private decodeGoogleJWT(token: string): any {
-    try {
-      const base64Url = token.split('.')[1];
-      const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
-      const jsonPayload = decodeURIComponent(atob(base64).split('').map(function(c) {
-        return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
-      }).join(''));
-
-      const payload = JSON.parse(jsonPayload);
-      console.log('Datos decodificados de Google:', payload);
-      return payload;
-    } catch (error) {
-      console.error('Error al decodificar token de Google:', error);
-      return null;
-    }
-  }
-
-  // NUEVO: Método para iniciar login con Google
+  // Método para iniciar login con Google usando el backend
   signInWithGoogle(): void {
     if (!this.googleInitialized) {
       this.errorMessage = 'Google Auth no está inicializado. Intenta recargar la página.';
@@ -174,20 +144,22 @@ export class LoginComponent implements OnInit, AfterViewInit {
     this.googleLoading = true;
     this.errorMessage = '';
 
-    if (typeof google !== 'undefined' && google.accounts) {
-      google.accounts.id.prompt((notification: any) => {
-        if (notification.isNotDisplayed() || notification.isSkippedMoment()) {
-          console.log('Google prompt not displayed');
-          this.googleLoading = false;
-        }
-      });
-    } else {
+    try {
+      console.log('Iniciando login con Google a través del backend...');
+
+      // Guardar returnUrl para después del callback
+      sessionStorage.setItem('oauth2_return_url', this.returnUrl);
+
+      // Redirigir al backend
+      window.location.href = 'http://localhost:8080/oauth2/authorization/google';
+    } catch (error) {
+      console.error('Error al iniciar Google Auth:', error);
       this.errorMessage = 'Error al conectar con Google. Intenta nuevamente.';
       this.googleLoading = false;
     }
   }
 
-  // MÉTODO EXISTENTE: Login tradicional (mantener la lógica)
+  // Login tradicional
   onSubmit(): void {
     if (this.loginForm.valid) {
       this.isLoading = true;
@@ -195,15 +167,14 @@ export class LoginComponent implements OnInit, AfterViewInit {
 
       this.authService.login(this.loginForm.value).subscribe({
         next: (response) => {
-          // Los datos ya se guardan en el servicio
-          console.log('Redirigiendo a:', this.returnUrl);
+          console.log('✅ Login tradicional exitoso');
+          console.log('🎯 Redirigiendo a:', this.returnUrl);
           this.router.navigate([this.returnUrl]);
         },
         error: (err) => {
           console.error('Error de login:', err);
           this.isLoading = false;
 
-          // Mejorar el manejo de errores
           if (err.status === 401) {
             this.errorMessage = 'Email o contraseña incorrectos';
           } else if (err.status === 403) {
@@ -218,12 +189,12 @@ export class LoginComponent implements OnInit, AfterViewInit {
     }
   }
 
-  // NUEVO: Limpiar mensaje de error
+  // Limpiar mensaje de error
   clearError(): void {
     this.errorMessage = '';
   }
 
-  // NUEVO: Ir a registro
+  // Ir a registro
   goToRegister(): void {
     this.router.navigate(['/register'], {
       queryParams: { returnUrl: this.returnUrl }

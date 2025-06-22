@@ -9,6 +9,7 @@ import { NucleoiconsComponent } from './components/nucleoicons/nucleoicons.compo
 import { PaquetesComponent } from './components/paquetes/paquetes.component';
 import {DestinosComponent} from "../material-component/destinos/destinos.component";
 import {ArtesaniasComponent} from "./components/artesania/artesanias.component";
+import {HoteleriaComponent} from "./components/hoteles/hoteles.component";
 
 const routes: Routes = [
   {
@@ -23,7 +24,9 @@ const routes: Routes = [
       { path: 'nucleoicons', component: NucleoiconsComponent },
       { path: 'paquetes', component: PaquetesComponent },
       { path: 'destinos', component: DestinosComponent },
-      { path: 'artesanias', component: ArtesaniasComponent}, // Mantener esta ruta para la lista
+      { path: 'artesanias', component: ArtesaniasComponent},
+      { path: 'hoteles', component: HoteleriaComponent},
+      // Mantener esta ruta para la lista
 
       // ========== RUTAS DE DETALLE ==========
       {
@@ -52,6 +55,11 @@ const routes: Routes = [
         loadComponent: () =>
           import('../public/paginas/infDestinos/infartesania/inf-artesania.component').then(m => m.InfArtesaniaComponent)
       },
+      {
+        path: 'detalle-hotel/:id',  // Cambiado de 'artesanias' a 'detalle-artesania'
+        loadComponent: () =>
+          import('../public/paginas/infDestinos/infhoteleria/inf-hoteleria.component').then(m => m.InfHotelComponent)
+      },
 
       // ========== RUTAS DE RESERVAS ==========
       {
@@ -77,7 +85,8 @@ const routes: Routes = [
         loadComponent: () =>
           import('./paginas/infDestinos/infActividad/inf-actividad.component')
             .then(m => m.InfActividadComponent)
-      }
+      },
+
     ]
   }
 ];

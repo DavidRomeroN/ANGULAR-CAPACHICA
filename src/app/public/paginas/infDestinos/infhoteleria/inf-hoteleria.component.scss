@@ -1,4 +1,4 @@
-/* Estilos para el componente de artesanía */
+/* Estilos para el componente de hotel */
 
 /* Botones de acción */
 .btn-accion {
@@ -29,13 +29,13 @@
   background-color: #138496;
 }
 
-.btn-solicitar {
-  background-color: #8B4513;
+.btn-reservar {
+  background-color: #007bff;
   color: white;
 }
 
-.btn-solicitar:hover {
-  background-color: #7a3a0f;
+.btn-reservar:hover {
+  background-color: #0056b3;
 }
 
 .btn-whatsapp {
@@ -57,12 +57,12 @@
 }
 
 .btn-register {
-  background-color: #D2691E;
+  background-color: #6f42c1;
   color: white;
 }
 
 .btn-register:hover {
-  background-color: #b8591a;
+  background-color: #5a32a3;
 }
 
 .btn-cancelar {
@@ -117,7 +117,7 @@
 .form-label {
   display: block;
   margin-bottom: 0.5rem;
-  color: #8B4513;
+  color: #007bff;
   font-weight: 600;
 }
 
@@ -134,8 +134,8 @@
 .form-input:focus,
 .form-textarea:focus {
   outline: none;
-  border-color: #8B4513;
-  box-shadow: 0 0 0 3px rgba(139, 69, 19, 0.1);
+  border-color: #007bff;
+  box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.1);
 }
 
 .form-textarea {
@@ -157,13 +157,13 @@
   flex-wrap: wrap;
 }
 
-/* Resumen de solicitud */
+/* Resumen de reserva */
 .resumen-solicitud {
   background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
   padding: 1.5rem;
   border-radius: 8px;
   margin-bottom: 1.5rem;
-  border-left: 4px solid #8B4513;
+  border-left: 4px solid #007bff;
 }
 
 /* Mensaje de error */

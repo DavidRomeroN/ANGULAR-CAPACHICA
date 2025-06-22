@@ -25,6 +25,7 @@ import {MatNativeDateModule} from "@angular/material/core";
 import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
 import {GoogleMapsModule} from "@angular/google-maps";
 import {MatIconModule} from "@angular/material/icon";
+import {OAuth2CallbackComponent} from "./components/oauth2-callback/oauth2-callback.component";
 
 @NgModule({
   declarations: [
@@ -32,7 +33,8 @@ import {MatIconModule} from "@angular/material/icon";
     FullComponent,
     AppHeaderComponent,
     SpinnerComponent,
-    UsuarioListComponent
+    UsuarioListComponent,
+
   ],
   imports: [
     BrowserModule,

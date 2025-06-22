@@ -111,19 +111,40 @@ export class AuthService {
     );
   }
 
-  // ========== MÉTODOS DE UTILIDAD (mantener sin cambios) ==========
+  // ========== MÉTODOS DE UTILIDAD ACTUALIZADOS ==========
 
-  // Verificar si el usuario está logueado
+  // ACTUALIZADO: Verificar si el usuario está logueado (con debug)
   isLoggedIn(): boolean {
+    const token = localStorage.getItem('token');
+    const usuario = localStorage.getItem('usuarioLogueado');
+
+    // Debug para ver qué está pasando
+    console.log('🔍 AuthService.isLoggedIn() verificando:', {
+      hasToken: !!token,
+      hasUser: !!usuario,
+      tokenStart: token ? token.substring(0, 20) + '...' : 'null',
+      userEmail: usuario ? JSON.parse(usuario).email : 'null'
+    });
+
+    const isLoggedIn = !!(token && usuario);
+    console.log('✅ Resultado isLoggedIn():', isLoggedIn);
+
+    return isLoggedIn;
+  }
+
+  // NUEVO: Verificar si el usuario está logueado (sin debug, para producción)
+  isLoggedInQuiet(): boolean {
     const token = localStorage.getItem('token');
     const usuario = localStorage.getItem('usuarioLogueado');
     return !!(token && usuario);
   }
 
-  // Logout
+  // ACTUALIZADO: Logout con debug
   logout(): void {
+    console.log('🚪 AuthService.logout() - Cerrando sesión...');
     localStorage.removeItem('token');
     localStorage.removeItem('usuarioLogueado');
+    console.log('🧹 localStorage limpiado');
   }
 
   // Obtener token
@@ -131,10 +152,73 @@ export class AuthService {
     return localStorage.getItem('token');
   }
 
-  // Obtener usuario logueado
+  // ACTUALIZADO: Obtener usuario logueado con debug
   getLoggedUser(): any {
     const usuario = localStorage.getItem('usuarioLogueado');
-    return usuario ? JSON.parse(usuario) : null;
+    const parsedUser = usuario ? JSON.parse(usuario) : null;
+
+    console.log('👤 AuthService.getLoggedUser():', parsedUser);
+    return parsedUser;
+  }
+
+  // NUEVO: Método para manejar callback de OAuth2
+  handleOAuth2Callback(token: string, email: string): void {
+    console.log('🔄 AuthService.handleOAuth2Callback()');
+    console.log('📧 Email:', email);
+    console.log('🔑 Token:', token.substring(0, 20) + '...');
+
+    // Guardar token
+    localStorage.setItem('token', token);
+
+    // Guardar usuario (estructura consistente con login normal)
+    const userData = {
+      email: email,
+      loginMethod: 'google',
+      loginTime: new Date().toISOString()
+    };
+
+    localStorage.setItem('usuarioLogueado', JSON.stringify(userData));
+
+    console.log('💾 Datos OAuth2 guardados correctamente');
+    console.log('🔍 Verificación post-guardado:', this.isLoggedIn());
+  }
+
+  // NUEVO: Método para verificar si el token está expirado
+  isTokenExpired(): boolean {
+    const token = this.getToken();
+    if (!token) return true;
+
+    try {
+      const payload = this.decodeJwtPayload(token);
+      const now = Math.floor(Date.now() / 1000);
+
+      if (payload.exp && payload.exp < now) {
+        console.log('⏰ Token expirado, limpiando sesión...');
+        this.logout();
+        return true;
+      }
+
+      return false;
+    } catch (error) {
+      console.error('❌ Error al verificar expiración del token:', error);
+      return true;
+    }
+  }
+
+  // NUEVO: Decodificar payload del JWT
+  private decodeJwtPayload(token: string): any {
+    try {
+      const parts = token.split('.');
+      if (parts.length !== 3) {
+        throw new Error('Token JWT inválido');
+      }
+
+      const payload = parts[1];
+      const decoded = atob(payload.replace(/-/g, '+').replace(/_/g, '/'));
+      return JSON.parse(decoded);
+    } catch (error) {
+      throw new Error('Error al decodificar token JWT');
+    }
   }
 
   // Verificar si el token es válido
