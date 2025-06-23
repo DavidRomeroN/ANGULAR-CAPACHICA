@@ -19,20 +19,24 @@ export class PaquetesComponent implements OnInit {
 
   ngOnInit(): void {
     this.paquetesService.getAll().subscribe({
-      next: (data) => {
-        // Mapear id_paquete => id para que Angular pueda usarlo
-        this.paquetes = data.map(p => ({
-          ...p,
-          id: p.idPaquete
-
-        }));
+      next: (response) => {
+        // ✅ Validar que el backend respondió correctamente
+        if (response && Array.isArray(response.content)) {
+          this.paquetes = response.content.map((item: any) => ({
+            ...item.data,
+            id: item.data?.idPaquete
+          }));
+        } else {
+          console.warn('Respuesta inesperada de /paquetes:', response);
+          this.paquetes = [];
+        }
       },
       error: (err) => {
         console.error('Error al cargar paquetes:', err);
+        this.paquetes = [];
       }
     });
   }
-
 
   scrollPaquetes(direction: 'left' | 'right'): void {
     const container = this.paqueteContainer.nativeElement;
@@ -44,7 +48,7 @@ export class PaquetesComponent implements OnInit {
   }
 
   verDetalle(id: number): void {
-    console.log('Hiciste clic en VER MÁS con ID:', id); // <--- agrega esto
+    console.log('Hiciste clic en VER MÁS con ID:', id);
 
     if (id) {
       this.router.navigate(['/capachica/detalle-paquete', id]);
@@ -52,22 +56,19 @@ export class PaquetesComponent implements OnInit {
       console.error('El paquete no tiene ID definido');
     }
   }
+
   filtroNombre: string = '';
   filtroFecha: string = ''; // formato: YYYY-MM-DD
 
   paquetesFiltrados(): any[] {
     return this.paquetes.filter(paquete => {
-      const coincideNombre = paquete.titulo.toLowerCase().includes(this.filtroNombre.toLowerCase());
+      const coincideNombre = paquete.titulo?.toLowerCase().includes(this.filtroNombre.toLowerCase());
       const coincideFecha = this.filtroFecha
         ? new Date(paquete.fechaInicio) >= new Date(this.filtroFecha)
         : true;
-      const tieneCupos = paquete.cuposMaximos > 0;  // <-- Filtrar solo paquetes con cupos disponibles
+      const tieneCupos = paquete.cuposMaximos > 0;
 
       return coincideNombre && coincideFecha && tieneCupos;
     });
   }
-
-
-
-
 }

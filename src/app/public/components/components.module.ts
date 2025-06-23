@@ -14,14 +14,20 @@ import { NgbdModalComponent } from './modal/modal.component';
 import { NgbdModalContent } from './modal/modal.component';
 import { DestinosComponent } from './destinos/destinos.component';
 import { PaquetesComponent } from './paquetes/paquetes.component';
+import {ActividadesComponent} from "./actividades/actividades.component";
+import {AsesorComponent} from "./asesor/asesor.component";
+import {ArtesaniasComponent} from "./artesania/artesanias.component";
+import {HoteleriaComponent} from "./hoteles/hoteles.component";
 
 @NgModule({
-    imports: [
-        CommonModule,
-        FormsModule,
-        NgbModule,
-        RouterModule
-    ],
+  imports: [
+    CommonModule,
+    FormsModule,
+    NgbModule,
+    RouterModule,
+    ArtesaniasComponent,
+    HoteleriaComponent
+  ],
     declarations: [
         ComponentsComponent,
         BasicelementsComponent,
@@ -32,8 +38,11 @@ import { PaquetesComponent } from './paquetes/paquetes.component';
         NgbdModalComponent,
         NgbdModalContent,
         DestinosComponent,
-        PaquetesComponent
+        PaquetesComponent,
+        ActividadesComponent,
+        AsesorComponent
     ],
-    exports:[ ComponentsComponent ]
+    exports:[ ComponentsComponent,
+    ActividadesComponent]
 })
 export class ComponentsModule { }

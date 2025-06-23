@@ -12,6 +12,12 @@ import { ComponentsModule } from './components/components.module';
 import { ExamplesModule } from './examples/examples.module';
 import {CommonModule} from "@angular/common";
 import { PublicRoutingModule } from './public.routing';
+<<<<<<< Updated upstream
+=======
+import { CarritoComponent } from './shared/navbar/Carrito/carrito.component';
+import {ActividadesComponent} from "./components/actividades/actividades.component";
+
+>>>>>>> Stashed changes
 
 @NgModule({
   declarations: [
@@ -27,7 +33,7 @@ import { PublicRoutingModule } from './public.routing';
     ExamplesModule,
     CommonModule,
     RouterModule,
-    PublicRoutingModule
+    PublicRoutingModule,
   ],
   providers: [],
 })

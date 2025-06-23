@@ -12,25 +12,29 @@ const routes: Routes = [
   },
 
   // ========== RUTAS PÚBLICAS (SIN AUTENTICACIÓN) ==========
-  // Estas rutas mostrarán información sin requerir login
+  // ========== RUTAS PÚBLICAS DIRECTAS (SIN AUTENTICACIÓN) ==========
   {
     path: 'public',
     children: [
       {
         path: 'destinos',
-        loadComponent: () => import('../app/public/paginas/infDestinos/inf-destino/inf-destino.component').then(m => m.InfDestinoComponent)
+        loadComponent: () => import('./public/paginas/infDestinos/inf-destino/inf-destino.component').then(m => m.InfDestinoComponent)
       },
       {
         path: 'paquetes',
-        loadComponent: () => import('../app/public/paginas/infDestinos/infPaquetes/inf-paquete/inf-paquete.component').then(m => m.InfPaqueteComponent)
+        loadComponent: () => import('./public/paginas/infDestinos/inf-paquete/inf-paquete.component').then(m => m.InfPaqueteComponent)
       },
       {
         path: 'destino/:id',
-        loadComponent: () => import('../app/public/paginas/infDestinos/inf-destino/inf-destino.component').then(m => m.InfDestinoComponent)
+        loadComponent: () => import('./public/paginas/infDestinos/inf-destino/inf-destino.component').then(m => m.InfDestinoComponent)
       },
       {
         path: 'paquete/:id',
-        loadComponent: () => import('../app/public/paginas/infDestinos/infPaquetes/inf-paquete/inf-paquete.component').then(m => m.InfPaqueteComponent)
+        loadComponent: () => import('./public/paginas/infDestinos/inf-paquete/inf-paquete.component').then(m => m.InfPaqueteComponent)
+      },
+      {
+        path: 'artesania/:id',
+        loadComponent: () => import('./public/paginas/infDestinos/infartesania/inf-artesania.component').then(m => m.InfArtesaniaComponent)
       }
     ]
   },
@@ -59,6 +63,11 @@ const routes: Routes = [
       { path: 'servicio-alimento', loadComponent: () => import('./material-component/servicio_alimento/servicio-alimento.component').then(m => m.ServicioAlimentoComponent) },
       { path: 'destinos', loadComponent: () => import('./material-component/destinos/destinos.component').then(m => m.DestinosComponent) },
       { path: 'tipo-servicio', loadComponent: () => import('./material-component/tipo-servicio/tipo-servicio.component').then(m => m.TipoServicioComponent) },
+      {
+        path: 'actividades',
+        loadComponent: () => import('./material-component/actividades/actividades.component').then(m => m.ActividadesComponent)
+      },
+
       // Componentes Material
       { path: 'button', loadComponent: () => import('./material-component/buttons/buttons.component').then(m => m.ButtonsComponent) },
       { path: 'grid', loadComponent: () => import('./material-component/grid/grid.component').then(m => m.GridComponent) },

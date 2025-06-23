@@ -1,0 +1,280 @@
+<div *ngIf="servicioArtesania" style="max-width: 800px; margin: 2rem auto; padding: 2rem; border-radius: 12px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); background-color: #fff; font-family: 'Segoe UI', sans-serif;">
+
+  <h2 style="font-size: 2rem; margin-bottom: 1rem; color: #333;">{{ servicioArtesania.tipoArtesania }}</h2>
+
+  <img [src]="servicioArtesania.imagenUrl || 'assets/images/default-artesania.jpg'"
+       [alt]="servicioArtesania.tipoArtesania"
+       style="width: 100%; max-height: 400px; object-fit: cover; border-radius: 8px; margin-bottom: 1.5rem;" />
+
+  <!-- Información del artesano -->
+  <div style="margin-bottom: 1.5rem; padding: 1rem; background-color: #f8f9fa; border-radius: 8px; border-left: 4px solid #8B4513;">
+    <p style="margin: 0; color: #8B4513; font-weight: 600; font-size: 1.1rem;">
+      <i class="fa fa-user" style="margin-right: 0.5rem;"></i>
+      Artesano: {{ servicioArtesania.artesano || servicioArtesania.servicio?.proveedor?.nombreCompleto }}
+    </p>
+  </div>
+
+  <!-- Información principal -->
+  <div style="margin-bottom: 1.5rem;">
+    <p><strong>🎨 Tipo de Artesanía:</strong> {{ servicioArtesania.tipoArtesania }}</p>
+    <p><strong>📝 Descripción:</strong> {{ servicioArtesania.descripcion }}</p>
+    <p><strong>🌍 Origen Cultural:</strong> {{ servicioArtesania.origenCultural || 'No especificado' }}</p>
+    <p><strong>💰 Precio base:</strong> S/. {{ servicioArtesania.servicio?.precio || 0 | number:'1.2-2' }}</p>
+    <p><strong>⏰ Duración del Taller:</strong> {{ servicioArtesania.duracionTaller || 0 }} horas</p>
+    <p><strong>👥 Máximo Participantes:</strong> {{ servicioArtesania.maxParticipantes || 0 }} personas</p>
+
+    <!-- Información adicional con iconos -->
+    <div style="display: flex; gap: 1rem; margin: 1rem 0; flex-wrap: wrap;">
+      <span [ngStyle]="{
+        'padding': '0.5rem 1rem',
+        'border-radius': '20px',
+        'background-color': servicioArtesania.incluyeMaterial ? '#d4edda' : '#f8d7da',
+        'color': servicioArtesania.incluyeMaterial ? '#155724' : '#721c24',
+        'font-size': '0.9rem',
+        'font-weight': '600'
+      }">
+        {{ servicioArtesania.incluyeMaterial ? '✅ Incluye Material' : '❌ No incluye Material' }}
+      </span>
+
+      <span [ngStyle]="{
+        'padding': '0.5rem 1rem',
+        'border-radius': '20px',
+        'background-color': servicioArtesania.visitaTaller ? '#d4edda' : '#f8d7da',
+        'color': servicioArtesania.visitaTaller ? '#155724' : '#721c24',
+        'font-size': '0.9rem',
+        'font-weight': '600'
+      }">
+        {{ servicioArtesania.visitaTaller ? '🏠 Visita Taller' : '📍 Ubicación Externa' }}
+      </span>
+
+      <!-- Badge de nivel -->
+      <span [ngStyle]="{
+        'padding': '0.5rem 1rem',
+        'border-radius': '20px',
+        'background-color': getNivelColor(),
+        'color': 'white',
+        'font-size': '0.9rem',
+        'font-weight': '600'
+      }">
+        {{ getNivelTexto() }}
+      </span>
+    </div>
+  </div>
+
+  <!-- Sección de botones para usuarios autenticados -->
+  <div *ngIf="isAuthenticated" style="margin-top: 2rem; display: flex; gap: 1rem; align-items: center; flex-wrap: wrap;">
+    <label for="cantidadInput" style="font-weight: 600;">👥 Cantidad de participantes:</label>
+    <input
+      id="cantidadInput"
+      type="number"
+      [(ngModel)]="cantidadParticipantes"
+      min="1"
+      [max]="servicioArtesania.maxParticipantes"
+      style="width: 70px; padding: 0.5rem; border: 1px solid #ccc; border-radius: 4px; text-align: center;"
+    />
+
+    <button (click)="agregarAlCarrito()"
+            class="btn-accion btn-carrito">
+      🛒 Agregar al Carrito
+    </button>
+
+    <button (click)="solicitarTaller()"
+            class="btn-accion btn-solicitar">
+      📝 Solicitar Taller
+    </button>
+
+    <button (click)="contactarArtesanoWhatsApp()"
+            class="btn-accion btn-whatsapp">
+      💬 Contactar Artesano
+    </button>
+  </div>
+
+  <!-- Si el usuario NO está autenticado -->
+  <div *ngIf="!isAuthenticated" style="padding: 1.5rem; background-color: #f8f9fa; border-radius: 12px; border: 2px dashed #8B4513; text-align: center;">
+    <p style="margin-bottom: 1rem; color: #8B4513; font-size: 1.1rem; font-weight: 600;">
+      🔐 Para solicitar este taller de artesanía, necesitas iniciar sesión o registrarte
+    </p>
+
+    <div style="display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap;">
+      <button (click)="irAlLogin()"
+              class="btn-accion btn-login">
+        🔐 Iniciar Sesión
+      </button>
+      <button (click)="irAlRegistro()"
+              class="btn-accion btn-register">
+        📝 Registrarse
+      </button>
+    </div>
+  </div>
+
+  <!-- Info adicional -->
+  <div style="margin-top: 1.5rem; padding: 1.5rem; background-color: #fff3cd; border-radius: 8px; border-left: 4px solid #ffc107;">
+    <h4 style="margin: 0 0 0.5rem 0; color: #856404; font-size: 1.2rem;">ℹ️ Información importante del taller</h4>
+    <ul style="margin: 0; padding-left: 1.2rem; color: #555; line-height: 1.6;">
+      <li>El precio incluye la enseñanza de la técnica artesanal</li>
+      <li>{{ servicioArtesania.incluyeMaterial ? 'Los materiales están incluidos en el precio' : 'Los materiales no están incluidos (consultar costo adicional)' }}</li>
+      <li>{{ servicioArtesania.visitaTaller ? 'Incluye visita al taller del artesano' : 'El taller se realizará en ubicación externa' }}</li>
+      <li>Duración: {{ servicioArtesania.duracionTaller || 0 }} horas de aprendizaje</li>
+      <li>Máximo {{ servicioArtesania.maxParticipantes || 0 }} participantes por taller</li>
+      <li>Tradición cultural: {{ servicioArtesania.origenCultural || 'Artesanía local' }}</li>
+      <li>Las solicitudes están sujetas a confirmación del artesano</li>
+    </ul>
+  </div>
+
+  <!-- Formulario de solicitud -->
+  <div *ngIf="mostrarFormulario && !solicitudCompletada" class="modal-overlay">
+    <div class="modal-container">
+      <h3 style="color: #8B4513; margin-bottom: 1.5rem; text-align: center; font-size: 1.5rem;">
+        🎨 Solicitar Taller de {{ servicioArtesania?.tipoArtesania }}
+      </h3>
+
+      <form (ngSubmit)="confirmarSolicitud()">
+        <div class="form-group">
+          <label for="cantidadParticipantes" class="form-label">
+            👥 Cantidad de Participantes:
+          </label>
+          <input type="number"
+                 id="cantidadParticipantes"
+                 [(ngModel)]="cantidadParticipantes"
+                 name="cantidadParticipantes"
+                 min="1"
+                 [max]="servicioArtesania?.maxParticipantes"
+                 class="form-input"
+                 required>
+          <small class="form-help">
+            Máximo: {{ servicioArtesania?.maxParticipantes }} participantes
+          </small>
+        </div>
+
+        <div class="form-group">
+          <label for="fechaInicio" class="form-label">
+            📅 Fecha de Inicio:
+          </label>
+          <input type="date"
+                 id="fechaInicio"
+                 [(ngModel)]="fechaInicio"
+                 name="fechaInicio"
+                 class="form-input"
+                 required>
+        </div>
+
+        <div class="form-group">
+          <label for="fechaFin" class="form-label">
+            📅 Fecha de Fin:
+          </label>
+          <input type="date"
+                 id="fechaFin"
+                 [(ngModel)]="fechaFin"
+                 name="fechaFin"
+                 class="form-input"
+                 required>
+        </div>
+
+        <div class="form-group">
+          <label for="observaciones" class="form-label">
+            📝 Observaciones:
+          </label>
+          <textarea id="observaciones"
+                    [(ngModel)]="observaciones"
+                    name="observaciones"
+                    class="form-textarea"
+                    rows="4"
+                    placeholder="Describe tus expectativas, experiencia previa, o cualquier requerimiento especial..."
+                    required></textarea>
+        </div>
+
+        <!-- Resumen de la solicitud -->
+        <div class="resumen-solicitud">
+          <h4 style="color: #8B4513; margin-bottom: 1rem; font-size: 1.1rem;">📋 Resumen de tu Solicitud</h4>
+          <p style="margin-bottom: 0.5rem;"><strong>👥 Participantes:</strong> {{ cantidadParticipantes }}</p>
+          <p style="margin-bottom: 0.5rem;"><strong>📅 Período:</strong> {{ fechaInicio | date:'dd/MM/yyyy' }} - {{ fechaFin | date:'dd/MM/yyyy' }}</p>
+          <p style="margin-bottom: 0; font-weight: bold; font-size: 1.1rem; color: #8B4513;">
+            <strong>💰 Total Estimado:</strong> S/. {{ totalCalculado | number:'1.2-2' }}
+          </p>
+        </div>
+
+        <!-- Mensaje de error -->
+        <div *ngIf="mensajeError" class="error-message">
+          ⚠️ {{ mensajeError }}
+        </div>
+
+        <!-- Botones del formulario -->
+        <div class="form-actions">
+          <button type="button"
+                  (click)="mostrarFormulario = false"
+                  class="btn-accion btn-cancelar">
+            ❌ Cancelar
+          </button>
+          <button type="submit"
+                  class="btn-accion btn-confirmar">
+            ✅ Confirmar Solicitud
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Confirmación de solicitud completada -->
+  <div *ngIf="solicitudCompletada" class="modal-overlay">
+    <div class="confirmacion-container">
+      <div class="icono-exito">
+        ✅
+      </div>
+
+      <h3 style="color: #8B4513; margin-bottom: 1.5rem; font-size: 1.5rem;">¡Solicitud Enviada con Éxito!</h3>
+
+      <div class="detalles-solicitud">
+        <h4 style="color: #8B4513; margin-bottom: 1rem; text-align: center;">📋 Detalles de tu Solicitud:</h4>
+        <p style="margin-bottom: 0.5rem;"><strong>🎨 Taller:</strong> {{ servicioArtesania?.tipoArtesania }}</p>
+        <p style="margin-bottom: 0.5rem;"><strong>👨‍🎨 Artesano:</strong> {{ servicioArtesania?.artesano || servicioArtesania?.servicio?.proveedor?.nombreCompleto }}</p>
+        <p style="margin-bottom: 0.5rem;"><strong>👥 Participantes:</strong> {{ solicitudRealizada?.cantidadParticipantes }}</p>
+        <p style="margin-bottom: 0.5rem;"><strong>📅 Fechas:</strong> {{ solicitudRealizada?.fechaInicio | date:'dd/MM/yyyy' }} - {{ solicitudRealizada?.fechaFin | date:'dd/MM/yyyy' }}</p>
+        <p style="margin-bottom: 0;"><strong>📊 Estado:</strong>
+          <span class="estado-pendiente">
+            ⏳ PENDIENTE
+          </span>
+        </p>
+      </div>
+
+      <div class="mensaje-siguiente-paso">
+        <p style="margin-bottom: 0.5rem;">📞 El artesano recibirá tu solicitud y se contactará contigo para coordinar los detalles del taller.</p>
+        <p style="margin-bottom: 0;">💬 También puedes contactarlo directamente por WhatsApp.</p>
+      </div>
+
+      <div class="acciones-confirmacion">
+        <button (click)="contactarArtesanoWhatsApp()"
+                class="btn-accion btn-whatsapp">
+          💬 Contactar por WhatsApp
+        </button>
+
+        <button (click)="nuevaSolicitud()"
+                class="btn-accion btn-solicitar">
+          ➕ Nueva Solicitud
+        </button>
+
+        <button (click)="verMisSolicitudes()"
+                class="btn-accion btn-carrito">
+          📋 Ver Mis Solicitudes
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Loading -->
+<div *ngIf="!servicioArtesania" style="text-align: center; padding: 4rem; color: #6c757d;">
+  <div style="font-size: 3rem; margin-bottom: 1rem;">🎨</div>
+  <h3 style="color: #8B4513; margin-bottom: 0.5rem;">Cargando información del taller...</h3>
+  <p>Por favor espera un momento</p>
+</div>
+
+<!-- Error cuando no se encuentra el servicio -->
+<div *ngIf="servicioArtesania === null" style="text-align: center; padding: 4rem;">
+  <div style="font-size: 4rem; color: #ffc107; margin-bottom: 1rem;">⚠️</div>
+  <h3 style="color: #8B4513; margin-bottom: 1rem;">Taller no encontrado</h3>
+  <p style="color: #6c757d; margin-bottom: 2rem;">El taller de artesanía que buscas no está disponible o no existe.</p>
+  <button (click)="router.navigate(['/capachica'])"
+          class="btn-accion btn-register">
+    ⬅️ Volver al Inicio
+  </button>
+</div>

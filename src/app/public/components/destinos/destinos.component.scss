@@ -106,4 +106,131 @@
       }
     }
   }
+  .fecha-buttons {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    margin: 1rem 0;
+
+    button {
+      background-color: #e0f7fa;
+      border: none;
+      padding: 8px 12px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-weight: bold;
+
+      &.active {
+        background-color: #007bff;
+        color: white;
+      }
+
+      &:hover {
+        background-color: #b3e5fc;
+      }
+    }
+  }
+
+  .loading-clima-container {
+    text-align: center;
+    padding: 20px;
+
+    .spinner-small {
+      width: 20px;
+      height: 20px;
+      border: 2px solid #f3f3f3;
+      border-radius: 50%;
+      border-top: 2px solid #3498db;
+      animation: spin 1s linear infinite;
+      margin: 0 auto 10px;
+    }
+  }
+
+  .search-box {
+    position: relative;
+    display: inline-block;
+
+    .search-input {
+      padding: 8px 30px 8px 12px;
+      border: 1px solid #ddd;
+      border-radius: 20px;
+      outline: none;
+    }
+
+    .clear-btn {
+      position: absolute;
+      right: 8px;
+      top: 50%;
+      transform: translateY(-50%);
+      background: none;
+      border: none;
+      cursor: pointer;
+    }
+  }
+
+  .fecha-btn {
+    &:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+  }
+
+  .fecha-buttons {
+    margin: 1rem 0;
+    display: flex;
+    gap: 0.5rem;
+    justify-content: center;
+
+    button {
+      background-color: #f0f0f0;
+      border: none;
+      padding: 0.5rem 1rem;
+      border-radius: 5px;
+      cursor: pointer;
+
+      &.active {
+        background-color: #007bff;
+        color: white;
+      }
+
+      &:hover {
+        background-color: #ddd;
+      }
+    }
+  }
+
+  .temperatura {
+    font-size: 0.85rem;
+    margin: 0.5rem 0;
+    color: #ff5722;
+  }
+
+  .fecha-buttons-wrapper {
+    margin-bottom: 1.5rem;
+    text-align: center;
+
+    .fecha-buttons {
+      display: flex;
+      justify-content: center;
+      gap: 0.5rem;
+      margin-top: 0.5rem;
+
+      button {
+        padding: 0.5rem 1rem;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+        background: white;
+        cursor: pointer;
+
+        &.active {
+          background: #007bff;
+          color: white;
+          border-color: #007bff;
+        }
+      }
+    }
+  }
+
+
+
 }

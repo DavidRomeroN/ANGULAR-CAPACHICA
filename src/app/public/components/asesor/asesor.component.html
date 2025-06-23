@@ -1,0 +1,31 @@
+<div class="section">
+  <div class="container">
+    <h2 class="text-center">Asesor Turístico</h2>
+
+    <div class="alert alert-info" *ngIf="mensajeIA">
+      <strong>Recomendación:</strong>
+      <p>{{ mensajeIA }}</p>
+    </div>
+
+    <div *ngIf="clima">
+      <p><strong>Fecha:</strong> {{ clima.fecha }}</p>
+      <p><strong>Temperatura:</strong> {{ clima.temperatura }} °C</p>
+      <p><strong>Mensaje:</strong> {{ clima.mensaje }}</p>
+    </div>
+
+    <div class="row">
+      <div class="col-md-4" *ngFor="let actividad of actividades">
+        <div class="card">
+          <img [src]="actividad.imagenUrl" class="card-img-top" alt="...">
+          <div class="card-body">
+            <h5 class="card-title">{{ actividad.titulo }}</h5>
+            <p class="card-text">{{ actividad.descripcion }}</p>
+            <p><strong>Tipo:</strong> {{ actividad.tipo }}</p>
+            <p><strong>Duración:</strong> {{ actividad.duracionHoras }} hrs</p>
+            <p><strong>Precio:</strong> ${{ actividad.precioBase }}</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

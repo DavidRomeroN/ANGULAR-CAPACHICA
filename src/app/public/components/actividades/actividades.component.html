@@ -1,0 +1,91 @@
+<div class="actividades-container">
+  <h2 class="section-title">
+    {{ mensajeClima || 'Actividades Recomendadas' }}
+  </h2>
+
+  <!-- ⚠️ Error -->
+  <div *ngIf="error" class="error-container">
+    <p class="error-message">{{ error }}</p>
+    <button class="retry-btn" (click)="seleccionarFecha(fechasSugeridas[0].fecha)">Reintentar</button>
+  </div>
+
+  <!-- 📅 Botones de fecha -->
+  <div class="fecha-buttons-wrapper" *ngIf="fechasSugeridas.length > 0 && !error">
+    <p class="fecha-instructions">
+      <i class="calendar-icon">📅</i>
+      Selecciona un día para ver actividades:
+    </p>
+    <div class="fecha-buttons">
+      <button *ngFor="let fechaObj of fechasSugeridas"
+              (click)="seleccionarFecha(fechaObj.fecha)"
+              [class.active]="fechaObj.fecha === fechaSeleccionada"
+              [disabled]="isLoadingClima"
+              class="fecha-btn">
+        {{ fechaObj.label }}
+      </button>
+    </div>
+  </div>
+
+  <!-- 🔍 Filtro -->
+  <div class="filter-container" *ngIf="!isLoading && climaRecomendadas.length > 0">
+    <div class="search-box">
+      <input type="text"
+             [(ngModel)]="filtroNombre"
+             placeholder="Buscar actividades..."
+             class="search-input">
+      <button *ngIf="filtroNombre"
+              (click)="limpiarFiltro()"
+              class="clear-btn">✕</button>
+    </div>
+    <p class="results-count">
+      Mostrando {{ actividadesFiltradas().length }} de {{ climaRecomendadas.length }} actividades
+    </p>
+  </div>
+
+  <!-- ⏳ Cargando -->
+  <div *ngIf="isLoadingClima" class="loading-container">
+    <div class="spinner"></div>
+    <p>Cargando actividades...</p>
+  </div>
+
+  <!-- 🎯 Carrusel de actividades -->
+  <div class="carousel-wrapper" *ngIf="!isLoadingClima && actividadesFiltradas().length > 0">
+    <button class="scroll-btn left" (click)="scrollLeft()" [disabled]="actividadesFiltradas().length <= 3">
+      &#9664;
+    </button>
+
+    <div #scrollContainer class="cards-container">
+      <div *ngFor="let actividad of actividadesFiltradas()" class="card">
+        <img [src]="actividad.imagenUrl"
+             [alt]="actividad.titulo"
+             class="card-img"
+             (error)="onImageError($event)" />
+
+        <div class="card-body">
+          <h5 class="card-title">{{ actividad.titulo }}</h5>
+          <p class="card-subtitle">📍 {{ actividad.ubicacion }}</p>
+          <p class="card-text">{{ actividad.descripcion | slice:0:80 }}...</p>
+        </div>
+      </div>
+    </div>
+
+    <button class="scroll-btn right" (click)="scrollRight()" [disabled]="actividadesFiltradas().length <= 3">
+      &#9654;
+    </button>
+  </div>
+
+  <!-- ❌ No hay coincidencias -->
+  <div *ngIf="!isLoadingClima && climaRecomendadas.length > 0 && actividadesFiltradas().length === 0"
+       class="no-results-filter">
+    <p>🔍 No se encontraron actividades que coincidan con "{{ filtroNombre }}"</p>
+    <button (click)="limpiarFiltro()" class="clear-filter-btn">Limpiar filtro</button>
+  </div>
+
+  <!-- 😢 No hay actividades recomendadas -->
+  <div *ngIf="!isLoadingClima && climaRecomendadas.length === 0 && mensajeClima && fechaSeleccionada"
+       class="no-climate-results">
+    <div class="weather-sad-icon">🌧️</div>
+    <p>{{ mensajeClima }}</p>
+    <p class="suggestion">Prueba con otra fecha para ver más opciones.</p>
+  </div>
+</div>

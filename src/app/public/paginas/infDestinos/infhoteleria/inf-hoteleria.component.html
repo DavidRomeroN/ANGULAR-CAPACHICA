@@ -1,0 +1,261 @@
+<div *ngIf="hotel" style="max-width: 800px; margin: 2rem auto; padding: 2rem; border-radius: 12px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); background-color: #fff; font-family: 'Segoe UI', sans-serif;">
+
+  <h2 style="font-size: 2rem; margin-bottom: 1rem; color: #333;">{{ hotel.nombre }}</h2>
+
+  <img [src]="hotel.imagenUrl || 'assets/images/default-hotel.jpg'"
+       [alt]="hotel.nombre"
+       style="width: 100%; max-height: 400px; object-fit: cover; border-radius: 8px; margin-bottom: 1.5rem;" />
+
+  <!-- Información de ubicación -->
+  <div style="margin-bottom: 1.5rem; padding: 1rem; background-color: #f8f9fa; border-radius: 8px; border-left: 4px solid #007bff;">
+    <p style="margin: 0; color: #007bff; font-weight: 600; font-size: 1.1rem;">
+      <i class="fa fa-map-marker-alt" style="margin-right: 0.5rem;"></i>
+      Ubicación: {{ hotel.ubicacion || hotel.servicio?.destino?.nombre }}
+    </p>
+  </div>
+
+  <!-- Información principal -->
+  <div style="margin-bottom: 1.5rem;">
+    <p><strong>🏨 Hotel:</strong> {{ hotel.nombre }}</p>
+    <p><strong>📝 Descripción:</strong> {{ hotel.descripcion }}</p>
+    <p><strong>🛏️ Tipo de Habitación:</strong> {{ hotel.tipoHabitacion || 'No especificado' }}</p>
+    <p><strong>🛎️ Servicios Incluidos:</strong> {{ hotel.servicios || 'No especificado' }}</p>
+    <p><strong>💰 Precio por noche:</strong> S/. {{ hotel.servicio?.precio || 0 | number:'1.2-2' }}</p>
+
+    <!-- Información adicional con badges -->
+    <div style="display: flex; gap: 1rem; margin: 1rem 0; flex-wrap: wrap;">
+      <!-- Badge de categoría -->
+      <span style="padding: 0.5rem 1rem; border-radius: 20px; background-color: #ffd700; color: #856404; font-size: 0.9rem; font-weight: 600;">
+        ⭐ {{ hotel.categoria ? hotel.categoria + ' estrellas' : 'Sin categoría' }}
+      </span>
+
+      <!-- Badge de tipo de habitación -->
+      <span style="padding: 0.5rem 1rem; border-radius: 20px; background-color: #e3f2fd; color: #1976d2; font-size: 0.9rem; font-weight: 600;">
+        🛏️ {{ hotel.tipoHabitacion || 'Habitación estándar' }}
+      </span>
+
+      <!-- Badge de servicios -->
+      <span style="padding: 0.5rem 1rem; border-radius: 20px; background-color: #e8f5e8; color: #2e7d32; font-size: 0.9rem; font-weight: 600;">
+        ✅ Servicios incluidos
+      </span>
+    </div>
+  </div>
+
+  <!-- Sección de botones para usuarios autenticados -->
+  <div *ngIf="isAuthenticated" style="margin-top: 2rem; display: flex; gap: 1rem; align-items: center; flex-wrap: wrap;">
+    <label for="cantidadInput" style="font-weight: 600;">👥 Cantidad de personas:</label>
+    <input
+      id="cantidadInput"
+      type="number"
+      [(ngModel)]="cantidadPersonas"
+      min="1"
+      max="10"
+      style="width: 70px; padding: 0.5rem; border: 1px solid #ccc; border-radius: 4px; text-align: center;"
+    />
+
+    <button (click)="agregarAlCarrito()"
+            class="btn-accion btn-carrito">
+      🛒 Agregar al Carrito
+    </button>
+
+    <button (click)="mostrarFormulario = true"
+            class="btn-accion btn-reservar">
+      📅 Reservar Hotel
+    </button>
+
+    <button (click)="contactarHotelWhatsApp()"
+            class="btn-accion btn-whatsapp">
+      💬 Contactar Hotel
+    </button>
+  </div>
+
+  <!-- Si el usuario NO está autenticado -->
+  <div *ngIf="!isAuthenticated" style="padding: 1.5rem; background-color: #f8f9fa; border-radius: 12px; border: 2px dashed #007bff; text-align: center;">
+    <p style="margin-bottom: 1rem; color: #007bff; font-size: 1.1rem; font-weight: 600;">
+      🔐 Para reservar este hotel, necesitas iniciar sesión o registrarte
+    </p>
+
+    <div style="display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap;">
+      <button (click)="irAlLogin()"
+              class="btn-accion btn-login">
+        🔐 Iniciar Sesión
+      </button>
+      <button (click)="irAlRegistro()"
+              class="btn-accion btn-register">
+        📝 Registrarse
+      </button>
+    </div>
+  </div>
+
+  <!-- Info adicional -->
+  <div style="margin-top: 1.5rem; padding: 1.5rem; background-color: #e3f2fd; border-radius: 8px; border-left: 4px solid #2196f3;">
+    <h4 style="margin: 0 0 0.5rem 0; color: #1976d2; font-size: 1.2rem;">ℹ️ Información importante del hotel</h4>
+    <ul style="margin: 0; padding-left: 1.2rem; color: #555; line-height: 1.6;">
+      <li>El precio incluye todos los servicios mencionados</li>
+      <li>Las reservas están sujetas a disponibilidad</li>
+      <li>Se requiere confirmación para procesar la reserva</li>
+      <li>Tipo de habitación: {{ hotel.tipoHabitacion || 'Estándar' }}</li>
+      <li>Servicios: {{ hotel.servicios || 'Servicios básicos incluidos' }}</li>
+      <li>Ubicación: {{ hotel.ubicacion || hotel.servicio?.destino?.nombre }}</li>
+      <li>Check-in y check-out según políticas del hotel</li>
+    </ul>
+  </div>
+
+  <!-- Formulario de reserva -->
+  <div *ngIf="mostrarFormulario && !reservaCompletada" class="modal-overlay">
+    <div class="modal-container">
+      <h3 style="color: #007bff; margin-bottom: 1.5rem; text-align: center; font-size: 1.5rem;">
+        🏨 Reservar en {{ hotel?.nombre }}
+      </h3>
+
+      <form (ngSubmit)="confirmarReserva()">
+        <div class="form-group">
+          <label for="cantidadPersonas" class="form-label">
+            👥 Cantidad de Personas:
+          </label>
+          <input type="number"
+                 id="cantidadPersonas"
+                 [(ngModel)]="cantidadPersonas"
+                 name="cantidadPersonas"
+                 min="1"
+                 max="10"
+                 class="form-input"
+                 required>
+          <small class="form-help">
+            Máximo 10 personas por reserva
+          </small>
+        </div>
+
+        <div class="form-group">
+          <label for="fechaInicio" class="form-label">
+            📅 Fecha de Check-in:
+          </label>
+          <input type="date"
+                 id="fechaInicio"
+                 [(ngModel)]="fechaInicio"
+                 name="fechaInicio"
+                 class="form-input"
+                 required>
+        </div>
+
+        <div class="form-group">
+          <label for="fechaFin" class="form-label">
+            📅 Fecha de Check-out:
+          </label>
+          <input type="date"
+                 id="fechaFin"
+                 [(ngModel)]="fechaFin"
+                 name="fechaFin"
+                 class="form-input"
+                 required>
+        </div>
+
+        <div class="form-group">
+          <label for="observaciones" class="form-label">
+            📝 Observaciones:
+          </label>
+          <textarea id="observaciones"
+                    [(ngModel)]="observaciones"
+                    name="observaciones"
+                    class="form-textarea"
+                    rows="4"
+                    placeholder="Requerimientos especiales, preferencias de habitación, solicitudes particulares..."></textarea>
+        </div>
+
+        <!-- Resumen de la reserva -->
+        <div class="resumen-solicitud">
+          <h4 style="color: #007bff; margin-bottom: 1rem; font-size: 1.1rem;">📋 Resumen de tu Reserva</h4>
+          <p style="margin-bottom: 0.5rem;"><strong>👥 Personas:</strong> {{ cantidadPersonas }}</p>
+          <p style="margin-bottom: 0.5rem;"><strong>📅 Fechas:</strong> {{ fechaInicio | date:'dd/MM/yyyy' }} - {{ fechaFin | date:'dd/MM/yyyy' }}</p>
+          <p style="margin-bottom: 0.5rem;"><strong>🛏️ Habitación:</strong> {{ hotel?.tipoHabitacion || 'Estándar' }}</p>
+          <p style="margin-bottom: 0; font-weight: bold; font-size: 1.1rem; color: #007bff;">
+            <strong>💰 Total Estimado:</strong> S/. {{ totalCalculado | number:'1.2-2' }}
+          </p>
+        </div>
+
+        <!-- Mensaje de error -->
+        <div *ngIf="mensajeError" class="error-message">
+          ⚠️ {{ mensajeError }}
+        </div>
+
+        <!-- Botones del formulario -->
+        <div class="form-actions">
+          <button type="button"
+                  (click)="mostrarFormulario = false"
+                  class="btn-accion btn-cancelar">
+            ❌ Cancelar
+          </button>
+          <button type="submit"
+                  class="btn-accion btn-confirmar">
+            ✅ Confirmar Reserva
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Confirmación de reserva completada -->
+  <div *ngIf="reservaCompletada" class="modal-overlay">
+    <div class="confirmacion-container">
+      <div class="icono-exito">
+        ✅
+      </div>
+
+      <h3 style="color: #007bff; margin-bottom: 1.5rem; font-size: 1.5rem;">¡Reserva Realizada con Éxito!</h3>
+
+      <div class="detalles-solicitud">
+        <h4 style="color: #007bff; margin-bottom: 1rem; text-align: center;">📋 Detalles de tu Reserva:</h4>
+        <p style="margin-bottom: 0.5rem;"><strong>🏨 Hotel:</strong> {{ hotel?.nombre }}</p>
+        <p style="margin-bottom: 0.5rem;"><strong>📍 Ubicación:</strong> {{ hotel?.ubicacion || hotel?.servicio?.destino?.nombre }}</p>
+        <p style="margin-bottom: 0.5rem;"><strong>👥 Personas:</strong> {{ reservaRealizada?.cantidadPersonas }}</p>
+        <p style="margin-bottom: 0.5rem;"><strong>📅 Fechas:</strong> {{ reservaRealizada?.fechaInicio | date:'dd/MM/yyyy' }} - {{ reservaRealizada?.fechaFin | date:'dd/MM/yyyy' }}</p>
+        <p style="margin-bottom: 0.5rem;"><strong>🛏️ Habitación:</strong> {{ hotel?.tipoHabitacion || 'Estándar' }}</p>
+        <p style="margin-bottom: 0;"><strong>📊 Estado:</strong>
+          <span class="estado-pendiente">
+            ⏳ PENDIENTE DE CONFIRMACIÓN
+          </span>
+        </p>
+      </div>
+
+      <div class="mensaje-siguiente-paso">
+        <p style="margin-bottom: 0.5rem;">📞 El hotel recibirá tu reserva y se contactará contigo para confirmar disponibilidad y coordinar los detalles.</p>
+        <p style="margin-bottom: 0;">💬 También puedes contactarlos directamente por WhatsApp para consultas inmediatas.</p>
+      </div>
+
+      <div class="acciones-confirmacion">
+        <button (click)="contactarHotelWhatsApp()"
+                class="btn-accion btn-whatsapp">
+          💬 Contactar por WhatsApp
+        </button>
+
+        <button (click)="nuevaReserva()"
+                class="btn-accion btn-reservar">
+          ➕ Nueva Reserva
+        </button>
+
+        <button (click)="verMisReservas()"
+                class="btn-accion btn-carrito">
+          📋 Ver Mis Reservas
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Loading -->
+<div *ngIf="!hotel" style="text-align: center; padding: 4rem; color: #6c757d;">
+  <div style="font-size: 3rem; margin-bottom: 1rem;">🏨</div>
+  <h3 style="color: #007bff; margin-bottom: 0.5rem;">Cargando información del hotel...</h3>
+  <p>Por favor espera un momento</p>
+</div>
+
+<!-- Error cuando no se encuentra el hotel -->
+<div *ngIf="hotel === null" style="text-align: center; padding: 4rem;">
+  <div style="font-size: 4rem; color: #ffc107; margin-bottom: 1rem;">⚠️</div>
+  <h3 style="color: #007bff; margin-bottom: 1rem;">Hotel no encontrado</h3>
+  <p style="color: #6c757d; margin-bottom: 2rem;">El hotel que buscas no está disponible o no existe.</p>
+  <button (click)="router.navigate(['/hoteles'])"
+          class="btn-accion btn-register">
+    ⬅️ Volver a Hoteles
+  </button>
+</div>

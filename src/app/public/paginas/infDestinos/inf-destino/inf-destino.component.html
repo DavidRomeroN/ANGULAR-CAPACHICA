@@ -1,20 +1,167 @@
-<div class="detalle-container" *ngIf="destino">
+<div class="destino-container" *ngIf="destino">
+  <!-- Imagen del destino -->
   <div class="imagen-destino">
     <img [src]="destino.imagenUrl" [alt]="destino.nombre" />
+    <div class="overlay-info">
+      <div class="rating-badge">
+        <i class="fas fa-star"></i> {{ destino.rating }}/10
+      </div>
+    </div>
   </div>
 
+  <!-- Información principal -->
   <div class="info-destino">
     <h2 class="titulo">{{ destino.nombre }}</h2>
-    <p class="ubicacion"><i class="fa fa-map-marker-alt"></i> {{ destino.ubicacion }}</p>
+    <p class="ubicacion">
+      <i class="fas fa-map-marker-alt"></i> {{ destino.ubicacion }}
+    </p>
 
     <p class="descripcion">{{ destino.descripcion }}</p>
 
-    <div class="info-extra">
-      <p><strong>Popularidad:</strong> {{ destino.popularidad }} / 10</p>
-      <p><strong>Rating:</strong> ⭐ {{ destino.rating }}</p>
-      <p><strong>Precio promedio:</strong> S/. {{ destino.preciomedio | number:'1.2-2' }}</p>
-      <p><strong>Latitud:</strong> {{ destino.latitud }}</p>
-      <p><strong>Longitud:</strong> {{ destino.longitud }}</p>
+    <!-- Información detallada -->
+    <div class="info-grid">
+      <div class="info-card">
+        <i class="fas fa-fire"></i>
+        <div>
+          <strong>Popularidad</strong>
+          <span>{{ destino.popularidad }}/10</span>
+        </div>
+      </div>
+
+      <div class="info-card">
+        <i class="fas fa-star"></i>
+        <div>
+          <strong>Rating</strong>
+          <span>{{ destino.rating }}/10</span>
+        </div>
+      </div>
+
+      <div class="info-card">
+        <i class="fas fa-dollar-sign"></i>
+        <div>
+          <strong>Precio promedio</strong>
+          <span>S/. {{ destino.preciomedio | number:'1.2-2' }}</span>
+        </div>
+      </div>
+
+      <div class="info-card">
+        <i class="fas fa-map-pin"></i>
+        <div>
+          <strong>Coordenadas</strong>
+          <span>{{ getCoordinatesText() }}</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Botones de acción -->
+    <div class="acciones-principales">
+      <button class="btn btn-primary" (click)="verPaquetes()">
+        <i class="fas fa-suitcase"></i> Ver Paquetes
+      </button>
+
+      <button class="btn btn-maps" (click)="abrirEnGoogleMaps()" *ngIf="destino.latitud && destino.longitud">
+        <i class="fab fa-google"></i> Abrir en Google Maps
+      </button>
+
+      <button class="btn btn-secondary" (click)="centrarMapa()" *ngIf="destino.latitud && destino.longitud">
+        <i class="fas fa-crosshairs"></i> Centrar Mapa
+      </button>
+
+      <button class="btn btn-copy" (click)="copiarCoordenadas()" *ngIf="destino.latitud && destino.longitud">
+        <i class="fas fa-copy"></i> Copiar Coordenadas
+      </button>
+    </div>
+
+    <!-- Botones para usuarios no autenticados -->
+    <div class="acciones-auth" *ngIf="!isAuthenticated">
+      <p class="mensaje-auth">
+        <i class="fas fa-info-circle"></i>
+        Inicia sesión para acceder a más funciones y reservar paquetes
+      </p>
+      <div class="auth-buttons">
+        <button class="btn btn-login" (click)="irAlLogin()">
+          <i class="fas fa-sign-in-alt"></i> Iniciar Sesión
+        </button>
+        <button class="btn btn-register" (click)="irAlRegistro()">
+          <i class="fas fa-user-plus"></i> Registrarse
+        </button>
+      </div>
     </div>
   </div>
+
+  <!-- Mapa de ubicación con Leaflet -->
+  <div class="mapa-container" *ngIf="puedeEjecutarMapa">
+    <div class="mapa-header">
+      <h3>
+        <i class="fas fa-map"></i> Ubicación Exacta (OpenStreetMap)
+      </h3>
+      <p>{{ destino.nombre }} - {{ destino.ubicacion }}</p>
+    </div>
+
+    <!-- Selector de estilo de mapa -->
+    <div class="map-style-selector">
+      <button class="style-btn active" (click)="cambiarEstiloMapa('streets')">
+        <i class="fas fa-road"></i> Calles
+      </button>
+      <button class="style-btn" (click)="cambiarEstiloMapa('satellite')">
+        <i class="fas fa-satellite"></i> Satélite
+      </button>
+      <button class="style-btn" (click)="cambiarEstiloMapa('terrain')">
+        <i class="fas fa-mountain"></i> Terreno
+      </button>
+      <button class="style-btn" (click)="cambiarEstiloMapa('dark')">
+        <i class="fas fa-moon"></i> Oscuro
+      </button>
+    </div>
+
+    <!-- Contenedor del mapa -->
+    <div class="mapa-wrapper">
+      <div #mapContainer class="leaflet-map" id="mapContainer"></div>
+
+      <!-- Controles del mapa -->
+      <div class="map-controls">
+        <button class="map-control-btn" (click)="centrarMapa()" title="Centrar ubicación">
+          <i class="fas fa-crosshairs"></i>
+        </button>
+        <button class="map-control-btn" (click)="abrirEnGoogleMaps()" title="Abrir en Google Maps">
+          <i class="fab fa-google"></i>
+        </button>
+        <button class="map-control-btn" (click)="copiarCoordenadas()" title="Copiar coordenadas">
+          <i class="fas fa-copy"></i>
+        </button>
+      </div>
+    </div>
+
+    <!-- Información de coordenadas -->
+    <div class="coordenadas-info">
+      <div class="coord-item">
+        <strong>Latitud:</strong> {{ destino.latitud }}
+      </div>
+      <div class="coord-item">
+        <strong>Longitud:</strong> {{ destino.longitud }}
+      </div>
+      <div class="coord-item">
+        <strong>Precisión:</strong> Alta (OpenStreetMap)
+      </div>
+    </div>
+  </div>
+
+  <!-- Mensaje si no hay coordenadas -->
+  <div class="sin-coordenadas" *ngIf="!puedeEjecutarMapa">
+    <div class="mensaje-sin-mapa">
+      <i class="fas fa-map-marked-alt"></i>
+      <h4>Ubicación no disponible</h4>
+      <p>Las coordenadas exactas de este destino no están disponibles en este momento.</p>
+      <p *ngIf="destino && (!destino.latitud || !destino.longitud)">
+        <small>Coordenadas: {{ destino.latitud || 'N/A' }}, {{ destino.longitud || 'N/A' }}</small>
+      </p>
+    </div>
+  </div>
+</div>
+
+<!-- Loading state -->
+<div class="loading-container" *ngIf="!destino">
+  <div class="loading-spinner"></div>
+  <h3>Cargando información del destino...</h3>
+  <p>Por favor espera un momento</p>
 </div>

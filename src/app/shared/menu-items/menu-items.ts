@@ -13,11 +13,13 @@ const MENUITEMS = [
   //{ state: 'proveedores', name: 'Proveedores', type: 'link', icon: 'av_timer' },
   { state: 'destinos', name: 'Destinos', type: 'link', icon: 'map' },
   { state: 'paquetes', name: 'Paquetes', type: 'link', icon: 'travel_explore' },
+  { state: 'actividades', name: 'Actividades', type: 'link', icon: 'fact_check' },
   { state: 'servicios', name: 'Servicios', type: 'link', icon: 'miscellaneous_services' },
   { state: 'servicio-alimento', name: 'Alimentación', type: 'link', icon: 'restaurant' },
   { state: 'servicio-artesania', name: 'Servicio Artesanía', type: 'link', icon: 'handyman' },
   { state: 'servicio-hoteleria', name: 'Servicio Hotelería', type: 'link', icon: 'hotel' },
   { state: 'reservados', name: 'Reservados', type: 'link', icon: 'fact_check' },
+
 
 
   /*{ state: 'button', type: 'link', name: 'Buttons', icon: 'crop_7_5' },

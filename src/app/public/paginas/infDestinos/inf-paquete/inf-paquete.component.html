@@ -1,0 +1,95 @@
+<div *ngIf="paquete" style="max-width: 800px; margin: 2rem auto; padding: 2rem; border-radius: 12px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); background-color: #fff; font-family: 'Segoe UI', sans-serif;">
+  <h2 style="font-size: 2rem; margin-bottom: 1rem; color: #333;">{{ paquete.titulo }}</h2>
+
+  <img [src]="paquete.imagenUrl"
+       [alt]="paquete.titulo"
+       style="width: 100%; max-height: 400px; object-fit: cover; border-radius: 8px; margin-bottom: 1.5rem;" />
+
+  <div style="margin-bottom: 1.5rem;">
+    <p><strong>📍 Localidad:</strong> {{ paquete.localidad }}</p>
+    <p><strong>📝 Descripción:</strong> {{ paquete.descripcion }}</p>
+    <p><strong>💰 Precio total:</strong> S/. {{ paquete.precioTotal | number:'1.2-2' }}</p>
+    <p><strong>⏳ Duración:</strong> {{ paquete.duracionDias }} días</p>
+    <p><strong>👥 Cupos máximos:</strong> {{ paquete.cuposMaximos }}</p>
+    <p><strong>🎯 Tipo de actividad:</strong> {{ paquete.tipoActividad }}</p>
+    <p><strong>📦 Estado:</strong>
+      <span [style.color]="paquete.estado === 'DISPONIBLE' ? '#28a745' : '#dc3545'">
+        {{ paquete.estado }}
+      </span>
+    </p>
+  </div>
+
+  <div style="margin-bottom: 1.5rem;" *ngIf="paquete.proveedor">
+    <h3 style="font-size: 1.25rem; margin-bottom: 0.5rem; color: #555;">Proveedor</h3>
+    <p><strong>👤 Nombre:</strong> {{ paquete.proveedor.nombreCompleto }}</p>
+    <p><strong>📧 Email:</strong> {{ paquete.proveedor.email }}</p>
+    <p><strong>📞 Teléfono:</strong> {{ paquete.proveedor.telefono }}</p>
+  </div>
+
+  <div style="margin-bottom: 2rem;" *ngIf="paquete.destino">
+    <h3 style="font-size: 1.25rem; margin-bottom: 0.5rem; color: #555;">Destino</h3>
+    <p><strong>🗺️ Nombre:</strong> {{ paquete.destino.nombre }}</p>
+    <p><strong>📄 Descripción:</strong> {{ paquete.destino.descripcion }}</p>
+    <p><strong>📍 Ubicación:</strong> {{ paquete.destino.ubicacion }}</p>
+  </div>
+
+  <!-- Sección de botones -->
+  <div *ngIf="isAuthenticated && paquete.estado === 'DISPONIBLE'" style="margin-top: 2rem; display: flex; gap: 1rem; align-items: center; flex-wrap: wrap;">
+    <label for="cantidadInput">👥 Cantidad de personas:</label>
+    <input
+      id="cantidadInput"
+      type="number"
+      [(ngModel)]="cantidadCarrito"
+      min="1"
+      [max]="paquete.cuposMaximos"
+      style="width: 70px;"
+    />
+
+    <button (click)="agregarAlCarrito()" class="btn btn-primary">
+      🛒 Agregar al Carrito
+    </button>
+
+    <button (click)="manejarReserva()" class="btn btn-success">
+      📝 Reservar
+    </button>
+  </div>
+
+  <!-- COMPONENTE DE RESERVA - SOLO UNA VEZ CON TODOS LOS EVENTOS -->
+
+  <!-- Si el usuario NO está autenticado -->
+  <div *ngIf="!isAuthenticated" style="padding: 1rem; background-color: #f8f9fa; border-radius: 8px; border: 1px solid #dee2e6;">
+    <p style="margin-bottom: 1rem; color: #6c757d;">
+      💡 Para realizar una reserva, necesitas iniciar sesión o registrarte
+    </p>
+
+    <div style="display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap;">
+      <button (click)="manejarReserva()" class="btn btn-primary">🔐 Iniciar Sesión</button>
+      <button (click)="irAlRegistro()" class="btn btn-success">📝 Registrarse</button>
+    </div>
+  </div>
+
+  <!-- Componente de formulario de reserva -->
+
+  <app-crearreserva
+    *ngIf="mostrarFormulario && isAuthenticated"
+    [paqueteId]="paquete.id ?? paquete.idPaquete"
+    (reservaExitosa)="onReservaExitosa()"
+    (volverAlPaquete)="onVolverAlPaquete()">
+  </app-crearreserva>
+
+  <!-- Info adicional -->
+  <div style="margin-top: 1.5rem; padding: 1rem; background-color: #e3f2fd; border-radius: 8px; border-left: 4px solid #2196f3;">
+    <h4 style="margin: 0 0 0.5rem 0; color: #1976d2;">ℹ️ Información importante</h4>
+    <ul style="margin: 0; padding-left: 1.2rem; color: #555;">
+      <li>El precio incluye todos los servicios mencionados</li>
+      <li>Las reservas están sujetas a disponibilidad</li>
+      <li>Se requiere confirmación para procesar la reserva</li>
+      <li *ngIf="paquete.cuposMaximos">Cupos limitados: máximo {{ paquete.cuposMaximos }} personas</li>
+    </ul>
+  </div>
+</div>
+
+<!-- Loading -->
+<div *ngIf="!paquete" style="text-align: center; padding: 2rem;">
+  <p>Cargando información del paquete...</p>
+</div>

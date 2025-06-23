@@ -1,21 +1,127 @@
 <div class="destinos-container">
-  <h2 class="section-title">Destinos Destacados</h2>
-  <div class="carousel-wrapper">
-    <button class="scroll-btn left" (click)="scrollLeft()">&#9664;</button>
+  <!-- 📰 Título con mensaje climático dinámico -->
+  <h2 class="section-title">
+    {{ mensajeClima || 'Destinos Destacados' }}
+  </h2>
+
+  <!-- ⚠️ Manejo de errores -->
+  <div *ngIf="error" class="error-container">
+    <p class="error-message">{{ error }}</p>
+    <button class="retry-btn" (click)="reintentarCarga()">Reintentar</button>
+  </div>
+
+  <!-- 🔘 Botones de selección de fecha -->
+  <div class="fecha-buttons-wrapper" *ngIf="fechasSugeridas.length > 0 && !error">
+    <p class="fecha-instructions">
+      <i class="calendar-icon">📅</i>
+      Selecciona una fecha para ver destinos con clima ideal:
+    </p>
+
+    <div class="fecha-buttons">
+      <button *ngFor="let fechaObj of fechasSugeridas"
+              (click)="seleccionarFecha(fechaObj.fecha)"
+              [class.active]="fechaObj.fecha === fechaSeleccionada"
+              [disabled]="isLoadingClima"
+              class="fecha-btn">
+        {{ fechaObj.label }}
+      </button>
+    </div>
+  </div>
+
+  <!-- 🔍 Filtro de búsqueda -->
+  <div class="filter-container" *ngIf="!isLoading && climaRecomendados.length > 0">
+    <div class="search-box">
+      <input type="text"
+             [(ngModel)]="filtroNombre"
+             placeholder="Buscar destinos..."
+             class="search-input">
+      <button *ngIf="filtroNombre"
+              (click)="limpiarFiltro()"
+              class="clear-btn">✕</button>
+    </div>
+    <p class="results-count">
+      Mostrando {{ destinosFiltrados().length }} de {{ climaRecomendados.length }} destinos
+    </p>
+  </div>
+
+  <!-- ⏳ Indicador de carga general -->
+  <div *ngIf="isLoading" class="loading-container">
+    <div class="spinner"></div>
+    <p>Cargando destinos...</p>
+  </div>
+
+  <!-- ⏳ Indicador de carga de clima -->
+  <div *ngIf="isLoadingClima && !isLoading" class="loading-clima-container">
+    <div class="spinner-small"></div>
+    <p>Consultando condiciones climáticas...</p>
+  </div>
+
+  <!-- 🎯 Carrusel de destinos recomendados -->
+  <div class="carousel-wrapper" *ngIf="!isLoading && !isLoadingClima && destinosFiltrados().length > 0">
+    <button class="scroll-btn left"
+            (click)="scrollLeft()"
+            [disabled]="destinosFiltrados().length <= 3">
+      &#9664;
+    </button>
 
     <div #scrollContainer class="cards-container">
-      <div *ngFor="let destino of destinos" class="card">
-        <img [src]="destino.imagenUrl" alt="{{ destino.nombre }}" class="card-img">
+      <div *ngFor="let destino of destinosFiltrados(); trackBy: trackByDestinoId" class="card">
+        <img [src]="destino.imagenUrl"
+             [alt]="destino.nombre"
+             class="card-img"
+             (error)="onImageError($event)" />
+
         <div class="card-body">
           <h5 class="card-title">{{ destino.nombre }}</h5>
-          <p class="card-subtitle">{{ destino.ubicacion }}</p>
-          <p class="card-text">{{ destino.descripcion | slice:0:80 }}...</p>
-          <div class="rating">⭐ {{ destino.popularidad }}</div>
-          <button class="btn-ver-mas" (click)="verMasDestino(destino.idDestino)">VER MÁS</button>
+          <p class="card-subtitle">
+            <i class="location-icon">📍</i>
+            {{ destino.ubicacion }}
+          </p>
+          <p class="card-text">{{ destino.descripcion | slice: 0:80 }}...</p>
+
+          <div class="card-stats">
+            <div class="rating">
+              <i class="star-icon">⭐</i>
+              {{ destino.popularidad }}
+            </div>
+
+            <div class="temperatura" *ngIf="destino.temperatura">
+              <i class="temp-icon">🌡️</i>
+              {{ destino.temperatura }}°C
+            </div>
+          </div>
+
+          <div class="clima-mensaje" *ngIf="destino.mensajeClimaDestino">
+            <i class="weather-icon">🌤️</i>
+            {{ destino.mensajeClimaDestino }}
+          </div>
+
+          <button class="ver-mas-btn" (click)="verMasDestino(destino.idDestino)">
+            VER MÁS
+          </button>
         </div>
       </div>
     </div>
 
-    <button class="scroll-btn right" (click)="scrollRight()">&#9654;</button>
+    <button class="scroll-btn right"
+            (click)="scrollRight()"
+            [disabled]="destinosFiltrados().length <= 3">
+      &#9654;
+    </button>
+  </div>
+
+  <!-- ⚠️ Si no hay resultados después de filtrar -->
+  <div *ngIf="!isLoading && !isLoadingClima && climaRecomendados.length > 0 && destinosFiltrados().length === 0"
+       class="no-results-filter">
+    <p>🔍 No se encontraron destinos que coincidan con "{{ filtroNombre }}"</p>
+    <button (click)="limpiarFiltro()" class="clear-filter-btn">Limpiar filtro</button>
+  </div>
+
+  <!-- ⚠️ Si no hay resultados climáticos -->
+  <div *ngIf="!isLoading && !isLoadingClima && climaRecomendados.length === 0 && mensajeClima && fechaSeleccionada"
+       class="no-climate-results">
+    <div class="weather-sad-icon">🌧️</div>
+    <p>{{ mensajeClima }}</p>
+    <p class="suggestion">Intenta seleccionar otra fecha para encontrar mejores condiciones climáticas.</p>
   </div>
 </div>

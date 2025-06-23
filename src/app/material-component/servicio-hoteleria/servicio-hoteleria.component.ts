@@ -66,7 +66,7 @@ export class ServicioHoteleriaComponent implements OnInit {
   }
 
   obtenerHoteles(): void {
-    this.servicioHoteleriaService.getHoteleria().subscribe(data => {
+    this.servicioHoteleriaService.getHoteles().subscribe((data: any[]) => {
       this.hoteles = data;
     });
   }

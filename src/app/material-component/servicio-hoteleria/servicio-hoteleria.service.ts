@@ -10,7 +10,7 @@ export class ServicioHoteleriaService {
 
   constructor(private http: HttpClient) {}
 
-  getHoteleria(): Observable<any[]> {
+  getHoteles(): Observable<any[]> {
     return this.http.get<any[]>(this.apiUrl);
   }
 

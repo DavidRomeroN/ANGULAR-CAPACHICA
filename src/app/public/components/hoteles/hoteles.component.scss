@@ -1,0 +1,355 @@
+// Variables de colores para hoteles
+$color-primario-hotel: #007bff;
+$color-secundario-hotel: #17a2b8;
+$color-dorado: #ffd700;
+$color-exito: #28a745;
+$color-peligro: #dc3545;
+$color-advertencia: #ffc107;
+
+.hoteles-container {
+  margin: 40px auto;
+  max-width: 1200px;
+  padding: 20px;
+
+  .section-title {
+    text-align: center;
+    margin-bottom: 30px;
+    font-weight: bold;
+    font-size: 2rem;
+    color: $color-primario-hotel;
+  }
+
+  .loading-container {
+    text-align: center;
+    padding: 2rem;
+    font-size: 1.1rem;
+    color: #666;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+
+    .loading-spinner {
+      width: 40px;
+      height: 40px;
+      border: 4px solid #f3f3f3;
+      border-top: 4px solid $color-primario-hotel;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+      margin-bottom: 15px;
+    }
+  }
+
+  .error-container {
+    text-align: center;
+    padding: 2rem;
+    font-size: 1.1rem;
+    color: $color-peligro;
+    background: #f8d7da;
+    border: 1px solid #f5c6cb;
+    border-radius: 8px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1rem;
+
+    i {
+      font-size: 2rem;
+      color: $color-advertencia;
+    }
+
+    .btn-reintentar {
+      background: $color-peligro;
+      color: white;
+      border: none;
+      padding: 0.5rem 1rem;
+      border-radius: 5px;
+      cursor: pointer;
+      font-weight: 600;
+      transition: background-color 0.3s ease;
+
+      &:hover {
+        background: darken($color-peligro, 10%);
+      }
+    }
+  }
+
+  .empty-container {
+    text-align: center;
+    padding: 3rem;
+    color: #666;
+
+    .empty-icon {
+      font-size: 4rem;
+      margin-bottom: 1rem;
+      opacity: 0.7;
+    }
+
+    h3 {
+      color: $color-primario-hotel;
+      margin-bottom: 0.5rem;
+    }
+
+    p {
+      margin-bottom: 1.5rem;
+    }
+
+    .btn-actualizar {
+      background: $color-primario-hotel;
+      color: white;
+      border: none;
+      padding: 0.75rem 1.5rem;
+      border-radius: 8px;
+      cursor: pointer;
+      font-weight: 600;
+      transition: background-color 0.3s ease;
+
+      &:hover {
+        background: darken($color-primario-hotel, 10%);
+      }
+    }
+  }
+
+  .carousel-wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 15px;
+  }
+
+  .scroll-btn {
+    background: linear-gradient(135deg, $color-primario-hotel, $color-secundario-hotel);
+    color: white;
+    border: none;
+    border-radius: 50%;
+    width: 50px;
+    height: 50px;
+    font-size: 1.2rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 4px 12px rgba(0, 123, 255, 0.3);
+    z-index: 2;
+
+    &:hover {
+      background: linear-gradient(135deg, darken($color-primario-hotel, 10%), darken($color-secundario-hotel, 10%));
+      transform: translateY(-2px);
+      box-shadow: 0 6px 16px rgba(0, 123, 255, 0.4);
+    }
+
+    &:disabled {
+      background: #bdc3c7;
+      cursor: not-allowed;
+      transform: none;
+      box-shadow: none;
+    }
+
+    &.left {
+      order: 1;
+    }
+
+    &.right {
+      order: 3;
+    }
+  }
+
+  .cards-container {
+    display: flex;
+    overflow-x: auto;
+    scroll-behavior: smooth;
+    gap: 20px;
+    padding: 20px 0;
+    flex: 1;
+    order: 2;
+
+    // Ocultar scrollbar
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+    &::-webkit-scrollbar {
+      display: none;
+    }
+  }
+
+  .card {
+    flex: 0 0 auto;
+    width: 280px;
+    background: white;
+    border-radius: 16px;
+    overflow: hidden;
+    box-shadow: 0 8px 24px rgba(0, 123, 255, 0.1);
+    transition: all 0.3s ease;
+    border: 1px solid rgba(0, 123, 255, 0.1);
+
+    &:hover {
+      transform: translateY(-8px);
+      box-shadow: 0 16px 32px rgba(0, 123, 255, 0.2);
+    }
+
+    .card-header {
+      position: relative;
+      height: 160px;
+      overflow: hidden;
+
+      .card-img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        transition: transform 0.3s ease;
+      }
+
+      .nivel-badge {
+        position: absolute;
+        top: 10px;
+        right: 10px;
+        padding: 0.4rem 0.8rem;
+        border-radius: 15px;
+        color: white;
+        font-weight: bold;
+        font-size: 0.75rem;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+        background: $color-dorado;
+      }
+    }
+
+    &:hover .card-img {
+      transform: scale(1.05);
+    }
+
+    .card-body {
+      padding: 1.25rem;
+
+      .card-title {
+        font-size: 1.1rem;
+        font-weight: 600;
+        color: $color-primario-hotel;
+        margin-bottom: 0.5rem;
+        line-height: 1.3;
+      }
+
+      .card-subtitle, .card-location {
+        font-size: 0.85rem;
+        color: #666;
+        margin-bottom: 0.4rem;
+        display: flex;
+        align-items: center;
+        gap: 0.4rem;
+
+        i {
+          color: $color-secundario-hotel;
+          width: 12px;
+        }
+      }
+
+      .card-details {
+        display: flex;
+        gap: 0.5rem;
+        margin: 0.75rem 0;
+        flex-wrap: wrap;
+
+        .detail-item {
+          display: flex;
+          align-items: center;
+          gap: 0.25rem;
+          font-size: 0.75rem;
+          color: #555;
+          background: rgba(0, 123, 255, 0.1);
+          padding: 0.25rem 0.5rem;
+          border-radius: 10px;
+
+          i {
+            color: $color-primario-hotel;
+            font-size: 0.7rem;
+          }
+        }
+      }
+
+      .precio-info {
+        margin: 0.75rem 0;
+
+        .precio {
+          font-size: 1.2rem;
+          font-weight: bold;
+          color: $color-primario-hotel;
+        }
+
+        .precio-periodo {
+          font-size: 0.8rem;
+          color: #666;
+          margin-left: 0.25rem;
+        }
+      }
+
+      .btn-ver-mas {
+        width: 100%;
+        background: linear-gradient(135deg, $color-primario-hotel, $color-secundario-hotel);
+        color: white;
+        border: none;
+        border-radius: 8px;
+        padding: 0.6rem;
+        font-size: 0.85rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+
+        &:hover {
+          background: linear-gradient(135deg, darken($color-primario-hotel, 10%), darken($color-secundario-hotel, 10%));
+          transform: translateY(-2px);
+          box-shadow: 0 4px 12px rgba(0, 123, 255, 0.3);
+        }
+      }
+    }
+  }
+}
+
+// Animación del spinner
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+// Responsive design
+@media (max-width: 768px) {
+  .hoteles-container {
+    padding: 15px;
+
+    .section-title {
+      font-size: 1.6rem;
+      margin-bottom: 20px;
+    }
+
+    .scroll-btn {
+      width: 40px;
+      height: 40px;
+      font-size: 1rem;
+    }
+
+    .card {
+      width: 250px;
+
+      .card-body {
+        padding: 1rem;
+
+        .card-title {
+          font-size: 1rem;
+        }
+      }
+    }
+  }
+}
+
+@media (max-width: 480px) {
+  .hoteles-container {
+    .scroll-btn {
+      display: none;
+    }
+
+    .card {
+      width: 220px;
+    }
+  }
+}

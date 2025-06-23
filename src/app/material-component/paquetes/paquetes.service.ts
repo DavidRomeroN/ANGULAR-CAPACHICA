@@ -26,8 +26,8 @@ export class PaquetesService {
     return {}; // Sin headers para FormData
   }
 
-  getAll(): Observable<any[]> {
-    return this.http.get<any[]>(this.apiURL);
+  getAll(): Observable<any> {
+    return this.http.get<any>(this.apiURL); // Ya no es any[] directamente
   }
 
   create(paquete: any): Observable<any> {
