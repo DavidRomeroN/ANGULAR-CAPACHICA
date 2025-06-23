@@ -1,7 +1,8 @@
-import {Component, OnInit, Input, Output, EventEmitter} from '@angular/core';  // <-- Importar Output y EventEmitter
+import {Component, OnInit, Input, Output, EventEmitter} from '@angular/core';
 import {CommonModule} from '@angular/common';
 import {CrearreservaService} from './crearreserva.service';
 import {FormsModule} from '@angular/forms';
+import {Router} from '@angular/router';
 
 @Component({
   selector: 'app-crearreserva',
@@ -11,16 +12,10 @@ import {FormsModule} from '@angular/forms';
   styleUrls: ['./crearreserva.component.scss']
 })
 export class CrearreservaComponent implements OnInit {
-<<<<<<< Updated upstream
-  @Input() paqueteId!: number;
-
-  @Output() reservaExitosa = new EventEmitter<void>();  // <-- Declarar Output
-=======
   // Inputs para ambos tipos
   @Input() paqueteId?: number;
   @Input() actividadId?: number;
   @Input() tipoReserva: 'PAQUETE' | 'ACTIVIDAD' = 'PAQUETE';
->>>>>>> Stashed changes
 
   // Outputs
   @Output() reservaExitosa = new EventEmitter<void>();
@@ -39,28 +34,16 @@ export class CrearreservaComponent implements OnInit {
   usuarioId = 0;
   mensajeError = '';
 
-  constructor(private reservaService: CrearreservaService) {
-  }
+  // Control del estado de la reserva
+  reservaCompletada: boolean = false;
+  reservaRealizada: any = null;
+
+  constructor(
+    private reservaService: CrearreservaService,
+    private router: Router
+  ) {}
 
   ngOnInit(): void {
-<<<<<<< Updated upstream
-    if (this.paqueteId) {
-      this.reservaService.obtenerPaquetePorId(this.paqueteId).subscribe({
-        next: data => {
-          this.paquete = data;
-          this.fechaInicio = data.fechaInicio ? new Date(data.fechaInicio).toISOString().split('T')[0] : '';
-          this.fechaFin = data.fechaFin ? new Date(data.fechaFin).toISOString().split('T')[0] : '';
-        },
-        error: err => console.error('Error al cargar paquete', err)
-      });
-    }
-
-    const usuario = localStorage.getItem('usuarioLogueado');
-    if (usuario) {
-      const parsed = JSON.parse(usuario);
-      this.usuarioEmail = parsed.email;
-      this.usuarioId = parsed.idUsuario;
-=======
     console.log('=== DEBUG CREAR RESERVA COMPONENT ===');
 
     // Debug del estado de autenticación
@@ -217,19 +200,11 @@ export class CrearreservaComponent implements OnInit {
       }
     } else {
       console.error('❌ No se encontró usuario en localStorage');
->>>>>>> Stashed changes
     }
   }
 
   // ACTUALIZAR: Método confirmarReserva con debug detallado
   confirmarReserva(): void {
-<<<<<<< Updated upstream
-    if (this.cantidadPersonas > this.paquete.cuposMaximos) {
-      this.mensajeError = `❌ No hay suficientes cupos. Máximo permitido: ${this.paquete.cuposMaximos}`;
-      return;
-    }
-
-=======
     console.log('🚀 === CONFIRMAR RESERVA ===');
 
     // Debug inicial
@@ -269,7 +244,6 @@ export class CrearreservaComponent implements OnInit {
       return;
     }
 
->>>>>>> Stashed changes
     const formatoFecha = (fecha: string) => fecha + 'T00:00:00';
 
     const reserva = this.tipoReserva === 'PAQUETE' ? {
@@ -292,18 +266,6 @@ export class CrearreservaComponent implements OnInit {
       tipoReserva: 'ACTIVIDAD'
     };
 
-<<<<<<< Updated upstream
-    this.reservaService.crearReserva(reserva).subscribe({
-      next: () => {
-        alert('✅ Reserva realizada con éxito');
-        this.mensajeError = '';
-        this.recargarPaquete(); // Actualizar el paquete en este componente (opcional)
-        this.reservaExitosa.emit();  // <-- Emitir el evento hacia el padre
-      },
-      error: err => {
-        console.error('Error al crear reserva', err);
-        alert('❌ Error al crear la reserva');
-=======
     console.log('📋 Datos de reserva a enviar:');
     console.log(JSON.stringify(reserva, null, 2));
 
@@ -353,24 +315,10 @@ export class CrearreservaComponent implements OnInit {
 
         this.mensajeError = '❌ Error al crear la reserva. Revisa la consola para más detalles.';
         alert('❌ Error al crear la reserva. Revisa la consola del navegador.');
->>>>>>> Stashed changes
       }
     });
   }
 
-<<<<<<< Updated upstream
-  private recargarPaquete(): void {
-    this.reservaService.obtenerPaquetePorId(this.paqueteId).subscribe({
-      next: data => {
-        this.paquete = data;
-        this.fechaInicio = data.fechaInicio ? new Date(data.fechaInicio).toISOString().split('T')[0] : '';
-        this.fechaFin = data.fechaFin ? new Date(data.fechaFin).toISOString().split('T')[0] : '';
-      },
-      error: err => console.error('Error al recargar paquete', err)
-    });
-  }
-
-=======
   contactarPorWhatsApp(): void {
     console.log('Intentando contactar por WhatsApp...');
 
@@ -632,5 +580,4 @@ _Mensaje enviado desde el sistema de reservas_`;
     this.debugItem();
   }
 
->>>>>>> Stashed changes
 }

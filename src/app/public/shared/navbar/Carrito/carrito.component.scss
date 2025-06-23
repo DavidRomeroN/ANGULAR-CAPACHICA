@@ -1,0 +1,67 @@
+.carrito-modal {
+  position: absolute;
+  top: 60px;
+  right: 20px;
+  background: white;
+  border-radius: 10px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+  width: 300px;
+  z-index: 1000;
+  padding: 15px;
+}
+
+.carrito-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid #ddd;
+}
+
+.carrito-item {
+  display: flex;
+  justify-content: space-between;
+  padding: 8px 0;
+}
+
+.vacio {
+  text-align: center;
+  padding: 20px;
+}
+
+:host {
+  position: absolute;
+  top: 60px;
+  right: 20px;
+  background: white;
+  border-radius: 10px;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+  padding: 1rem;
+  width: 300px;
+  z-index: 1000;
+}
+
+.carrito-container {
+  position: absolute;
+  top: 100%;
+  right: 0;
+  margin-top: 10px;
+  z-index: 1000;
+}
+
+.panel-carrito {
+  animation: fadeDown 0.2s ease-out;
+}
+
+@keyframes fadeDown {
+  0% {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+
+

@@ -1,0 +1,59 @@
+<div *ngIf="visible" class="panel-carrito" style="
+    width: 320px;
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    padding: 1.2rem;
+    font-family: 'Segoe UI', sans-serif;
+  ">
+
+  <!-- Header del carrito -->
+  <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+    <h4 style="margin: 0;">🛒 Mi Carrito</h4>
+    <button (click)="cerrar()" style="background: none; border: none; font-size: 1.2rem; cursor: pointer;">❌</button>
+  </div>
+
+  <!-- Contenido del carrito -->
+  <div *ngIf="items.length > 0; else carritoVacio">
+    <div *ngFor="let item of items" style="border-bottom: 1px solid #eee; margin-bottom: 1rem; padding-bottom: 0.5rem;">
+      <p style="margin: 0;"><strong>{{ item.nombreElemento }}</strong></p>
+      <p style="margin: 0; font-size: 0.9rem;">Tipo: {{ item.tipoElemento }}</p>
+      <p style="margin: 0; font-size: 0.9rem;">ID: {{ item.idElemento }}</p>
+
+      <label style="display: block; margin-top: 0.5rem;">
+        Personas:
+        <input type="number" [(ngModel)]="item.cantidad" (change)="editarCantidad(item)"
+               style="margin-left: 10px; width: 60px;" />
+      </label>
+
+      <p style="margin: 0.3rem 0;">Precio Unitario: S/. {{ item.precioUnitario }}</p>
+      <p style="margin: 0.3rem 0;">Total: S/. {{ calcularTotal(item) }}</p>
+
+      <div style="display: flex; gap: 0.5rem;">
+        <button (click)="eliminar(item.id)"
+                style="background-color: #dc3545; color: white; border: none;
+                       padding: 0.4rem 0.8rem; border-radius: 6px; cursor: pointer;">
+          ❌ Eliminar
+        </button>
+
+        <button *ngIf="item.tipoElemento === 'PAQUETE'"
+                (click)="reservarItem(item.id)"
+                style="background-color: #17a2b8; color: white; border: none;
+                       padding: 0.4rem 0.8rem; border-radius: 6px; cursor: pointer;">
+          ✅ Reservar Solo
+        </button>
+      </div>
+    </div>
+
+    <button (click)="reservarTodo()"
+            style="background-color: #28a745; color: white; width: 100%;
+                   padding: 0.6rem; border: none; border-radius: 8px; cursor: pointer;">
+      ✅ Reservar Todo
+    </button>
+  </div>
+
+  <!-- Carrito vacío -->
+  <ng-template #carritoVacio>
+    <p style="text-align: center; color: #6c757d;">Tu carrito está vacío.</p>
+  </ng-template>
+</div>
